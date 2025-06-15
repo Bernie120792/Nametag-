@@ -1,56 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>My Multi-Page Site</title>
+  <meta charset="UTF-8" />
+  <title>Sari-Sari Store</title>
   <style>
-    body {
-      background: linear-gradient(to right, #fdfbfb, #ebedee);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      padding: 50px;
-    }
-
-    h1 {
-      color: #333;
-      margin-bottom: 40px;
-    }
-
-    .button-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .nav-button {
-      background-color: #4f46e5;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .nav-button:hover {
-      background-color: #3730a3;
-      transform: scale(1.05);
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .product { display: inline-block; border: 1px solid #ccc; margin: 10px; padding: 10px; width: 150px; text-align: center; }
+    .product img { width: 100px; height: 100px; object-fit: contain; }
+    button { padding: 5px 10px; background: green; color: white; border: none; border-radius: 5px; }
+    .cart { margin-top: 20px; }
   </style>
 </head>
 <body>
+  <h1>Sari-Sari Store</h1>
+  <div id="productList"></div>
 
-  <h1>Welcome to My HTML Site</h1>
-
-  <div class="button-container">
-    <a href="nametaggeditable.html" class="nav-button">NAMETAG</a>
-<div class="button-container">
-    <a href="letter.html" class="nav-button">POS</a>
+  <div class="cart">
+    <h3>🛒 Cart</h3>
+    <ul id="cartList"></ul>
+    <p>Total: ₱<span id="totalPrice">0.00</span></p>
   </div>
 
+  <script>
+    let products = [];
+    let cart = [];
+
+    async function loadProducts() {
+      const res = await fetch('items.html');
+      const text = await res.text();
+      const temp = document.createElement('div');
+      temp.innerHTML = text;
+      const json = temp.querySelector('#productData').textContent;
+      products = JSON.parse(json);
+      renderProducts();
+    }
+
+    function renderProducts() {
+      const list = document.getElementById('productList');
+      list.innerHTML = '';
+      products.forEach((product, index) => {
+        const div = document.createElement('div');
+        div.className = 'product';
+        div.innerHTML = `
+          <img src="${product.img}" alt="${product.name}" />
+          <h4>${product.name}</h4>
+          <p>₱${product.price}</p>
+          <button onclick="addToCart(${index})">Add to Cart</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function addToCart(index) {
+      cart.push(products[index]);
+      renderCart();
+    }
+
+    function renderCart() {
+      const cartList = document.getElementById('cartList');
+      const total = document.getElementById('totalPrice');
+      cartList.innerHTML = '';
+      let totalAmount = 0;
+      cart.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.name} - ₱${item.price}`;
+        cartList.appendChild(li);
+        totalAmount += item.price;
+      });
+      total.textContent = totalAmount.toFixed(2);
+    }
+
+    loadProducts();
+  </script>
 </body>
 </html>
