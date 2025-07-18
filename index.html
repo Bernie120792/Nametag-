@@ -1,76 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Sari-Sari Store</title>
+  <meta charset="UTF-8">
+  <title>Telegram Order Form</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .product { display: inline-block; border: 1px solid #ccc; margin: 10px; padding: 10px; width: 150px; text-align: center; }
-    .product img { width: 100px; height: 100px; object-fit: contain; }
-    button { padding: 5px 10px; background: green; color: white; border: none; border-radius: 5px; }
-    .cart { margin-top: 20px; }
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #f7f7f7;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: auto;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      background: #0088cc;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <h1>Sari-Sari Store</h1>
-  <div id="productList"></div>
-
-  <div class="cart">
-    <h3>🛒 Cart</h3>
-    <ul id="cartList"></ul>
-    <p>Total: ₱<span id="totalPrice">0.00</span></p>
-  </div>
+  <form id="orderForm">
+    <h2>Order Form</h2>
+    <input type="text" name="name" placeholder="Name" required />
+    <input type="text" name="number" placeholder="Contact Number" required />
+    <input type="text" name="items" placeholder="Item/s" required />
+    <input type="text" name="quantity" placeholder="Quantity (e.g. 2 kilos, 3 pcs)" required />
+    <button type="submit">Send Order</button>
+    <p id="response"></p>
+  </form>
 
   <script>
-    let products = [];
-    let cart = [];
+    // Shuffled Base64 URL
+    const base64 = "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3Y2R5bHlnM2xmblJyQmZvMlRGQWxuR2x3N2ExckhacGMzeVJOdWIzcHZiUmlfeWp1ZEFYbjNwUi1tN2xnRUlpVGZOUQ==";
+    const url = atob(base64);
 
-    async function loadProducts() {
-      const res = await fetch('items.html');
-      const text = await res.text();
-      const temp = document.createElement('div');
-      temp.innerHTML = text;
-      const json = temp.querySelector('#productData').textContent;
-      products = JSON.parse(json);
-      renderProducts();
-    }
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+      e.preventDefault();
 
-    function renderProducts() {
-      const list = document.getElementById('productList');
-      list.innerHTML = '';
-      products.forEach((product, index) => {
-        const div = document.createElement('div');
-        div.className = 'product';
-        div.innerHTML = `
-          <img src="${product.img}" alt="${product.name}" />
-          <h4>${product.name}</h4>
-          <p>₱${product.price}</p>
-          <button onclick="addToCart(${index})">Add to Cart</button>
-        `;
-        list.appendChild(div);
+      const formData = new FormData(this);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
+
+      fetch(url, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
       });
-    }
 
-    function addToCart(index) {
-      cart.push(products[index]);
-      renderCart();
-    }
-
-    function renderCart() {
-      const cartList = document.getElementById('cartList');
-      const total = document.getElementById('totalPrice');
-      cartList.innerHTML = '';
-      let totalAmount = 0;
-      cart.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = `${item.name} - ₱${item.price}`;
-        cartList.appendChild(li);
-        totalAmount += item.price;
-      });
-      total.textContent = totalAmount.toFixed(2);
-    }
-
-    loadProducts();
+      document.getElementById("response").innerText = "✅ Order Sent!";
+      this.reset();
+    });
   </script>
 </body>
 </html>
