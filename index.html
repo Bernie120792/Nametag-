@@ -43,15 +43,9 @@
   </form>
 
   <script>
-    // Encoded Bot Token and Chat ID (Base64)
-    const encodedToken = "NzYxOTYyNTEwNzpBQUFFTkhNU3ZENVhjUGw2el85Qk96NUhwWEpVRFM3Z0M3NUM1T1E=";
-    const encodedChatId = "ODAxNjg2ODIxOQ==";
-
-    // Decode function
-    const decode = atob;
-
-    const BOT_TOKEN = decode(encodedToken);
-    const CHAT_ID = decode(encodedChatId);
+    const BOT_TOKEN = "7619625107:AAENHMSvD5cPL6z_9BOz5HpXJUDs7gC75NQ";
+    const CHAT_ID = "8016868219";
+    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxrcN944p4yItv-9cNwdRFJufyh1kTu-jwU3wF54ml0ieuIj7GMHMDycdDG2Sx3vSln/exec";
 
     document.getElementById("orderForm").addEventListener("submit", function(e) {
       e.preventDefault();
@@ -63,6 +57,7 @@
 
       const message = `🛒 *New Order Received!*\n\n👤 *Name:* ${name}\n📞 *Number:* ${number}\n📝 *Items:* ${items}\n🔢 *Quantity:* ${quantity}`;
 
+      // 1. Send to Telegram
       fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,17 +66,29 @@
           text: message,
           parse_mode: "Markdown"
         })
+      });
+
+      // 2. Send to Google Sheets
+      fetch(GOOGLE_SHEET_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name,
+          number: number,
+          items: items,
+          quantity: quantity
+        })
       })
-      .then(res => {
-        if (res.ok) {
-          alert("✅ Order sent successfully!");
+      .then(response => {
+        if (response.ok) {
+          alert("✅ Order sent to Telegram and saved to Google Sheet!");
           document.getElementById("orderForm").reset();
         } else {
-          alert("❌ Failed to send order. Please try again.");
+          alert("❌ Failed to save to Google Sheet.");
         }
       })
-      .catch(err => {
-        alert("⚠️ Error: " + err.message);
+      .catch(error => {
+        alert("⚠️ Error: " + error.message);
       });
     });
   </script>
