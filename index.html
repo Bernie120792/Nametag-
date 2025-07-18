@@ -1,73 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Telegram Order Form</title>
+  <meta charset="UTF-8" />
+  <title>Order Form to Telegram</title>
   <style>
     body {
-      font-family: sans-serif;
-      padding: 20px;
-      background: #f7f7f7;
-    }
-    form {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      font-family: Arial, sans-serif;
       max-width: 400px;
-      margin: auto;
+      margin: 50px auto;
+      padding: 20px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
     }
     input, textarea, button {
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
+      padding: 8px;
+      margin-top: 5px;
+      font-size: 1em;
     }
     button {
-      background: #0088cc;
+      background-color: #2196f3;
       color: white;
       border: none;
+      margin-top: 15px;
       cursor: pointer;
+    }
+    button:hover {
+      background-color: #0b7dda;
     }
   </style>
 </head>
 <body>
-  <form id="orderForm">
-    <h2>Order Form</h2>
-    <input type="text" name="name" placeholder="Name" required />
-    <input type="text" name="number" placeholder="Contact Number" required />
-    <input type="text" name="items" placeholder="Item/s" required />
-    <input type="text" name="quantity" placeholder="Quantity (e.g. 2 kilos, 3 pcs)" required />
-    <button type="submit">Send Order</button>
-    <p id="response"></p>
+
+  <h2>Send Order to Telegram</h2>
+
+  <form method="POST" action="https://script.google.com/macros/s/AKfycbwcdylyg3lfnJrBfo2TFAlnGlw7a1rHZpc3yRNub3pvbRi_yjudAXn3pR-m7lgEIiTfNQ/exec">
+    
+    <label for="number">Contact Number:</label>
+    <input type="text" name="number" id="number" required>
+
+    <label for="name">Name:</label>
+    <input type="text" name="name" id="name" required>
+
+    <label for="items">Items:</label>
+    <textarea name="items" id="items" rows="3" required></textarea>
+
+    <label for="quantity">Quantity:</label>
+    <input type="text" name="quantity" id="quantity" required>
+
+    <!-- Hidden message combiner -->
+    <input type="hidden" name="message" id="message">
+
+    <button type="submit" onclick="combineMessage()">Send to Telegram</button>
   </form>
 
   <script>
-    // Shuffled Base64 URL
-    const base64 = "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3Y2R5bHlnM2xmblJyQmZvMlRGQWxuR2x3N2ExckhacGMzeVJOdWIzcHZiUmlfeWp1ZEFYbjNwUi1tN2xnRUlpVGZOUQ==";
-    const url = atob(base64);
+    function combineMessage() {
+      const number = document.getElementById('number').value;
+      const name = document.getElementById('name').value;
+      const items = document.getElementById('items').value;
+      const quantity = document.getElementById('quantity').value;
 
-    document.getElementById("orderForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      const formData = new FormData(this);
-      const data = {};
-      formData.forEach((value, key) => data[key] = value);
-
-      fetch(url, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      });
-
-      document.getElementById("response").innerText = "✅ Order Sent!";
-      this.reset();
-    });
+      const msg = `📦 New Order!\n\n📱 Number: ${number}\n👤 Name: ${name}\n🧾 Items: ${items}\n🔢 Quantity: ${quantity}`;
+      
+      document.getElementById('message').value = msg;
+    }
   </script>
+
 </body>
 </html>
