@@ -4,92 +4,54 @@
   <meta charset="UTF-8">
   <title>Order Form</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #eef;
-      padding: 30px;
-    }
-    form {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0 0 10px #aaa;
-    }
-    input, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      font-size: 16px;
-    }
-    button {
-      background: #0b8457;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+    body { font-family: sans-serif; background: #f0f0f0; padding: 20px; }
+    form { background: #fff; padding: 20px; max-width: 400px; margin: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, textarea, button { width: 100%; padding: 10px; margin: 10px 0; }
+    button { background: green; color: white; border: none; }
   </style>
 </head>
 <body>
 
   <form id="orderForm">
-    <h2>📦 Order Form</h2>
-    <input type="text" id="name" placeholder="Customer Name" required>
-    <input type="text" id="number" placeholder="Contact Number" required>
-    <textarea id="items" placeholder="Order Details" required></textarea>
-    <input type="number" id="quantity" placeholder="Quantity" required>
-    <button type="submit">Submit Order</button>
+    <h2>Order Form</h2>
+    <input type="text" name="name" placeholder="Name" required />
+    <input type="text" name="number" placeholder="Contact Number" required />
+    <textarea name="order" placeholder="Your Order Details" required></textarea>
+    <button type="submit">Send Order</button>
   </form>
 
   <script>
-    const BOT_TOKEN = "7619625107:AAENHMSvD5cPL6z_9BOz5HpXJUDs7gC75NQ";
+    const TELEGRAM_TOKEN = "7619625107:AAENHMSvD5cPL6z_9BOz5HpXJUDs7gC75NQ";
     const CHAT_ID = "8016868219";
-    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxrcN944p4yItv-9cNwdRFJufyh1kTu-jwU3wF54ml0ieuIj7GMHMDycdDG2Sx3vSln/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfkARRfMtZLcTgSHL-KgUtbz-HCA-IVwmd1cNqCYBKiFhziUF-_0QnfuO6pkvqJ5bf/exec";
 
-    document.getElementById("orderForm").addEventListener("submit", function(e) {
+    document.getElementById("orderForm").addEventListener("submit", function (e) {
       e.preventDefault();
 
-      const name = document.getElementById("name").value.trim();
-      const number = document.getElementById("number").value.trim();
-      const items = document.getElementById("items").value.trim();
-      const quantity = document.getElementById("quantity").value.trim();
+      const name = this.name.value.trim();
+      const number = this.number.value.trim();
+      const order = this.order.value.trim();
 
-      const message = `🛒 *New Order Received!*\n\n👤 *Name:* ${name}\n📞 *Number:* ${number}\n📝 *Items:* ${items}\n🔢 *Quantity:* ${quantity}`;
+      const message = `📦 New Order\n👤 Name: ${name}\n📱 Number: ${number}\n🛒 Order:\n${order}`;
 
       // 1. Send to Telegram
-      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: CHAT_ID,
-          text: message,
-          parse_mode: "Markdown"
+          text: message
         })
       });
 
-      // 2. Send to Google Sheets
-      fetch(GOOGLE_SHEET_URL, {
+      // 2. Send to Google Sheet
+      fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name,
-          number: number,
-          items: items,
-          quantity: quantity
-        })
-      })
-      .then(response => {
-        if (response.ok) {
-          alert("✅ Order sent to Telegram and saved to Google Sheet!");
-          document.getElementById("orderForm").reset();
-        } else {
-          alert("❌ Failed to save to Google Sheet.");
-        }
-      })
-      .catch(error => {
-        alert("⚠️ Error: " + error.message);
+        body: new URLSearchParams({ name, number, order })
       });
+
+      alert("Order sent!");
+      this.reset();
     });
   </script>
 
