@@ -1,74 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Order Form to Telegram</title>
+  <meta charset="UTF-8">
+  <title>Order Form</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 400px;
-      margin: 50px auto;
-      padding: 20px;
-      border: 2px solid #ccc;
-      border-radius: 10px;
+      background: #eef;
+      padding: 30px;
     }
-    label {
-      display: block;
-      margin-top: 10px;
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 0 10px #aaa;
     }
     input, textarea, button {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      font-size: 1em;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
     }
     button {
-      background-color: #2196f3;
+      background: #0b8457;
       color: white;
       border: none;
-      margin-top: 15px;
       cursor: pointer;
-    }
-    button:hover {
-      background-color: #0b7dda;
     }
   </style>
 </head>
 <body>
 
-  <h2>Bernie Silvoza order form</h2>
-
-  <form method="POST" action="https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exech">
-    
-    <label for="number">Contact Number:</label>
-    <input type="text" name="number" id="number" required>
-
-    <label for="name">Name:</label>
-    <input type="text" name="name" id="name" required>
-
-    <label for="items">Items:</label>
-    <textarea name="items" id="items" rows="3" required></textarea>
-
-    <label for="quantity">Quantity:</label>
-    <input type="text" name="quantity" id="quantity" required>
-
-    <!-- Hidden message combiner -->
-    <input type="hidden" name="message" id="message">
-
-    <button type="submit" onclick="combineMessage()">Submmit</button>
+  <form id="orderForm">
+    <h2>📦 Order Form</h2>
+    <input type="text" id="name" placeholder="Customer Name" required>
+    <input type="text" id="number" placeholder="Contact Number" required>
+    <textarea id="items" placeholder="Order Details" required></textarea>
+    <input type="number" id="quantity" placeholder="Quantity" required>
+    <button type="submit">Submit Order</button>
   </form>
 
   <script>
-    function combineMessage() {
-      const number = document.getElementById('number').value;
-      const name = document.getElementById('name').value;
-      const items = document.getElementById('items').value;
-      const quantity = document.getElementById('quantity').value;
+    // Encoded Bot Token and Chat ID (Base64)
+    const encodedToken = "NzYxOTYyNTEwNzpBQUFFTkhNU3ZENVhjUGw2el85Qk96NUhwWEpVRFM3Z0M3NUM1T1E=";
+    const encodedChatId = "ODAxNjg2ODIxOQ==";
 
-      const msg = `📦 New Order!\n\n📱 Number: ${number}\n👤 Name: ${name}\n🧾 Items: ${items}\n🔢 Quantity: ${quantity}`;
-      
-      document.getElementById('message').value = msg;
-    }
+    // Decode function
+    const decode = atob;
+
+    const BOT_TOKEN = decode(encodedToken);
+    const CHAT_ID = decode(encodedChatId);
+
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const number = document.getElementById("number").value.trim();
+      const items = document.getElementById("items").value.trim();
+      const quantity = document.getElementById("quantity").value.trim();
+
+      const message = `🛒 *New Order Received!*\n\n👤 *Name:* ${name}\n📞 *Number:* ${number}\n📝 *Items:* ${items}\n🔢 *Quantity:* ${quantity}`;
+
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: message,
+          parse_mode: "Markdown"
+        })
+      })
+      .then(res => {
+        if (res.ok) {
+          alert("✅ Order sent successfully!");
+          document.getElementById("orderForm").reset();
+        } else {
+          alert("❌ Failed to send order. Please try again.");
+        }
+      })
+      .catch(err => {
+        alert("⚠️ Error: " + err.message);
+      });
+    });
   </script>
 
 </body>
