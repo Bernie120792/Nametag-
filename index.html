@@ -52,8 +52,8 @@
     <label for="quantity">Quantity:</label>
     <input type="text" name="quantity" id="quantity" required>
 
-<label for="ref.#">Ref.#:</label>
-    <input type="text" name="ref.#" id="ref.#" required>
+<label for="ref">Ref:</label>
+    <input type="text" name="ref" id="ref" required>
 
     <!-- Hidden message combiner -->
     <input type="hidden" name="message" id="message">
@@ -67,9 +67,9 @@
       const name = document.getElementById('name').value;
       const items = document.getElementById('items').value;
       const quantity = document.getElementById('quantity').value;
-      const ref.# = document.getElementById('ref.# ').value;
+      const ref = document.getElementById('ref ').value;
 
-      const msg = `📦MERONG BAGONG ORDER!\n\n📱 Number: ${number}\n👤 Name: ${name}\n🧾 Items: ${items}\n🔢 Quantity: ${quantity}\n#️⃣Ref.#: ${ref.#}`;
+      const msg = `📦MERONG BAGONG ORDER!\n\n📱 Number: ${number}\n👤 Name: ${name}\n🧾 Items: ${items}\n🔢 Quantity: ${quantity}\n#️⃣Ref.#: ${ref}`;
       
       document.getElementById('message').value = msg;
     }
