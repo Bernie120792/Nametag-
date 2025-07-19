@@ -11,6 +11,12 @@
       padding: 20px;
       border: 5px solid #ccc;
       border-radius: 15px;
+      background: #f9f9f9;
+    }
+    img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 20px;
     }
     label {
       display: block;
@@ -36,7 +42,10 @@
 </head>
 <body>
 
-  <h2>BERNIE SILVOZA ORDER FORM </h2>
+  <h2 style="text-align:center;">BERNIE SILVOZA ORDER FORM</h2>
+
+  <!-- QRPh Image (replace src with your actual base64 or hosted image link) -->
+  <img src="https://i.ibb.co/3pSkW8f/qrph-bernie.jpg" alt="QRPh Payment">
 
   <form method="POST" action="https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec">
     
@@ -52,13 +61,13 @@
     <label for="quantity">Quantity:</label>
     <input type="text" name="quantity" id="quantity" required>
 
-<label for="ref">Ref:</label>
+    <label for="ref">Ref:</label>
     <input type="text" name="ref" id="ref" required>
 
     <!-- Hidden message combiner -->
     <input type="hidden" name="message" id="message">
 
-    <button type="submit" onclick="combineMessage()">SUBMMIT</button>
+    <button type="submit" onclick="combineMessage()">SUBMIT</button>
   </form>
 
   <script>
