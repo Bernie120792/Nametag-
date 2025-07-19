@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>BERNIE SILVOZA ORDER FORM</title>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,24 +14,27 @@
       border-radius: 15px;
       background: #f9f9f9;
     }
-   img {
-  display: block;
-  margin: 0 auto;
-  max-width: 100%;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
+
+    img {
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 20px;
     }
+
     label {
       display: block;
       margin-top: 10px;
     }
+
     input, textarea, button {
       width: 100%;
       padding: 8px;
       margin-top: 5px;
       font-size: 1em;
     }
+
     button {
       background-color: #2196f3;
       color: white;
@@ -38,17 +42,19 @@
       margin-top: 15px;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #0b7dda;
     }
   </style>
 </head>
 <body>
-href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjsp3y8ZD0GajRvMETRU0VmR1gD5t4-RHcix-Qjr4dVRcxXhyphenhyphenuZ0-RulHeTH6ruRtZojHSvkr6u8BlervtuWNtT3feuzCF2C4Uddpv7VA4171vUb9M2WLd-tbq5EpGsnZ4TCYGG47EcF2w07vE2GskytNK3hLMRf9mVDFe2GOz5ajkBba65tgkx7z3W5X4/s1584/BERNiE%20ORDER%20FORM_20250719_223010_0000.png"
- alt="QRPh Payment">
 
-  <form method="POST" action="https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec">
-    
+  <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjsp3y8ZD0GajRvMETRU0VmR1gD5t4-RHcix-Qjr4dVRcxXhyphenuZ0-RulHeTH6ruRtZojHSvkr6u8BlervtuWNtT3feuzCF2C4Uddpv7VA4171vUb9M2WLd-tbq5EpGsnZ4TCYGG47EcF2w07vE2GskytNK3hLMRf9mVDFe2GOz5ajkBba65tgkx7z3W5X4/s1584/BERNiE%20ORDER%20FORM_20250719_223010_0000.png" 
+       alt="QRPh Payment">
+
+  <form method="POST" action="https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec" onsubmit="combineMessage()">
+
     <label for="number">Contact Number:</label>
     <input type="text" name="number" id="number" required>
 
@@ -64,10 +70,13 @@ href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjsp3y8ZD0GajRvM
     <label for="ref">Ref:</label>
     <input type="text" name="ref" id="ref" required>
 
+    <!-- Google reCAPTCHA v2 widget -->
+    <div class="g-recaptcha" data-sitekey="6LeFy4grAAAAANjs5n9JveDlt1Lso-J5cuM1LPKF"></div>
+
     <!-- Hidden message combiner -->
     <input type="hidden" name="message" id="message">
 
-    <button type="submit" onclick="combineMessage()">SUBMIT</button>
+    <button type="submit">SUBMIT</button>
   </form>
 
   <script>
@@ -78,7 +87,7 @@ href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjsp3y8ZD0GajRvM
       const quantity = document.getElementById('quantity').value;
       const ref = document.getElementById('ref').value;
 
-      const msg = `📦MERONG BAGONG ORDER!\n\n📱 Number: ${number}\n👤 Name: ${name}\n🧾 Items: ${items}\n🔢 Quantity: ${quantity}\n#️⃣Ref.#: ${ref}`;
+      const msg = `📦MERONG BAGONG ORDER!\n\n📱 Number: ${number}\n👤 Name: ${name}\n🧾 Items: ${items}\n🔢 Quantity: ${quantity}\n#️⃣ Ref.#: ${ref}`;
       
       document.getElementById('message').value = msg;
     }
