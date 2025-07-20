@@ -1,155 +1,159 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Secure MPIN Form</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f5f8ff;
-      padding: 40px 20px;
+      font-family: 'Inter', sans-serif;
+      background: #f7f9fc;
       display: flex;
       justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
     }
-
     .container {
-      background: white;
+      background: #fff;
       padding: 30px 25px;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      max-width: 400px;
+      border-radius: 16px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
       width: 100%;
+      max-width: 400px;
     }
-
-    h2, h3 {
-      text-align: center;
+    h2 {
+      margin-bottom: 20px;
+      font-size: 22px;
       color: #333;
+      text-align: center;
     }
-
-    input, button {
+    input {
       padding: 12px;
       margin: 8px 0;
       width: 100%;
       border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 16px;
       box-sizing: border-box;
+      font-size: 14px;
     }
-
     button {
-      background-color: #4CAF50;
-      color: white;
+      padding: 12px;
+      width: 100%;
       border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      margin-top: 10px;
     }
-
     button:hover {
-      background-color: #45a049;
+      background-color: #0056b3;
     }
-
     #formDiv, #logoutBtn, #codenameDisplay {
       display: none;
-      margin-top: 20px;
     }
-
-    #logoutBtn {
-      background-color: #f44336;
+    .label {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #666;
     }
-
-    #logoutBtn:hover {
-      background-color: #e53935;
-    }
-
-    #codenameDisplay {
+    .footer {
       text-align: center;
-      margin-bottom: 10px;
-      font-weight: bold;
-      font-size: 17px;
+      margin-top: 15px;
+      font-size: 12px;
+      color: #999;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h2>🔐 MPIN Verification</h2>
+    <input type="password" id="mpin" placeholder="Enter your MPIN" oninput="checkMPIN()">
+    
+    <div id="codenameDisplay" class="label">
+      <strong>Codename:</strong> <span id="codenameText"></span>
+    </div>
 
-<div class="container">
-  <h2>🔐 MPIN Login</h2>
-  <input type="password" id="mpin" placeholder="Enter your MPIN" oninput="checkMPIN()">
-  <button id="logoutBtn" onclick="logout()">Logout</button>
+    <div id="formDiv">
+      <input type="text" id="name" placeholder="Customer Name">
+      <input type="text" id="number" placeholder="Phone Number">
+      <input type="text" id="items" placeholder="Item/s">
+      <input type="number" id="qty" placeholder="Quantity">
+      <button onclick="sendToTelegram()">📩 Submit Order</button>
+    </div>
 
-  <div id="codenameDisplay">👤 <span id="codenameText"></span></div>
-
-  <div id="formDiv">
-    <h3>📦 Order Form</h3>
-    <input type="text" id="name" placeholder="Customer Name">
-    <input type="text" id="number" placeholder="Phone Number">
-    <input type="text" id="items" placeholder="Item/s">
-    <input type="number" id="qty" placeholder="Quantity">
-    <button onclick="sendToTelegram()">Submit</button>
+    <button id="logoutBtn" onclick="logout()">🚪 Logout</button>
+    <div class="footer">Made by Bernie | Secure System</div>
   </div>
-</div>
 
-<script>
-let hiddenCodename = '';
-let lastMPIN = '';
+  <script>
+    let hiddenCodename = '';
+    let lastMPIN = '';
 
-function checkMPIN() {
-  const mpinInput = document.getElementById("mpin").value;
+    function checkMPIN() {
+      const mpinInput = document.getElementById("mpin").value;
 
-  if (mpinInput.length >= 4 && mpinInput !== lastMPIN) {
-    lastMPIN = mpinInput;
+      if (mpinInput.length >= 4 && mpinInput !== lastMPIN) {
+        lastMPIN = mpinInput;
 
-    fetch("https://script.google.com/macros/s/AKfycbx_4K4C4HCfgZ4S-SnBB27XYXKa1xZBYWQe-AAwhqOJ_AxtQquNeeP-zpHNyDr7Do6L/exec", {
-      method: "POST",
-      body: new URLSearchParams({ mpin: mpinInput })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        hiddenCodename = data.codename;
-        document.getElementById("codenameText").textContent = hiddenCodename;
-        document.getElementById("formDiv").style.display = "block";
-        document.getElementById("logoutBtn").style.display = "block";
-        document.getElementById("codenameDisplay").style.display = "block";
-        document.getElementById("mpin").style.display = "none";
-      } else {
-        alert("❌ Invalid MPIN");
+        fetch("https://script.google.com/macros/s/AKfycbx_4K4C4HCfgZ4S-SnBB27XYXKa1xZBYWQe-AAwhqOJ_AxtQquNeeP-zpHNyDr7Do6L/exec", {
+          method: "POST",
+          body: new URLSearchParams({ mpin: mpinInput })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            hiddenCodename = data.codename;
+            document.getElementById("codenameText").textContent = hiddenCodename;
+            document.getElementById("formDiv").style.display = "block";
+            document.getElementById("logoutBtn").style.display = "block";
+            document.getElementById("codenameDisplay").style.display = "block";
+            document.getElementById("mpin").style.display = "none";
+          } else {
+            alert("❌ Invalid MPIN.");
+          }
+        });
       }
-    });
-  }
-}
+    }
 
-function sendToTelegram() {
-  const name = document.getElementById("name").value;
-  const number = document.getElementById("number").value;
-  const items = document.getElementById("items").value;
-  const qty = document.getElementById("qty").value;
+    function sendToTelegram() {
+      const name = document.getElementById("name").value;
+      const number = document.getElementById("number").value;
+      const items = document.getElementById("items").value;
+      const qty = document.getElementById("qty").value;
 
-  const message = `📩 ORDER\n👤 Name: ${name}\n📞 Number: ${number}\n📦 Item: ${items}\n🔢 Qty: ${qty}\n🆔 By: ${hiddenCodename}`;
+      if (!name || !number || !items || !qty) {
+        alert("❗Please fill all fields.");
+        return;
+      }
 
-  fetch("https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec", {
-    method: "POST",
-    body: new URLSearchParams({ message: message })
-  })
-  .then(res => res.text())
-  .then(() => {
-    alert("✅ Sent to Telegram!");
-    document.getElementById("name").value = '';
-    document.getElementById("number").value = '';
-    document.getElementById("items").value = '';
-    document.getElementById("qty").value = '';
-  });
-}
+      const message = `📩 ORDER\n👤 Name: ${name}\n📞 Number: ${number}\n📦 Item: ${items}\n🔢 Qty: ${qty}\n🆔 By: ${hiddenCodename}`;
 
-function logout() {
-  hiddenCodename = '';
-  lastMPIN = '';
-  document.getElementById("formDiv").style.display = "none";
-  document.getElementById("logoutBtn").style.display = "none";
-  document.getElementById("codenameDisplay").style.display = "none";
-  document.getElementById("mpin").style.display = "block";
-  document.getElementById("mpin").value = '';
-}
-</script>
+      fetch("https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec", {
+        method: "POST",
+        body: new URLSearchParams({ message: message })
+      })
+      .then(() => {
+        alert("✅ Order sent to Telegram!");
+        document.getElementById("name").value = '';
+        document.getElementById("number").value = '';
+        document.getElementById("items").value = '';
+        document.getElementById("qty").value = '';
+      });
+    }
 
+    function logout() {
+      hiddenCodename = '';
+      lastMPIN = '';
+      document.getElementById("formDiv").style.display = "none";
+      document.getElementById("logoutBtn").style.display = "none";
+      document.getElementById("codenameDisplay").style.display = "none";
+      document.getElementById("mpin").style.display = "block";
+      document.getElementById("mpin").value = '';
+    }
+  </script>
 </body>
 </html>
