@@ -1,104 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>BERNIE ORDER FORM</title>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <meta charset="UTF-8">
+  <title>Secure MPIN Form</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 500px;
-      margin: 50px auto;
       padding: 20px;
-      border: 5px solid #ccc;
-      border-radius: 15px;
-      background: #f9f9f9;
+      max-width: 500px;
+      margin: auto;
     }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #333;
+    #formDiv, #logoutBtn, #codenameDisplay {
+      display: none;
+      margin-top: 20px;
     }
-
-    img {
-      display: block;
-      margin: 0 auto;
-      max-width: 100%;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-top: 10px;
-    }
-
-    input, textarea, button {
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      font-size: 1em;
-    }
-
-    button {
-      background-color: #2196f3;
-      color: white;
-      border: none;
-      margin-top: 15px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0b7dda;
+      box-sizing: border-box;
     }
   </style>
 </head>
 <body>
 
-  <h1>BERNIE ORDER FORM</h1>
+<h2>MPIN Login</h2>
+<input type="password" id="mpin" placeholder="Enter MPIN" oninput="checkMPIN()">
+<button id="logoutBtn" onclick="logout()">Logout</button>
 
-  <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjsp3y8ZD0GajRvMETRU0VmR1gD5t4-RHcix-Qjr4dVRcxXhyphenhyphenuZ0-RulHeTH6ruRtZojHSvkr6u8BlervtuWNtT3feuzCF2C4Uddpv7VA4171vUb9M2WLd-tbq5EpGsnZ4TCYGG47EcF2w07vE2GskytNK3hLMRf9mVDFe2GOz5ajkBba65tgkx7z3W5X4/s320/BERNiE%20ORDER%20FORM_20250719_223010_0000.png"alt="QRPh Payment">
-`
-  <form method="POST" action="https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec" onsubmit="combineMessage()">
+<div id="codenameDisplay"><strong>Codename:</strong> <span id="codenameText"></span></div>
 
-    <label for="number">Contact Number:</label>
-    <input type="text" name="number" id="number" required>
+<div id="formDiv">
+  <h3>Send to Telegram</h3>
+  <input type="text" id="name" placeholder="Customer Name">
+  <input type="text" id="number" placeholder="Phone Number">
+  <input type="text" id="items" placeholder="Item/s">
+  <input type="number" id="qty" placeholder="Quantity">
+  <button onclick="sendToTelegram()">Submit</button>
+</div>
 
-    <label for="name">Name:</label>
-    <input type="text" name="name" id="name" required>
+<script>
+let hiddenCodename = '';
+let lastMPIN = '';
 
-    <label for="items">Items:</label>
-    <textarea name="items" id="items" rows="3" required></textarea>
+function checkMPIN() {
+  const mpinInput = document.getElementById("mpin").value;
 
-    <label for="quantity">Quantity:</label>
-    <input type="text" name="quantity" id="quantity" required>
+  // Only proceed if new input and length is at least 4
+  if (mpinInput.length >= 4 && mpinInput !== lastMPIN) {
+    lastMPIN = mpinInput;
 
-    <label for="ref">Ref:</label>
-    <input type="text" name="ref" id="ref" required>
+    fetch("https://script.google.com/macros/s/AKfycbx_4K4C4HCfgZ4S-SnBB27XYXKa1xZBYWQe-AAwhqOJ_AxtQquNeeP-zpHNyDr7Do6L/exec", {
+      method: "POST",
+      body: new URLSearchParams({ mpin: mpinInput })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        hiddenCodename = data.codename;
+        document.getElementById("codenameText").textContent = hiddenCodename;
+        document.getElementById("formDiv").style.display = "block";
+        document.getElementById("logoutBtn").style.display = "block";
+        document.getElementById("codenameDisplay").style.display = "block";
+        document.getElementById("mpin").style.display = "none";
+      }
+    });
+  }
+}
 
-    <!-- Google reCAPTCHA -->
-    <div class="g-recaptcha" data-sitekey="6LfIzIgrAAAAAJjQOCdjGhvvKUx2EdQRpkD0hcO4"></div>
+function sendToTelegram() {
+  const name = document.getElementById("name").value;
+  const number = document.getElementById("number").value;
+  const items = document.getElementById("items").value;
+  const qty = document.getElementById("qty").value;
 
-    <!-- Hidden combined message -->
-    <input type="hidden" name="message" id="message">
+  const message = `📩 ORDER\n👤 Name: ${name}\n📞 Number: ${number}\n📦 Item: ${items}\n🔢 Qty: ${qty}\n🆔 By: ${hiddenCodename}`;
 
-    <button type="submit">SUBMIT</button>
-  </form>
+  fetch("https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec", {
+    method: "POST",
+    body: new URLSearchParams({ message: message })
+  })
+  .then(res => res.text())
+  .then(() => {
+    alert("✅ Sent to Telegram!");
+    document.getElementById("name").value = '';
+    document.getElementById("number").value = '';
+    document.getElementById("items").value = '';
+    document.getElementById("qty").value = '';
+  });
+}
 
-  <script>
-    function combineMessage() {
-      const number = document.getElementById('number').value;
-      const name = document.getElementById('name').value;
-      const items = document.getElementById('items').value;
-      const quantity = document.getElementById('quantity').value;
-      const ref = document.getElementById('ref').value;
-
-      const msg = `📦MERONG BAGONG ORDER!\n\n📱 Number: ${number}\n👤 Name: ${name}\n🧾 Items: ${items}\n🔢 Quantity: ${quantity}\n#️⃣ Ref.#: ${ref}`;
-      
-      document.getElementById('message').value = msg;
-    }
-  </script>
+function logout() {
+  hiddenCodename = '';
+  lastMPIN = '';
+  document.getElementById("formDiv").style.display = "none";
+  document.getElementById("logoutBtn").style.display = "none";
+  document.getElementById("codenameDisplay").style.display = "none";
+  document.getElementById("mpin").style.display = "block";
+  document.getElementById("mpin").value = '';
+}
+</script>
 
 </body>
 </html>
