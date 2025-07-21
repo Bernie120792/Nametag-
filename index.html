@@ -1,42 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Secure MPIN Form</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <title>Wallet & MPIN System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
+    * { box-sizing: border-box; }
+
     body {
       font-family: 'Inter', sans-serif;
-      background: #f7f9fc;
+      background: linear-gradient(135deg, #e3f2fd, #90caf9);
+      margin: 0;
+      padding: 20px;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      margin: 0;
+      justify-content: center;
     }
-    .container {
+
+    .card {
       background: #fff;
       padding: 30px 25px;
       border-radius: 16px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      max-width: 420px;
       width: 100%;
-      max-width: 400px;
-    }
-    h2 {
-      margin-bottom: 20px;
-      font-size: 22px;
-      color: #333;
+      margin-bottom: 30px;
       text-align: center;
+      transition: opacity 0.3s ease;
     }
+
+    h1, h2 {
+      color: #0d47a1;
+      margin-bottom: 20px;
+    }
+
+    #balanceDisplay {
+      font-size: 2.5em;
+      font-weight: 600;
+      color: #2e7d32;
+      margin-bottom: 10px;
+    }
+
+    .small {
+      font-size: 0.9em;
+      color: #666;
+    }
+
     input {
       padding: 12px;
       margin: 8px 0;
       width: 100%;
       border: 1px solid #ccc;
       border-radius: 8px;
-      box-sizing: border-box;
       font-size: 14px;
     }
+
     button {
       padding: 12px;
       width: 100%;
@@ -48,40 +69,60 @@
       font-size: 14px;
       cursor: pointer;
       margin-top: 10px;
+      transition: background 0.3s;
     }
-    button:hover {
-      background-color: #0056b3;
-    }
-    #formDiv, #logoutBtn, #codenameDisplay {
+
+    button:hover { background-color: #0056b3; }
+
+    #formDiv, #logoutBtn, #codenameDisplay, #walletCard {
       display: none;
     }
+
     .label {
-      margin-top: 10px;
       font-size: 13px;
       color: #666;
+      margin-top: 10px;
     }
+
     .footer {
       text-align: center;
-      margin-top: 15px;
       font-size: 12px;
       color: #999;
+      margin-top: 30px;
+    }
+
+    .error-msg {
+      color: red;
+      font-size: 13px;
+      margin-top: 8px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+
+  <!-- WALLET BALANCE CARD -->
+  <div class="card" id="walletCard">
+    <h1>Wallet Balance</h1>
+    <div id="balanceDisplay">⏳ Loading...</div>
+    <div class="small">Updated in real-time from Google Sheets</div>
+  </div>
+
+  <!-- MPIN FORM CARD -->
+  <div class="card">
     <h2>🔐 MPIN Verification</h2>
-    <input type="password" id="mpin" placeholder="Enter your MPIN" oninput="checkMPIN()">
-    
+    <input type="password" id="mpin" placeholder="Enter your MPIN" oninput="checkMPIN()" />
+    <div id="errorMsg" class="error-msg"></div>
+
     <div id="codenameDisplay" class="label">
       <strong>Codename:</strong> <span id="codenameText"></span>
     </div>
 
     <div id="formDiv">
-      <input type="text" id="name" placeholder="Customer Name">
-      <input type="text" id="number" placeholder="Phone Number">
-      <input type="text" id="items" placeholder="Item/s">
-      <input type="number" id="qty" placeholder="Quantity">
+      <input type="text" id="name" placeholder="Customer Name" />
+      <input type="text" id="number" placeholder="Phone Number" />
+      <input type="text" id="items" placeholder="Item/s" />
+      <input type="number" id="qty" placeholder="Quantity" />
+      <input type="number" id="amount" placeholder="Amount (₱)" />
       <button onclick="sendToTelegram()">📩 Submit Order</button>
     </div>
 
@@ -90,14 +131,18 @@
   </div>
 
   <script>
+    const balanceScriptUrl = "https://script.google.com/macros/s/AKfycbxKm1GSHE5xEIKRLT1QxKG29WEZzKgAy59adr__EW4BPjltt_1bVNHXzuyBRnak9pOu/exec";
+
     let hiddenCodename = '';
     let lastMPIN = '';
 
     function checkMPIN() {
       const mpinInput = document.getElementById("mpin").value;
+      const errorMsg = document.getElementById("errorMsg");
 
       if (mpinInput.length >= 4 && mpinInput !== lastMPIN) {
         lastMPIN = mpinInput;
+        errorMsg.textContent = "";
 
         fetch("https://script.google.com/macros/s/AKfycbx_4K4C4HCfgZ4S-SnBB27XYXKa1xZBYWQe-AAwhqOJ_AxtQquNeeP-zpHNyDr7Do6L/exec", {
           method: "POST",
@@ -108,15 +153,38 @@
           if (data.success) {
             hiddenCodename = data.codename;
             document.getElementById("codenameText").textContent = hiddenCodename;
+
             document.getElementById("formDiv").style.display = "block";
             document.getElementById("logoutBtn").style.display = "block";
             document.getElementById("codenameDisplay").style.display = "block";
             document.getElementById("mpin").style.display = "none";
+            document.getElementById("walletCard").style.display = "block";
+
+            loadBalance(); // Show balance only after correct MPIN
           } else {
-            alert("❌ Invalid MPIN.");
+            errorMsg.textContent = "❌ Invalid MPIN. Try again.";
           }
+        })
+        .catch(() => {
+          errorMsg.textContent = "⚠️ Network error. Please try again.";
         });
       }
+    }
+
+    function loadBalance() {
+      fetch(balanceScriptUrl)
+        .then(res => res.text())
+        .then(data => {
+          const balanceEl = document.getElementById("balanceDisplay");
+          if (!isNaN(data)) {
+            balanceEl.textContent = "₱" + parseFloat(data).toLocaleString(undefined, { minimumFractionDigits: 2 });
+          } else {
+            balanceEl.textContent = "Invalid balance format";
+          }
+        })
+        .catch(() => {
+          document.getElementById("balanceDisplay").textContent = "Failed to load balance";
+        });
     }
 
     function sendToTelegram() {
@@ -124,13 +192,14 @@
       const number = document.getElementById("number").value;
       const items = document.getElementById("items").value;
       const qty = document.getElementById("qty").value;
+      const amount = document.getElementById("amount").value;
 
-      if (!name || !number || !items || !qty) {
+      if (!name || !number || !items || !qty || !amount) {
         alert("❗Please fill all fields.");
         return;
       }
 
-      const message = `📩 ORDER\n👤 Name: ${name}\n📞 Number: ${number}\n📦 Item: ${items}\n🔢 Qty: ${qty}\n🆔 By: ${hiddenCodename}`;
+      const message = `📩 ORDER\n👤 Name: ${name}\n📞 Number: ${number}\n📦 Item: ${items}\n🔢 Qty: ${qty}\n💰 Amount: ₱${amount}\n🆔 By: ${hiddenCodename}`;
 
       fetch("https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec", {
         method: "POST",
@@ -142,6 +211,7 @@
         document.getElementById("number").value = '';
         document.getElementById("items").value = '';
         document.getElementById("qty").value = '';
+        document.getElementById("amount").value = '';
       });
     }
 
@@ -151,9 +221,15 @@
       document.getElementById("formDiv").style.display = "none";
       document.getElementById("logoutBtn").style.display = "none";
       document.getElementById("codenameDisplay").style.display = "none";
+      document.getElementById("walletCard").style.display = "none";
       document.getElementById("mpin").style.display = "block";
       document.getElementById("mpin").value = '';
+      document.getElementById("errorMsg").textContent = '';
+      document.getElementById("balanceDisplay").textContent = "⏳ Loading...";
+      alert("🔒 You have been logged out.");
     }
   </script>
+
 </body>
 </html>
+
