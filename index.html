@@ -199,6 +199,20 @@
         return;
       }
 
+      // ✅ CHECK WALLET BALANCE
+      const balanceText = document.getElementById("balanceDisplay").textContent.replace(/[₱,]/g, '');
+      const balance = parseFloat(balanceText);
+
+      if (isNaN(balance)) {
+        alert("⚠️ Unable to read wallet balance.");
+        return;
+      }
+
+      if (balance <= 0) {
+        alert("🚫 Cannot submit. Your wallet balance is ₱0.00.");
+        return;
+      }
+
       const message = `📩 ORDER\n👤 Name: ${name}\n📞 Number: ${number}\n📦 Item: ${items}\n🔢 Qty: ${qty}\n💰 Amount: ₱${amount}\n🆔 By: ${hiddenCodename}`;
 
       fetch("https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec", {
@@ -232,4 +246,3 @@
 
 </body>
 </html>
-
