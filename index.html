@@ -2,14 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Bernie POS</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BerniePOS - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #009688, #004d40);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      background-color: rgba(0,0,0,0.4);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 1.2em;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 15px 30px;
+      background-color: #ffffff;
+      color: #004d40;
+      font-weight: bold;
+      font-size: 1em;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background-color: #80cbc4;
+      color: #004d40;
+    }
+  </style>
 </head>
 <body>
-  <div class="landing">
+  <div class="container">
     <h1>Welcome to BerniePOS</h1>
-    <p>Click below to start selling!</p>
-    <a href="item.html"><button>Start Selling</button></a>
+    <p>Smart & Simple Point-of-Sale System</p>
+    <a href="pos.html" class="btn">Enter POS</a>
   </div>
 </body>
 </html>
