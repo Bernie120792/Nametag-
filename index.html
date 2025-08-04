@@ -2,247 +2,127 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Wallet & MPIN System</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>POS Order Form</title>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
-    * { box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #e3f2fd, #90caf9);
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      justify-content: center;
-    }
-
-    .card {
-      background: #fff;
-      padding: 30px 25px;
-      border-radius: 16px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-      max-width: 420px;
-      width: 100%;
-      margin-bottom: 30px;
-      text-align: center;
-      transition: opacity 0.3s ease;
-    }
-
-    h1, h2 {
-      color: #0d47a1;
-      margin-bottom: 20px;
-    }
-
-    #balanceDisplay {
-      font-size: 2.5em;
-      font-weight: 600;
-      color: #2e7d32;
-      margin-bottom: 10px;
-    }
-
-    .small {
-      font-size: 0.9em;
-      color: #666;
-    }
-
-    input {
-      padding: 12px;
-      margin: 8px 0;
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    button {
-      padding: 12px;
-      width: 100%;
-      border: none;
-      border-radius: 8px;
-      background-color: #007bff;
-      color: white;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.3s;
-    }
-
-    button:hover { background-color: #0056b3; }
-
-    #formDiv, #logoutBtn, #codenameDisplay, #walletCard {
-      display: none;
-    }
-
-    .label {
-      font-size: 13px;
-      color: #666;
-      margin-top: 10px;
-    }
-
-    .footer {
-      text-align: center;
-      font-size: 12px;
-      color: #999;
-      margin-top: 30px;
-    }
-
-    .error-msg {
-      color: red;
-      font-size: 13px;
-      margin-top: 8px;
-    }
+    body { font-family: sans-serif; padding: 20px; }
+    .product { display: flex; align-items: center; margin-bottom: 10px; }
+    .product img { width: 80px; height: 80px; object-fit: cover; margin-right: 10px; }
+    .product input { width: 60px; margin-left: 10px; }
+    button { margin-top: 20px; padding: 10px 20px; }
   </style>
 </head>
 <body>
+  <h2>🛒 POS Order Form</h2>
 
-  <!-- WALLET BALANCE CARD -->
-  <div class="card" id="walletCard">
-    <h1>Wallet Balance</h1>
-    <div id="balanceDisplay">⏳ Loading...</div>
-    <div class="small">Updated in real-time from Google Sheets</div>
-  </div>
+  <form id="orderForm">
+    <label>Pangalan: <input type="text" name="customerName" required></label><br><br>
+    <label>Contact Number: <input type="text" name="contactNumber" required></label><br><br>
 
-  <!-- MPIN FORM CARD -->
-  <div class="card">
-    <h2>🔐 MPIN Verification</h2>
-    <input type="password" id="mpin" placeholder="Enter your MPIN" oninput="checkMPIN()" />
-    <div id="errorMsg" class="error-msg"></div>
+    <div id="productList">Loading products...</div>
 
-    <div id="codenameDisplay" class="label">
-      <strong>Codename:</strong> <span id="codenameText"></span>
-    </div>
+    <p><strong>Total: ₱<span id="total">0</span></strong></p>
 
-    <div id="formDiv">
-      <input type="text" id="name" placeholder="Customer Name" />
-      <input type="text" id="number" placeholder="Phone Number" />
-      <input type="text" id="items" placeholder="Item/s" />
-      <input type="number" id="qty" placeholder="Quantity" />
-      <input type="number" id="amount" placeholder="Amount (₱)" />
-      <button onclick="sendToTelegram()">📩 Submit Order</button>
-    </div>
-
-    <button id="logoutBtn" onclick="logout()">🚪 Logout</button>
-    <div class="footer">Made by Bernie | Secure System</div>
-  </div>
+    <div class="g-recaptcha" data-sitekey="6LfIzIgrAAAAAJjQOCdjGhvvKUx2EdQRpkD0hcO4"></div>
+    <br>
+    <button type="submit">🧾 Submit Order</button>
+  </form>
 
   <script>
-    const balanceScriptUrl = "https://script.google.com/macros/s/AKfycbxKm1GSHE5xEIKRLT1QxKG29WEZzKgAy59adr__EW4BPjltt_1bVNHXzuyBRnak9pOu/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzV93YTigz_b37fOP1Qp7MQR3aNAjZIUU7fw7q0udQpo83bqCGye_qDkqhln9k8N3TRVg/exec";
 
-    let hiddenCodename = '';
-    let lastMPIN = '';
+    let products = [];
 
-    function checkMPIN() {
-      const mpinInput = document.getElementById("mpin").value;
-      const errorMsg = document.getElementById("errorMsg");
+    async function fetchProducts() {
+      const res = await fetch(API_URL);
+      products = await res.json();
+      const container = document.getElementById('productList');
+      container.innerHTML = '';
 
-      if (mpinInput.length >= 4 && mpinInput !== lastMPIN) {
-        lastMPIN = mpinInput;
-        errorMsg.textContent = "";
-
-        fetch("https://script.google.com/macros/s/AKfycbx_4K4C4HCfgZ4S-SnBB27XYXKa1xZBYWQe-AAwhqOJ_AxtQquNeeP-zpHNyDr7Do6L/exec", {
-          method: "POST",
-          body: new URLSearchParams({ mpin: mpinInput })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            hiddenCodename = data.codename;
-            document.getElementById("codenameText").textContent = hiddenCodename;
-
-            document.getElementById("formDiv").style.display = "block";
-            document.getElementById("logoutBtn").style.display = "block";
-            document.getElementById("codenameDisplay").style.display = "block";
-            document.getElementById("mpin").style.display = "none";
-            document.getElementById("walletCard").style.display = "block";
-
-            loadBalance(); // Show balance only after correct MPIN
-          } else {
-            errorMsg.textContent = "❌ Invalid MPIN. Try again.";
-          }
-        })
-        .catch(() => {
-          errorMsg.textContent = "⚠️ Network error. Please try again.";
-        });
-      }
-    }
-
-    function loadBalance() {
-      fetch(balanceScriptUrl)
-        .then(res => res.text())
-        .then(data => {
-          const balanceEl = document.getElementById("balanceDisplay");
-          if (!isNaN(data)) {
-            balanceEl.textContent = "₱" + parseFloat(data).toLocaleString(undefined, { minimumFractionDigits: 2 });
-          } else {
-            balanceEl.textContent = "Invalid balance format";
-          }
-        })
-        .catch(() => {
-          document.getElementById("balanceDisplay").textContent = "Failed to load balance";
-        });
-    }
-
-    function sendToTelegram() {
-      const name = document.getElementById("name").value;
-      const number = document.getElementById("number").value;
-      const items = document.getElementById("items").value;
-      const qty = document.getElementById("qty").value;
-      const amount = document.getElementById("amount").value;
-
-      if (!name || !number || !items || !qty || !amount) {
-        alert("❗Please fill all fields.");
-        return;
-      }
-
-      // ✅ CHECK WALLET BALANCE
-      const balanceText = document.getElementById("balanceDisplay").textContent.replace(/[₱,]/g, '');
-      const balance = parseFloat(balanceText);
-
-      if (isNaN(balance)) {
-        alert("⚠️ Unable to read wallet balance.");
-        return;
-      }
-
-      if (balance <= 0) {
-        alert("🚫 Cannot submit. Your wallet balance is ₱0.00.");
-        return;
-      }
-
-      const message = `📩 ORDER\n👤 Name: ${name}\n📞 Number: ${number}\n📦 Item: ${items}\n🔢 Qty: ${qty}\n💰 Amount: ₱${amount}\n🆔 By: ${hiddenCodename}`;
-
-      fetch("https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec", {
-        method: "POST",
-        body: new URLSearchParams({ message: message })
-      })
-      .then(() => {
-        alert("✅ Order sent to Telegram!");
-        document.getElementById("name").value = '';
-        document.getElementById("number").value = '';
-        document.getElementById("items").value = '';
-        document.getElementById("qty").value = '';
-        document.getElementById("amount").value = '';
+      products.forEach((prod, i) => {
+        const div = document.createElement('div');
+        div.className = "product";
+        div.innerHTML = `
+          <img src="${prod.Image}" alt="Product"/>
+          <span>${prod.Name} - ₱${prod.Price}</span>
+          <input type="number" min="0" value="0" data-index="${i}" />
+        `;
+        container.appendChild(div);
       });
     }
 
-    function logout() {
-      hiddenCodename = '';
-      lastMPIN = '';
-      document.getElementById("formDiv").style.display = "none";
-      document.getElementById("logoutBtn").style.display = "none";
-      document.getElementById("codenameDisplay").style.display = "none";
-      document.getElementById("walletCard").style.display = "none";
-      document.getElementById("mpin").style.display = "block";
-      document.getElementById("mpin").value = '';
-      document.getElementById("errorMsg").textContent = '';
-      document.getElementById("balanceDisplay").textContent = "⏳ Loading...";
-      alert("🔒 You have been logged out.");
+    function calculateTotal() {
+      let total = 0;
+      document.querySelectorAll('input[type="number"]').forEach((input, i) => {
+        const qty = parseInt(input.value) || 0;
+        total += qty * parseFloat(products[i].Price);
+      });
+      document.getElementById('total').innerText = total.toFixed(2);
     }
-  </script>
 
+    document.getElementById('orderForm').addEventListener('input', calculateTotal);
+
+    document.getElementById('orderForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const recaptcha = grecaptcha.getResponse();
+      if (!recaptcha) {
+        alert("❗ Please complete the reCAPTCHA.");
+        return;
+      }
+
+      const customerName = e.target.customerName.value.trim();
+      const contactNumber = e.target.contactNumber.value.trim();
+      const items = [];
+      let total = 0;
+
+      document.querySelectorAll('input[type="number"]').forEach((input, i) => {
+        const qty = parseInt(input.value);
+        if (qty > 0) {
+          const product = products[i];
+          const subtotal = qty * parseFloat(product.Price);
+          total += subtotal;
+          items.push({
+            name: product.Name,
+            qty,
+            price: product.Price,
+            subtotal,
+            image: product.Image
+          });
+        }
+      });
+
+      if (items.length === 0) {
+        alert("⚠️ Walang item na inorder.");
+        return;
+      }
+
+      const payload = {
+        customerName,
+        contactNumber,
+        items,
+        total: total.toFixed(2),
+        recaptcha
+      };
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.text();
+      if (result === "OK") {
+        alert("✅ Order sent successfully!");
+        e.target.reset();
+        grecaptcha.reset();
+        document.getElementById('total').innerText = "0";
+      } else {
+        alert("❌ Order failed.");
+      }
+    });
+
+    fetchProducts();
+  </script>
 </body>
 </html>
