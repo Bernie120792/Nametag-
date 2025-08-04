@@ -1,128 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>POS Order Form</title>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    .product { display: flex; align-items: center; margin-bottom: 10px; }
-    .product img { width: 80px; height: 80px; object-fit: cover; margin-right: 10px; }
-    .product input { width: 60px; margin-left: 10px; }
-    button { margin-top: 20px; padding: 10px 20px; }
+    body { font-family: sans-serif; max-width: 500px; margin: auto; padding: 1em; }
+    .product { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .product input { width: 60px; }
+    .total { font-weight: bold; margin-top: 1em; }
+    button { margin-top: 1em; }
   </style>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
-  <h2>🛒 POS Order Form</h2>
 
-  <form id="orderForm">
-    <label>Pangalan: <input type="text" name="customerName" required></label><br><br>
-    <label>Contact Number: <input type="text" name="contactNumber" required></label><br><br>
+  <h2>📦 POS Order Form</h2>
 
-    <div id="productList">Loading products...</div>
+  <label>Pangalan:</label><br>
+  <input type="text" id="customerName"><br><br>
 
-    <p><strong>Total: ₱<span id="total">0</span></strong></p>
+  <label>Contact Number:</label><br>
+  <input type="text" id="contactNumber"><br><br>
 
-    <div class="g-recaptcha" data-sitekey="6LfIzIgrAAAAAJjQOCdjGhvvKUx2EdQRpkD0hcO4"></div>
-    <br>
-    <button type="submit">🧾 Submit Order</button>
-  </form>
+  <div id="productList"></div>
+
+  <div class="total">Total: ₱<span id="totalAmount">0</span></div>
+
+  <div class="g-recaptcha" data-sitekey="6LeUcUcpAAAAAKXBxyCNVXzX_2HPbBIsFYeV3azR"></div>
+  <button onclick="submitOrder()">📤 Send Order</button>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzV93YTigz_b37fOP1Qp7MQR3aNAjZIUU7fw7q0udQpo83bqCGye_qDkqhln9k8N3TRVg/exec";
+    const productList = [
+      { name: "Lumpia", price: 20, image: "https://via.placeholder.com/100?text=Lumpia" },
+      { name: "Spaghetti", price: 30, image: "https://via.placeholder.com/100?text=Spaghetti" },
+      { name: "Hotdog", price: 15, image: "https://via.placeholder.com/100?text=Hotdog" }
+    ];
 
-    let products = [];
-
-    async function fetchProducts() {
-      const res = await fetch(API_URL);
-      products = await res.json();
-      const container = document.getElementById('productList');
-      container.innerHTML = '';
-
-      products.forEach((prod, i) => {
-        const div = document.createElement('div');
-        div.className = "product";
-        div.innerHTML = `
-          <img src="${prod.Image}" alt="Product"/>
-          <span>${prod.Name} - ₱${prod.Price}</span>
-          <input type="number" min="0" value="0" data-index="${i}" />
+    function renderProducts() {
+      const container = document.getElementById("productList");
+      container.innerHTML = "";
+      productList.forEach((p, index) => {
+        container.innerHTML += `
+          <div class="product">
+            <span>${p.name} (₱${p.price})</span>
+            <input type="number" min="0" value="0" onchange="updateTotal()" id="qty${index}">
+          </div>
         `;
-        container.appendChild(div);
       });
     }
 
-    function calculateTotal() {
+    function updateTotal() {
       let total = 0;
-      document.querySelectorAll('input[type="number"]').forEach((input, i) => {
-        const qty = parseInt(input.value) || 0;
-        total += qty * parseFloat(products[i].Price);
+      productList.forEach((p, index) => {
+        const qty = parseInt(document.getElementById(`qty${index}`).value) || 0;
+        total += qty * p.price;
       });
-      document.getElementById('total').innerText = total.toFixed(2);
+      document.getElementById("totalAmount").textContent = total;
     }
 
-    document.getElementById('orderForm').addEventListener('input', calculateTotal);
-
-    document.getElementById('orderForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
+    async function submitOrder() {
+      const customerName = document.getElementById("customerName").value.trim();
+      const contactNumber = document.getElementById("contactNumber").value.trim();
       const recaptcha = grecaptcha.getResponse();
-      if (!recaptcha) {
-        alert("❗ Please complete the reCAPTCHA.");
+
+      if (!customerName || !contactNumber) {
+        alert("❗ Pakilagay ang pangalan at contact number.");
         return;
       }
 
-      const customerName = e.target.customerName.value.trim();
-      const contactNumber = e.target.contactNumber.value.trim();
+      if (!recaptcha) {
+        alert("❗ Pakicomplete ang Recaptcha.");
+        return;
+      }
+
       const items = [];
       let total = 0;
 
-      document.querySelectorAll('input[type="number"]').forEach((input, i) => {
-        const qty = parseInt(input.value);
+      productList.forEach((p, index) => {
+        const qty = parseInt(document.getElementById(`qty${index}`).value) || 0;
         if (qty > 0) {
-          const product = products[i];
-          const subtotal = qty * parseFloat(product.Price);
+          const subtotal = qty * p.price;
           total += subtotal;
           items.push({
-            name: product.Name,
-            qty,
-            price: product.Price,
-            subtotal,
-            image: product.Image
+            name: p.name,
+            qty: qty,
+            subtotal: subtotal,
+            image: p.image
           });
         }
       });
 
       if (items.length === 0) {
-        alert("⚠️ Walang item na inorder.");
+        alert("❗ Pumili ng kahit isang produkto.");
         return;
       }
 
       const payload = {
         customerName,
         contactNumber,
-        items,
-        total: total.toFixed(2),
-        recaptcha
+        total,
+        items
       };
 
-      const response = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-      });
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
 
-      const result = await response.text();
-      if (result === "OK") {
-        alert("✅ Order sent successfully!");
-        e.target.reset();
-        grecaptcha.reset();
-        document.getElementById('total').innerText = "0";
-      } else {
-        alert("❌ Order failed.");
+        const result = await response.text();
+        if (result === "OK") {
+          alert("✅ Order sent successfully!");
+          location.reload(); // Clear form
+        } else {
+          alert("⚠️ Order failed: " + result);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error: " + err.message);
       }
-    });
+    }
 
-    fetchProducts();
+    renderProducts();
   </script>
+
 </body>
 </html>
