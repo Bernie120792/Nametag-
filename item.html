@@ -1,1 +1,130 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bernie POS</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 15px;
+    }
+    #product-list {
+      margin-bottom: 20px;
+    }
+    #cart-list {
+      margin-top: 10px;
+    }
+    h1, h3 {
+      margin-bottom: 10px;
+    }
+    input[type="number"] {
+      padding: 5px;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bernie POS</h1>
+
+  <div id="product-list"></div>
+
+  <h3>🛒 Cart</h3>
+  <ul id="cart-list"></ul>
+  <p>Total: ₱<span id="total">0</span></p>
+
+  <label>💵 Cash: ₱<input type="number" id="cash" /></label>
+  <p>💸 Change: ₱<span id="change">0</span></p>
+
+  <button onclick="sendToTelegram()">📤 Send to Telegram</button>
+
+  <script>
+    const webhookURL = 'https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec';
+
+    const products = [
+      { name: 'Softdrinks', price: 20 },
+      { name: 'Gulay', price: 30 },
+      { name: 'Tinapay', price: 10 }
+    ];
+
+    const cart = [];
+
+    const productList = document.getElementById('product-list');
+    const cartList = document.getElementById('cart-list');
+    const totalSpan = document.getElementById('total');
+    const changeSpan = document.getElementById('change');
+
+    // Create product buttons
+    products.forEach(product => {
+      const btn = document.createElement('button');
+      btn.textContent = `${product.name} - ₱${product.price}`;
+      btn.onclick = () => {
+        cart.push(product);
+        updateCart();
+      };
+      productList.appendChild(btn);
+    });
+
+    // Update cart display and totals
+    function updateCart() {
+      cartList.innerHTML = '';
+      let total = 0;
+      cart.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.name} - ₱${item.price}`;
+        cartList.appendChild(li);
+        total += item.price;
+      });
+      totalSpan.textContent = total;
+      const cash = parseFloat(document.getElementById('cash').value || 0);
+      changeSpan.textContent = (cash - total >= 0) ? cash - total : 0;
+    }
+
+    // Send transaction to Telegram
+    function sendToTelegram() {
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      const cash = parseFloat(document.getElementById('cash').value || 0);
+      const change = cash - total;
+
+      if (cart.length === 0) return alert("❌ Walang item sa cart.");
+      if (cash < total) return alert("❌ Insufficient cash.");
+
+      const itemsText = cart.map(i => `- ${i.name} ₱${i.price}`).join('\\n');
+      const message = `
+🧾 NEW TRANSACTION
+
+🛒 Items:
+${itemsText}
+
+💰 Total: ₱${total}
+💵 Cash: ₱${cash}
+💸 Change: ₱${change}
+
+📍 POS: BernieStore
+🕒 ${new Date().toLocaleString()}
+      `.trim();
+
+      fetch(webhookURL, {
+        method: 'POST',
+        body: JSON.stringify({ message }),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.text())
+      .then(res => {
+        alert('✅ Sent to Telegram!');
+        cart.length = 0;
+        updateCart();
+        document.getElementById('cash').value = '';
+      })
+      .catch(err => {
+        console.error(err);
+        alert('❌ Error sending to Telegram.');
+      });
+    }
+  </script>
+</body>
+</html>
