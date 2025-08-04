@@ -1,132 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>POS Order Form</title>
-  <style>
-    body { font-family: sans-serif; max-width: 500px; margin: auto; padding: 1em; }
-    .product { display: flex; justify-content: space-between; margin-bottom: 10px; }
-    .product input { width: 60px; }
-    .total { font-weight: bold; margin-top: 1em; }
-    button { margin-top: 1em; }
-  </style>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <meta charset="UTF-8" />
+  <title>Bernie POS</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-
-  <h2>📦 POS Order Form</h2>
-
-  <label>Pangalan:</label><br>
-  <input type="text" id="customerName"><br><br>
-
-  <label>Contact Number:</label><br>
-  <input type="text" id="contactNumber"><br><br>
-
-  <div id="productList"></div>
-
-  <div class="total">Total: ₱<span id="totalAmount">0</span></div>
-
-  <div class="g-recaptcha" data-sitekey="6LeUcUcpAAAAAKXBxyCNVXzX_2HPbBIsFYeV3azR"></div>
-  <button onclick="submitOrder()">📤 Send Order</button>
-
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzV93YTigz_b37fOP1Qp7MQR3aNAjZIUU7fw7q0udQpo83bqCGye_qDkqhln9k8N3TRVg/exec";
-    const productList = [
-      { name: "Lumpia", price: 20, image: "https://via.placeholder.com/100?text=Lumpia" },
-      { name: "Spaghetti", price: 30, image: "https://via.placeholder.com/100?text=Spaghetti" },
-      { name: "Hotdog", price: 15, image: "https://via.placeholder.com/100?text=Hotdog" }
-    ];
-
-    function renderProducts() {
-      const container = document.getElementById("productList");
-      container.innerHTML = "";
-      productList.forEach((p, index) => {
-        container.innerHTML += `
-          <div class="product">
-            <span>${p.name} (₱${p.price})</span>
-            <input type="number" min="0" value="0" onchange="updateTotal()" id="qty${index}">
-          </div>
-        `;
-      });
-    }
-
-    function updateTotal() {
-      let total = 0;
-      productList.forEach((p, index) => {
-        const qty = parseInt(document.getElementById(`qty${index}`).value) || 0;
-        total += qty * p.price;
-      });
-      document.getElementById("totalAmount").textContent = total;
-    }
-
-    async function submitOrder() {
-      const customerName = document.getElementById("customerName").value.trim();
-      const contactNumber = document.getElementById("contactNumber").value.trim();
-      const recaptcha = grecaptcha.getResponse();
-
-      if (!customerName || !contactNumber) {
-        alert("❗ Pakilagay ang pangalan at contact number.");
-        return;
-      }
-
-      if (!recaptcha) {
-        alert("❗ Pakicomplete ang Recaptcha.");
-        return;
-      }
-
-      const items = [];
-      let total = 0;
-
-      productList.forEach((p, index) => {
-        const qty = parseInt(document.getElementById(`qty${index}`).value) || 0;
-        if (qty > 0) {
-          const subtotal = qty * p.price;
-          total += subtotal;
-          items.push({
-            name: p.name,
-            qty: qty,
-            subtotal: subtotal,
-            image: p.image
-          });
-        }
-      });
-
-      if (items.length === 0) {
-        alert("❗ Pumili ng kahit isang produkto.");
-        return;
-      }
-
-      const payload = {
-        customerName,
-        contactNumber,
-        total,
-        items
-      };
-
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const result = await response.text();
-        if (result === "OK") {
-          alert("✅ Order sent successfully!");
-          location.reload(); // Clear form
-        } else {
-          alert("⚠️ Order failed: " + result);
-        }
-      } catch (err) {
-        console.error(err);
-        alert("❌ Error: " + err.message);
-      }
-    }
-
-    renderProducts();
-  </script>
-
+  <div class="landing">
+    <h1>Welcome to BerniePOS</h1>
+    <p>Click below to start selling!</p>
+    <a href="pos.html"><button>Start Selling</button></a>
+  </div>
 </body>
 </html>
