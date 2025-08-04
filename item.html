@@ -1,130 +1,157 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Bernie POS</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BerniePOS</title>
   <style>
     body {
-      font-family: sans-serif;
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f0f0f0;
     }
-    button {
-      margin: 5px;
-      padding: 10px 15px;
+    header {
+      background: #007bff;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
     }
-    #product-list {
-      margin-bottom: 20px;
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 1rem;
     }
-    #cart-list {
-      margin-top: 10px;
+    .product {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      width: 200px;
+      margin: 1rem;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
     }
-    h1, h3 {
-      margin-bottom: 10px;
+    .product img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 5px;
     }
-    input[type="number"] {
-      padding: 5px;
-      margin-top: 5px;
+    .product-name {
+      font-weight: bold;
+      margin: 0.5rem 0;
+    }
+    .product-price {
+      color: green;
+      margin-bottom: 0.5rem;
+    }
+    .btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .cart {
+      flex: 1;
+      padding: 1rem;
+      background: white;
+      border-top: 2px solid #007bff;
+    }
+    .cart ul {
+      list-style: none;
+      padding: 0;
+    }
+    .cart li {
+      border-bottom: 1px solid #ddd;
+      padding: 0.5rem 0;
+      display: flex;
+      justify-content: space-between;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
-  <h1>Bernie POS</h1>
+  <header>🛒 BerniePOS – Hardcoded with Images</header>
 
-  <div id="product-list"></div>
+  <div class="container" id="product-list"></div>
 
-  <h3>🛒 Cart</h3>
-  <ul id="cart-list"></ul>
-  <p>Total: ₱<span id="total">0</span></p>
-
-  <label>💵 Cash: ₱<input type="number" id="cash" /></label>
-  <p>💸 Change: ₱<span id="change">0</span></p>
-
-  <button onclick="sendToTelegram()">📤 Send to Telegram</button>
+  <div class="cart">
+    <h3>🧾 Cart</h3>
+    <ul id="cart-items"></ul>
+    <div class="total">Total: ₱<span id="total">0</span></div>
+  </div>
 
   <script>
-    const webhookURL = 'https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec';
-
     const products = [
-      { name: 'Softdrinks', price: 20 },
-      { name: 'Gulay', price: 30 },
-      { name: 'Tinapay', price: 10 }
+      {
+        name: "Dishwashing Liquid",
+        price: 25,
+        image: "https://via.placeholder.com/200x150?text=Dishwashing"
+      },
+      {
+        name: "Laundry Soap",
+        price: 30,
+        image: "https://via.placeholder.com/200x150?text=Laundry+Soap"
+      },
+      {
+        name: "Vinegar",
+        price: 15,
+        image: "https://via.placeholder.com/200x150?text=Vinegar"
+      },
+      {
+        name: "Soy Sauce",
+        price: 18,
+        image: "https://via.placeholder.com/200x150?text=Soy+Sauce"
+      }
     ];
 
     const cart = [];
+    const productList = document.getElementById("product-list");
+    const cartItems = document.getElementById("cart-items");
+    const totalDisplay = document.getElementById("total");
 
-    const productList = document.getElementById('product-list');
-    const cartList = document.getElementById('cart-list');
-    const totalSpan = document.getElementById('total');
-    const changeSpan = document.getElementById('change');
+    function addToCart(product) {
+      cart.push(product);
+      renderCart();
+    }
 
-    // Create product buttons
-    products.forEach(product => {
-      const btn = document.createElement('button');
-      btn.textContent = `${product.name} - ₱${product.price}`;
-      btn.onclick = () => {
-        cart.push(product);
-        updateCart();
-      };
-      productList.appendChild(btn);
-    });
+    function renderProducts() {
+      products.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `
+          <img src="${p.image}" alt="${p.name}">
+          <div class="product-name">${p.name}</div>
+          <div class="product-price">₱${p.price}</div>
+          <button class="btn" onclick='addToCart(${JSON.stringify(p)})'>Add</button>
+        `;
+        productList.appendChild(div);
+      });
+    }
 
-    // Update cart display and totals
-    function updateCart() {
-      cartList.innerHTML = '';
+    function renderCart() {
+      cartItems.innerHTML = "";
       let total = 0;
-      cart.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = `${item.name} - ₱${item.price}`;
-        cartList.appendChild(li);
+      cart.forEach((item, index) => {
         total += item.price;
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span>${item.name}</span>
+          <span>₱${item.price}</span>
+        `;
+        cartItems.appendChild(li);
       });
-      totalSpan.textContent = total;
-      const cash = parseFloat(document.getElementById('cash').value || 0);
-      changeSpan.textContent = (cash - total >= 0) ? cash - total : 0;
+      totalDisplay.textContent = total;
     }
 
-    // Send transaction to Telegram
-    function sendToTelegram() {
-      const total = cart.reduce((sum, item) => sum + item.price, 0);
-      const cash = parseFloat(document.getElementById('cash').value || 0);
-      const change = cash - total;
-
-      if (cart.length === 0) return alert("❌ Walang item sa cart.");
-      if (cash < total) return alert("❌ Insufficient cash.");
-
-      const itemsText = cart.map(i => `- ${i.name} ₱${i.price}`).join('\\n');
-      const message = `
-🧾 NEW TRANSACTION
-
-🛒 Items:
-${itemsText}
-
-💰 Total: ₱${total}
-💵 Cash: ₱${cash}
-💸 Change: ₱${change}
-
-📍 POS: BernieStore
-🕒 ${new Date().toLocaleString()}
-      `.trim();
-
-      fetch(webhookURL, {
-        method: 'POST',
-        body: JSON.stringify({ message }),
-        headers: { 'Content-Type': 'application/json' }
-      })
-      .then(res => res.text())
-      .then(res => {
-        alert('✅ Sent to Telegram!');
-        cart.length = 0;
-        updateCart();
-        document.getElementById('cash').value = '';
-      })
-      .catch(err => {
-        console.error(err);
-        alert('❌ Error sending to Telegram.');
-      });
-    }
+    renderProducts();
   </script>
 </body>
 </html>
