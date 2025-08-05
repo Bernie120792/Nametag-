@@ -2,156 +2,147 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BerniePOS</title>
+  <title>Bernie POS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background: #f0f0f0;
-    }
-    header {
-      background: #007bff;
-      color: white;
-      padding: 1rem;
+      font-family: sans-serif;
+      padding: 20px;
       text-align: center;
-      font-size: 1.5rem;
     }
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 1rem;
-    }
-    .product {
-      background: white;
-      border: 1px solid #ddd;
+    #product-list > div {
+      border: 1px solid #ccc;
+      display: inline-block;
+      margin: 10px;
+      padding: 10px;
       border-radius: 10px;
-      width: 200px;
-      margin: 1rem;
-      padding: 1rem;
       text-align: center;
-      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
     }
-    .product img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-      border-radius: 5px;
+    img {
+      border-radius: 8px;
     }
-    .product-name {
-      font-weight: bold;
-      margin: 0.5rem 0;
-    }
-    .product-price {
-      color: green;
-      margin-bottom: 0.5rem;
-    }
-    .btn {
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .cart {
-      flex: 1;
-      padding: 1rem;
-      background: white;
-      border-top: 2px solid #007bff;
-    }
-    .cart ul {
+    ul {
       list-style: none;
       padding: 0;
     }
-    .cart li {
-      border-bottom: 1px solid #ddd;
-      padding: 0.5rem 0;
-      display: flex;
-      justify-content: space-between;
+    li {
+      background: #f4f4f4;
+      padding: 5px;
+      margin: 5px 0;
+      cursor: pointer;
     }
-    .total {
-      font-weight: bold;
-      font-size: 1.2rem;
-      margin-top: 1rem;
+    button {
+      padding: 5px 10px;
+      margin-top: 5px;
+    }
+    input {
+      padding: 8px;
+      margin: 10px;
+      width: 150px;
     }
   </style>
 </head>
 <body>
-  <header>🛒 BerniePOS – Hardcoded with Images</header>
+  <h2>Bernie POS</h2>
+  <div id="product-list"></div>
 
-  <div class="container" id="product-list"></div>
-
-  <div class="cart">
-    <h3>🧾 Cart</h3>
-    <ul id="cart-items"></ul>
-    <div class="total">Total: ₱<span id="total">0</span></div>
-  </div>
+  <h3>🛒 Cart</h3>
+  <ul id="cart"></ul>
+  <p>Total: ₱<span id="total">0</span></p>
+  <input type="number" id="cash" placeholder="Enter Cash" />
+  <p>Change: ₱<span id="change">0</span></p>
+  <button onclick="sendOrder()">Send to Telegram</button>
 
   <script>
+    const productList = document.getElementById('product-list');
+    const cartEl = document.getElementById('cart');
+    const totalEl = document.getElementById('total');
+    const changeEl = document.getElementById('change');
+    const cashInput = document.getElementById('cash');
+    let cart = [];
+
+    // ✅ Hardcoded Product List
     const products = [
-      {
-        name: "Dishwashing Liquid",
-        price: 25,
-        image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgMjdVLlfR3PhUUi6I4Xsr-U4xCH-ob6xhY3HntV7Jn4A_IEawauI9NMLjxVOKwMOaLVFsvvoeJX3GD9yC05mYhWL9yi6F1-qrPOGdMKYzCGTZJgOAYduNgkjNIcygv6Hk6RrpAzEC23-nvr9dhnoyGuTfwa0zprcdtezVEDES_tRQ-mgcG88HzRU0HIqY/s560/IMG_20250719_125935.jpg"
-      },
-      {
-        name: "Laundry Soap",
-        price: 30,
-        image: "https://via.placeholder.com/200x150?text=Laundry+Soap"
-      },
-      {
-        name: "Vinegar",
-        price: 15,
-        image: "https://via.placeholder.com/200x150?text=Vinegar"
-      },
-      {
-        name: "Soy Sauce",
-        price: 18,
-        image: "https://via.placeholder.com/200x150?text=Soy+Sauce"
-      }
+      { name: "Hotdog", price: 20, image: "https://via.placeholder.com/100" },
+      { name: "Burger", price: 40, image: "https://via.placeholder.com/100" },
+      { name: "Fries", price: 25, image: "https://via.placeholder.com/100" },
+      { name: "Softdrinks", price: 15, image: "https://via.placeholder.com/100" },
+      { name: "Spaghetti", price: 30, image: "https://via.placeholder.com/100" },
+      { name: "Siomai", price: 10, image: "https://via.placeholder.com/100" },
+      { name: "Rice Meal", price: 50, image: "https://via.placeholder.com/100" },
+      { name: "Juice", price: 10, image: "https://via.placeholder.com/100" }
     ];
 
-    const cart = [];
-    const productList = document.getElementById("product-list");
-    const cartItems = document.getElementById("cart-items");
-    const totalDisplay = document.getElementById("total");
+    // Display Products
+    products.forEach(prod => {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <img src="${prod.image}" width="100"><br>
+        <strong>${prod.name}</strong><br>
+        ₱${prod.price}<br>
+        <button onclick='addToCart("${prod.name}", ${prod.price})'>Add</button>
+      `;
+      productList.appendChild(div);
+    });
 
-    function addToCart(product) {
-      cart.push(product);
+    function addToCart(name, price) {
+      cart.push({ name, price });
       renderCart();
     }
 
-    function renderProducts() {
-      products.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "product";
-        div.innerHTML = `
-          <img src="${p.image}" alt="${p.name}">
-          <div class="product-name">${p.name}</div>
-          <div class="product-price">₱${p.price}</div>
-          <button class="btn" onclick='addToCart(${JSON.stringify(p)})'>Add</button>
-        `;
-        productList.appendChild(div);
-      });
-    }
-
     function renderCart() {
-      cartItems.innerHTML = "";
+      cartEl.innerHTML = "";
       let total = 0;
-      cart.forEach((item, index) => {
-        total += item.price;
+      cart.forEach((item, i) => {
         const li = document.createElement("li");
-        li.innerHTML = `
-          <span>${item.name}</span>
-          <span>₱${item.price}</span>
-        `;
-        cartItems.appendChild(li);
+        li.textContent = `${item.name} - ₱${item.price}`;
+        li.onclick = () => { cart.splice(i, 1); renderCart(); };
+        cartEl.appendChild(li);
+        total += item.price;
       });
-      totalDisplay.textContent = total;
+      totalEl.textContent = total;
+      updateChange();
     }
 
-    renderProducts();
+    cashInput.addEventListener('input', updateChange);
+    function updateChange() {
+      const total = parseFloat(totalEl.textContent);
+      const cash = parseFloat(cashInput.value || 0);
+      changeEl.textContent = (cash - total) >= 0 ? (cash - total) : 0;
+    }
+
+    function sendOrder() {
+      const orderText = cart.map(i => `${i.name} - ₱${i.price}`).join("\n");
+      const total = totalEl.textContent;
+      const cash = cashInput.value;
+      const change = changeEl.textContent;
+      const msg = `🧾 New Order\n\n${orderText}\n\nTotal: ₱${total}\nCash: ₱${cash}\nChange: ₱${change}`;
+
+      sendToTelegram(msg);
+      alert("Order sent to Telegram!");
+      cart = [];
+      renderCart();
+      cashInput.value = '';
+      changeEl.textContent = '0';
+    }
+
+    // ✅ Telegram function here
+    function sendToTelegram(message) {
+      const telegramBotToken = "7619625107:AAENHMSvD5cPL6z_9BOz5HpXJUDs7gC75NQ";
+      const telegramChatId = "8016868219";
+
+      const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
+      const data = {
+        chat_id: telegramChatId,
+        text: message
+      };
+
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+    }
   </script>
 </body>
 </html>
