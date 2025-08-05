@@ -1,35 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Product Order Form</title>
+  <title>Product Order</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 400px;
-      margin: 30px auto;
       padding: 20px;
+      max-width: 400px;
+      margin: 50px auto;
       border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    h2 {
-      text-align: center;
+      border-radius: 10px;
     }
     input, textarea, button {
       width: 100%;
       padding: 10px;
-      margin: 10px 0;
+      margin: 8px 0;
     }
     button {
       background-color: #28a745;
       color: white;
       border: none;
-      cursor: pointer;
+      font-weight: bold;
     }
     #status {
       text-align: center;
       margin-top: 10px;
-      font-weight: bold;
+      color: green;
     }
   </style>
 </head>
@@ -37,47 +34,56 @@
 
   <h2>🛒 Product Order</h2>
   <form id="orderForm">
-    <input type="text" id="name" name="name" placeholder="Customer Name" required>
-    <input type="text" id="number" name="number" placeholder="Phone Number" required>
-    <input type="text" id="product" name="product" placeholder="Product Name" required>
-    <input type="number" id="quantity" name="quantity" placeholder="Quantity" required>
-    <textarea id="notes" name="notes" placeholder="Additional Notes (optional)"></textarea>
+    <input type="text" name="name" placeholder="Customer Name" required>
+    <input type="text" name="number" placeholder="Phone Number" required>
+    <input type="text" name="product" placeholder="Product Name" required>
+    <input type="number" name="quantity" placeholder="Quantity" required>
+    <textarea name="notes" placeholder="Notes (optional)"></textarea>
     <button type="submit">Send to Telegram</button>
     <p id="status"></p>
   </form>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzW4ZwSQQi_eaZAhVIrdTBPZP6MtPUZBozngK1HPp7DxNz5eSFUAFQU744AQK440Msyog/exec";
+    // Base64 encoded and obfuscated URL for security
+    const encoded = "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6VzRad1NRUWlfZWFaQWhWSXJkVEJQWlA2TXRQVVpCb3puZ0sxSFBwN0R4TnowNWVTRlVBRlFVNzQ0QVFLODQwTXN5b2cvZXhlYw==";
+    const SCRIPT_URL = atob(encoded);
 
     document.getElementById("orderForm").addEventListener("submit", function(e) {
       e.preventDefault();
 
-      const form = e.target;
+      const formData = new FormData(e.target);
+      const data = {};
 
-      const data = {
-        name: form.name.value,
-        number: form.number.value,
-        product: form.product.value,
-        quantity: form.quantity.value,
-        notes: form.notes.value
-      };
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+
+      // Optional: Disable button while sending
+      const button = e.target.querySelector("button");
+      button.disabled = true;
+      button.innerText = "Sending...";
 
       fetch(SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json",
+        }
       })
       .then(response => response.text())
       .then(result => {
-        document.getElementById("status").innerText = "✅ Order sent to Telegram!";
-        form.reset();
+        document.getElementById("status").innerText = "✅ Order sent successfully!";
+        e.target.reset();
       })
       .catch(error => {
-        console.error("Fetch error:", error);
-        document.getElementById("status").innerText = "❌ Failed to send order.";
+        console.error("Error:", error);
+        document.getElementById("status").innerText = "❌ Failed to send.";
+      })
+      .finally(() => {
+        button.disabled = false;
+        button.innerText = "Send to Telegram";
       });
     });
   </script>
-
 </body>
 </html>
