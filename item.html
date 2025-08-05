@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Bernie POS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     body {
       font-family: sans-serif;
@@ -35,23 +36,40 @@
       padding: 5px 10px;
       margin-top: 5px;
     }
-    input {
+    input, textarea {
       padding: 8px;
-      margin: 10px;
-      width: 150px;
+      margin: 5px;
+      width: 90%;
+    }
+    #receipt {
+      border: 1px solid #aaa;
+      padding: 10px;
+      margin: 20px auto;
+      max-width: 400px;
+      background: #fff;
     }
   </style>
 </head>
 <body>
   <h2>Bernie POS</h2>
+
+  <div>
+    <input id="cust-name" placeholder="Customer Name" required><br>
+    <input id="cust-phone" placeholder="Cellphone Number" required><br>
+    <textarea id="cust-address" placeholder="Address" required></textarea>
+  </div>
+
   <div id="product-list"></div>
 
-  <h3>🛒 Cart</h3>
-  <ul id="cart"></ul>
-  <p>Total: ₱<span id="total">0</span></p>
-  <input type="number" id="cash" placeholder="Enter Cash" />
-  <p>Change: ₱<span id="change">0</span></p>
-  <button onclick="sendOrder()">Send to Telegram</button>
+  <div id="receipt">
+    <h3>🧾 Cart</h3>
+    <ul id="cart"></ul>
+    <p>Total: ₱<span id="total">0</span></p>
+    <input type="number" id="cash" placeholder="Enter Cash" />
+    <p>Change: ₱<span id="change">0</span></p>
+  </div>
+
+  <button onclick="sendOrder()">Send to Telegram + Save Receipt</button>
 
   <script>
     const productList = document.getElementById('product-list');
@@ -59,9 +77,12 @@
     const totalEl = document.getElementById('total');
     const changeEl = document.getElementById('change');
     const cashInput = document.getElementById('cash');
+    const nameInput = document.getElementById('cust-name');
+    const phoneInput = document.getElementById('cust-phone');
+    const addressInput = document.getElementById('cust-address');
+
     let cart = [];
 
-    // ✅ Hardcoded Product List
     const products = [
       { name: "Hotdog", price: 20, image: "https://via.placeholder.com/100" },
       { name: "Burger", price: 40, image: "https://via.placeholder.com/100" },
@@ -73,7 +94,6 @@
       { name: "Juice", price: 10, image: "https://via.placeholder.com/100" }
     ];
 
-    // Display Products
     products.forEach(prod => {
       const div = document.createElement('div');
       div.innerHTML = `
@@ -112,21 +132,21 @@
     }
 
     function sendOrder() {
+      if (!nameInput.value || !phoneInput.value || !addressInput.value) {
+        alert("Please fill in customer details.");
+        return;
+      }
+
       const orderText = cart.map(i => `${i.name} - ₱${i.price}`).join("\n");
       const total = totalEl.textContent;
       const cash = cashInput.value;
       const change = changeEl.textContent;
-      const msg = `🧾 New Order\n\n${orderText}\n\nTotal: ₱${total}\nCash: ₱${cash}\nChange: ₱${change}`;
 
+      const msg = `🧾 NEW ORDER\n👤 Name: ${nameInput.value}\n📱 Phone: ${phoneInput.value}\n🏠 Address: ${addressInput.value}\n\n${orderText}\n\nTotal: ₱${total}\nCash: ₱${cash}\nChange: ₱${change}`;
       sendToTelegram(msg);
-      alert("Order sent to Telegram!");
-      cart = [];
-      renderCart();
-      cashInput.value = '';
-      changeEl.textContent = '0';
+      saveReceiptImage();
     }
 
-    // ✅ Telegram function here
     function sendToTelegram(message) {
       const telegramBotToken = "7619625107:AAENHMSvD5cPL6z_9BOz5HpXJUDs7gC75NQ";
       const telegramChatId = "8016868219";
@@ -141,7 +161,29 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
+      }).then(() => {
+        alert("✅ Order sent to Telegram!");
+        clearAll();
       });
+    }
+
+    function saveReceiptImage() {
+      html2canvas(document.getElementById("receipt")).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "receipt.png";
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+
+    function clearAll() {
+      cart = [];
+      renderCart();
+      cashInput.value = '';
+      changeEl.textContent = '0';
+      nameInput.value = '';
+      phoneInput.value = '';
+      addressInput.value = '';
     }
   </script>
 </body>
