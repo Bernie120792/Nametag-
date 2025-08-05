@@ -1,190 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Bernie POS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <meta charset="UTF-8">
+  <title>BerniePOS</title>
   <style>
     body {
-      font-family: sans-serif;
-      padding: 20px;
+      font-family: Arial;
+      margin: 0;
+      padding: 0;
+      background: #f8f8f8;
+    }
+    header, footer {
+      background: #2d2d2d;
+      color: white;
+      padding: 10px;
       text-align: center;
     }
-    #product-list > div {
-      border: 1px solid #ccc;
+    .container {
+      padding: 20px;
+    }
+    .product {
       display: inline-block;
+      width: 150px;
       margin: 10px;
       padding: 10px;
-      border-radius: 10px;
+      background: white;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 0 5px #ccc;
+    }
+    .product img {
+      width: 100px;
+      height: 100px;
+    }
+    #cart {
+      margin-top: 20px;
+    }
+    #cart table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #cart th, #cart td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    .form-section {
+      margin-top: 20px;
+    }
+    .form-section input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+    #qr {
+      display: none;
       text-align: center;
     }
-    img {
-      border-radius: 8px;
+    #qr img {
+      width: 200px;
     }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      background: #f4f4f4;
-      padding: 5px;
-      margin: 5px 0;
+    .btn {
+      background: #2d2d2d;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      margin-top: 10px;
       cursor: pointer;
-    }
-    button {
-      padding: 5px 10px;
-      margin-top: 5px;
-    }
-    input, textarea {
-      padding: 8px;
-      margin: 5px;
-      width: 90%;
-    }
-    #receipt {
-      border: 1px solid #aaa;
-      padding: 10px;
-      margin: 20px auto;
-      max-width: 400px;
-      background: #fff;
     }
   </style>
 </head>
 <body>
-  <h2>Bernie POS</h2>
+  <header>
+    <h1>Bernie POS</h1>
+  </header>
 
-  <div>
-    <input id="cust-name" placeholder="Customer Name" required><br>
-    <input id="cust-phone" placeholder="Cellphone Number" required><br>
-    <textarea id="cust-address" placeholder="Address" required></textarea>
+  <div class="container">
+    <h2>Products</h2>
+    <div id="product-list-container"></div>
+
+    <div id="cart">
+      <h3>Cart</h3>
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr>
+        </thead>
+        <tbody id="product-list"></tbody>
+        <tfoot>
+          <tr><td colspan="3"><strong>Total</strong></td><td id="total">₱0</td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="form-section">
+      <h3>Customer Details</h3>
+      <input type="text" id="customerName" placeholder="Name" required>
+      <input type="tel" id="customerPhone" placeholder="Phone Number" required>
+      <textarea id="customerAddress" placeholder="Address" required></textarea>
+
+      <h4>Payment Method</h4>
+      <label><input type="radio" name="paymentMethod" value="COD" checked> Cash on Delivery (COD)</label><br>
+      <label><input type="radio" name="paymentMethod" value="GCash"> GCash</label>
+
+      <div id="qr">
+        <p>Scan to pay with GCash:</p>
+        <img src="img/qrcode.png" alt="GCash QR Code">
+      </div>
+
+      <button class="btn" onclick="sendToTelegram()">Send Order</button>
+    </div>
   </div>
 
-  <div id="product-list"></div>
-
-  <div id="receipt">
-    <h3>🧾 Cart</h3>
-    <ul id="cart"></ul>
-    <p>Total: ₱<span id="total">0</span></p>
-    <input type="number" id="cash" placeholder="Enter Cash" />
-    <p>Change: ₱<span id="change">0</span></p>
-  </div>
-
-  <button onclick="sendOrder()">Send to Telegram + Save Receipt</button>
+  <footer>
+    &copy; 2025 BerniePOS
+  </footer>
 
   <script>
-    const productList = document.getElementById('product-list');
-    const cartEl = document.getElementById('cart');
-    const totalEl = document.getElementById('total');
-    const changeEl = document.getElementById('change');
-    const cashInput = document.getElementById('cash');
-    const nameInput = document.getElementById('cust-name');
-    const phoneInput = document.getElementById('cust-phone');
-    const addressInput = document.getElementById('cust-address');
-
-    let cart = [];
+    const TELEGRAM_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcdylyg3lfnJrBfo2TFAlnGlw7a1rHZpc3yRNub3pvbRi_yjudAXn3pR-m7lgEIiTfNQ/exec";
 
     const products = [
-      { name: "Hotdog", price: 20, image: "https://via.placeholder.com/100" },
-      { name: "Burger", price: 40, image: "https://via.placeholder.com/100" },
-      { name: "Fries", price: 25, image: "https://via.placeholder.com/100" },
-      { name: "Softdrinks", price: 15, image: "https://via.placeholder.com/100" },
-      { name: "Spaghetti", price: 30, image: "https://via.placeholder.com/100" },
-      { name: "Siomai", price: 10, image: "https://via.placeholder.com/100" },
-      { name: "Rice Meal", price: 50, image: "https://via.placeholder.com/100" },
-      { name: "Juice", price: 10, image: "https://via.placeholder.com/100" }
+      { name: "Dishwashing Liquid", price: 25, img: "img/dish.png" },
+      { name: "Laundry Soap", price: 20, img: "img/laundry.png" },
+      { name: "Siomai", price: 5, img: "img/siomai.png" },
+      { name: "Lumpia", price: 5, img: "img/lumpia.png" }
     ];
 
-    products.forEach(prod => {
-      const div = document.createElement('div');
-      div.innerHTML = `
-        <img src="${prod.image}" width="100"><br>
-        <strong>${prod.name}</strong><br>
-        ₱${prod.price}<br>
-        <button onclick='addToCart("${prod.name}", ${prod.price})'>Add</button>
-      `;
-      productList.appendChild(div);
-    });
+    const cart = {};
 
-    function addToCart(name, price) {
-      cart.push({ name, price });
+    function renderProducts() {
+      const container = document.getElementById("product-list-container");
+      products.forEach((product, i) => {
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `
+          <img src="${product.img}" alt="${product.name}">
+          <p>${product.name}</p>
+          <p>₱${product.price}</p>
+          <button class="btn" onclick="addToCart(${i})">Add</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addToCart(index) {
+      const product = products[index];
+      if (!cart[product.name]) {
+        cart[product.name] = { qty: 1, price: product.price };
+      } else {
+        cart[product.name].qty++;
+      }
       renderCart();
     }
 
     function renderCart() {
-      cartEl.innerHTML = "";
+      const tbody = document.getElementById("product-list");
+      tbody.innerHTML = "";
       let total = 0;
-      cart.forEach((item, i) => {
-        const li = document.createElement("li");
-        li.textContent = `${item.name} - ₱${item.price}`;
-        li.onclick = () => { cart.splice(i, 1); renderCart(); };
-        cartEl.appendChild(li);
-        total += item.price;
-      });
-      totalEl.textContent = total;
-      updateChange();
-    }
-
-    cashInput.addEventListener('input', updateChange);
-    function updateChange() {
-      const total = parseFloat(totalEl.textContent);
-      const cash = parseFloat(cashInput.value || 0);
-      changeEl.textContent = (cash - total) >= 0 ? (cash - total) : 0;
-    }
-
-    function sendOrder() {
-      if (!nameInput.value || !phoneInput.value || !addressInput.value) {
-        alert("Please fill in customer details.");
-        return;
+      for (let name in cart) {
+        const item = cart[name];
+        const subtotal = item.qty * item.price;
+        total += subtotal;
+        tbody.innerHTML += `
+          <tr>
+            <td class="item-name">${name}</td>
+            <td class="item-qty">${item.qty}</td>
+            <td class="item-price">${item.price}</td>
+            <td>₱${subtotal}</td>
+          </tr>
+        `;
       }
-
-      const orderText = cart.map(i => `${i.name} - ₱${i.price}`).join("\n");
-      const total = totalEl.textContent;
-      const cash = cashInput.value;
-      const change = changeEl.textContent;
-
-      const msg = `🧾 NEW ORDER\n👤 Name: ${nameInput.value}\n📱 Phone: ${phoneInput.value}\n🏠 Address: ${addressInput.value}\n\n${orderText}\n\nTotal: ₱${total}\nCash: ₱${cash}\nChange: ₱${change}`;
-      sendToTelegram(msg);
-      saveReceiptImage();
+      document.getElementById("total").textContent = "₱" + total;
     }
 
-    function sendToTelegram(message) {
-      const telegramBotToken = "7619625107:AAENHMSvD5cPL6z_9BOz5HpXJUDs7gC75NQ";
-      const telegramChatId = "8016868219";
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+      radio.addEventListener("change", () => {
+        const qr = document.getElementById("qr");
+        qr.style.display = (radio.value === "GCash" && radio.checked) ? "block" : "none";
+      });
+    });
 
-      const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
+    function sendToTelegram() {
+      const name = document.getElementById("customerName").value;
+      const phone = document.getElementById("customerPhone").value;
+      const address = document.getElementById("customerAddress").value;
+      const payment = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+      const rows = document.querySelectorAll("#product-list tr");
+      let items = [];
+      let total = 0;
+
+      rows.forEach(row => {
+        const itemName = row.querySelector(".item-name").textContent;
+        const qty = parseInt(row.querySelector(".item-qty").textContent);
+        const price = parseFloat(row.querySelector(".item-price").textContent);
+        items.push({ name: itemName, qty, price });
+        total += qty * price;
+      });
+
       const data = {
-        chat_id: telegramChatId,
-        text: message
+        name,
+        phone,
+        address,
+        payment,
+        total,
+        items
       };
 
-      fetch(url, {
+      fetch(TELEGRAM_SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      }).then(() => {
-        alert("✅ Order sent to Telegram!");
-        clearAll();
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(res => res.text())
+      .then(result => {
+        alert("✔️ Order sent!");
+      })
+      .catch(err => {
+        alert("❌ Failed to send.");
+        console.error(err);
       });
     }
 
-    function saveReceiptImage() {
-      html2canvas(document.getElementById("receipt")).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "receipt.png";
-        link.href = canvas.toDataURL();
-        link.click();
-      });
-    }
-
-    function clearAll() {
-      cart = [];
-      renderCart();
-      cashInput.value = '';
-      changeEl.textContent = '0';
-      nameInput.value = '';
-      phoneInput.value = '';
-      addressInput.value = '';
-    }
+    renderProducts();
   </script>
 </body>
 </html>
