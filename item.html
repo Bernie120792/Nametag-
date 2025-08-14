@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Products</title>
+<title>POS - Products</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   body {
@@ -37,6 +37,7 @@
     flex-wrap: wrap;
     gap: 15px;
     justify-content: center;
+    margin-bottom: 20px;
   }
   .product-button {
     flex: 1 1 45%;
@@ -51,6 +52,54 @@
   }
   .product-button:hover {
     background-color: #ff4757;
+  }
+  .cart {
+    max-width: 500px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  .cart h3 {
+    margin-top: 0;
+  }
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .cart-item button {
+    background: #dc3545;
+    border: none;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .cart-item button:hover {
+    background: #c82333;
+  }
+  .total {
+    text-align: right;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  .send-button {
+    display: block;
+    width: 200px;
+    margin: 15px auto 0 auto;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    text-align: center;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .send-button:hover {
+    background-color: #218838;
   }
 </style>
 </head>
@@ -68,14 +117,90 @@
   <button class="product-button" onclick="addProduct('Ice Cream', 40)">Ice Cream - ₱40</button>
 </div>
 
+<div class="cart">
+  <h3>Cart</h3>
+  <div id="cart-items"></div>
+  <div class="total" id="total">Total: ₱0</div>
+  <button class="send-button" onclick="sendToTelegram()">📨 Send to Telegram</button>
+</div>
+
 <script>
+// ===== Telegram Settings =====
+const telegramBotToken = 'YOUR_BOT_TOKEN_HERE';
+const telegramChatId = 'YOUR_CHAT_ID_HERE';
+
+let cart = [];
+
 function addProduct(name, price) {
-  alert(`✅ Added ${name} - ₱${price}`);
-  // dito puwede i-send sa main HTML system o MIT App Inventor backend
+  const existing = cart.find(item => item.name === name);
+  if(existing){
+    existing.quantity += 1;
+  } else {
+    cart.push({name, price, quantity: 1});
+  }
+  renderCart();
+}
+
+function removeProduct(name){
+  cart = cart.filter(item => item.name !== name);
+  renderCart();
+}
+
+function renderCart(){
+  const cartDiv = document.getElementById('cart-items');
+  cartDiv.innerHTML = '';
+  let total = 0;
+  cart.forEach(item => {
+    total += item.price * item.quantity;
+    const div = document.createElement('div');
+    div.className = 'cart-item';
+    div.innerHTML = `${item.name} x ${item.quantity} - ₱${item.price * item.quantity} <button onclick="removeProduct('${item.name}')">❌</button>`;
+    cartDiv.appendChild(div);
+  });
+  document.getElementById('total').textContent = `Total: ₱${total}`;
+}
+
+// ===== Send Cart to Telegram =====
+function sendToTelegram(){
+  if(cart.length === 0){
+    alert('Cart is empty!');
+    return;
+  }
+  let message = '🛒 *New Order*\n\n';
+  let total = 0;
+  cart.forEach(item => {
+    message += `${item.name} x ${item.quantity} = ₱${item.price * item.quantity}\n`;
+    total += item.price * item.quantity;
+  });
+  message += `\n*Total: ₱${total}*`;
+
+  fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: telegramChatId,
+      text: message,
+      parse_mode: 'Markdown'
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.ok){
+      alert('✅ Order sent to Telegram!');
+      cart = [];
+      renderCart();
+    } else {
+      alert('❌ Failed to send. Check bot token/chat ID.');
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert('❌ Error sending order.');
+  });
 }
 
 function goHome() {
-  window.location.href = 'index.html'; // babalik sa main dashboard
+  window.location.href = 'index.html';
 }
 </script>
 
