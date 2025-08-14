@@ -1,89 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Product Order</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 400px;
-      margin: 50px auto;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-    }
-    input, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-    }
-    button {
-      background-color: #28a745;
-      color: white;
-      border: none;
-      font-weight: bold;
-    }
-    #status {
-      text-align: center;
-      margin-top: 10px;
-      color: green;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Products</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+  }
+  h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  .home-button {
+    display: block;
+    width: 100px;
+    margin: 0 auto 20px auto;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .home-button:hover {
+    background-color: #0056b3;
+  }
+  .product-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+  }
+  .product-button {
+    flex: 1 1 45%;
+    padding: 15px;
+    background-color: #ff6b6b;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+  }
+  .product-button:hover {
+    background-color: #ff4757;
+  }
+</style>
 </head>
 <body>
 
-  <h2>🛒 Product Order</h2>
-  <form id="orderForm">
-    <input type="text" name="name" placeholder="Customer Name" required>
-    <input type="text" name="number" placeholder="Phone Number" required>
-    <input type="text" name="product" placeholder="Product Name" required>
-    <input type="number" name="quantity" placeholder="Quantity" required>
-    <textarea name="notes" placeholder="Notes (optional)"></textarea>
-    <button type="submit">Send to Telegram</button>
-    <p id="status"></p>
-  </form>
+<button class="home-button" onclick="goHome()">🏠 Home</button>
+<h2>Our Products</h2>
 
-  <script>
-    // Base64 encoded and obfuscated URL for security
-    const encoded = "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6VzRad1NRUWlfZWFaQWhWSXJkVEJQWlA2TXRQVVpCb3puZ0sxSFBwN0R4TnowNWVTRlVBRlFVNzQ0QVFLODQwTXN5b2cvZXhlYw==";
-    const SCRIPT_URL = atob(encoded);
+<div class="product-grid">
+  <button class="product-button" onclick="addProduct('Fried Chicken', 120)">Fried Chicken - ₱120</button>
+  <button class="product-button" onclick="addProduct('Chicken Meal with Rice', 150)">Chicken Meal + Rice - ₱150</button>
+  <button class="product-button" onclick="addProduct('Burger', 80)">Burger - ₱80</button>
+  <button class="product-button" onclick="addProduct('Fries', 50)">Fries - ₱50</button>
+  <button class="product-button" onclick="addProduct('Soft Drink', 30)">Soft Drink - ₱30</button>
+  <button class="product-button" onclick="addProduct('Ice Cream', 40)">Ice Cream - ₱40</button>
+</div>
 
-    document.getElementById("orderForm").addEventListener("submit", function(e) {
-      e.preventDefault();
+<script>
+function addProduct(name, price) {
+  alert(`✅ Added ${name} - ₱${price}`);
+  // dito puwede i-send sa main HTML system o MIT App Inventor backend
+}
 
-      const formData = new FormData(e.target);
-      const data = {};
+function goHome() {
+  window.location.href = 'index.html'; // babalik sa main dashboard
+}
+</script>
 
-      formData.forEach((value, key) => {
-        data[key] = value;
-      });
-
-      // Optional: Disable button while sending
-      const button = e.target.querySelector("button");
-      button.disabled = true;
-      button.innerText = "Sending...";
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        }
-      })
-      .then(response => response.text())
-      .then(result => {
-        document.getElementById("status").innerText = "✅ Order sent successfully!";
-        e.target.reset();
-      })
-      .catch(error => {
-        console.error("Error:", error);
-        document.getElementById("status").innerText = "❌ Failed to send.";
-      })
-      .finally(() => {
-        button.disabled = false;
-        button.innerText = "Send to Telegram";
-      });
-    });
-  </script>
 </body>
 </html>
