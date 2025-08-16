@@ -61,10 +61,31 @@
     .home-btn:hover {
       background: #26c281;
     }
+    #tableStatus {
+      max-width: 400px;
+      margin: 20px auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .table-box {
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      color: white;
+      cursor: default;
+    }
+    .free { background: #2ed573; }      /* Green = Libre */
+    .occupied { background: #ff4757; }  /* Red = Occupied */
+    .preparing { background: #ffa502; } /* Orange = In-progress */
   </style>
 </head>
 <body>
   <h2>💳 Cashier - Take Order</h2>
+
+  <div id="tableStatus">Loading tables...</div>
+
   <form id="orderForm">
     <label>Order:</label>
     <select id="order">
@@ -74,7 +95,7 @@
     </select>
 
     <label>Table No:</label>
-    <input type="text" id="table" required>
+    <input type="text" id="table" required placeholder="Enter table number">
 
     <button type="submit">Submit Order</button>
   </form>
@@ -82,12 +103,27 @@
   <a href="index.html" class="home-btn">🏠 Home</a>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5T9B32bsNui8rACHcK5AMCHqNR1X4QW-qol3wOxzg9FRMeIxtdgxbBUIDxtp3NsZ4Uw/exec"; // <<--- palitan mo
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5T9B32bsNui8rACHcK5AMCHqNR1X4QW-qol3wOxzg9FRMeIxtdgxbBUIDxtp3NsZ4Uw/exec"; // palitan mo
+    const TOTAL_TABLES = 12; // Total number of tables
 
     async function getOrders() {
       let res = await fetch(SCRIPT_URL);
       let data = await res.json();
       return data;
+    }
+
+    async function updateTableStatus() {
+      let orders = await getOrders();
+      let container = document.getElementById("tableStatus");
+      container.innerHTML = "";
+
+      for(let i=1; i<=TOTAL_TABLES; i++){
+        let occupiedOrder = orders.find(o => o.table == i && o.status !== "Done");
+        let div = document.createElement("div");
+        div.className = "table-box " + (occupiedOrder ? "occupied" : "free");
+        div.textContent = "Table " + i;
+        container.appendChild(div);
+      }
     }
 
     document.getElementById("orderForm").addEventListener("submit", async function(e){
@@ -97,16 +133,14 @@
 
       if (!table) return alert("⚠️ Enter Table Number");
 
-      // Check if table is already occupied
       let orders = await getOrders();
-      let occupied = orders.some(o => o.table === table && o.status !== "Done");
+      let occupied = orders.some(o => o.table == table && o.status !== "Done");
 
       if(occupied){
         alert("❌ Table " + table + " is already occupied!");
         return;
       }
 
-      // Submit order
       fetch(SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify({order: order, table: table, status:"Pending"})
@@ -115,8 +149,7 @@
       .then(txt => {
         alert("✅ Order Sent!");
         document.getElementById("table").value = "";
-
-        // Print receipt
+        updateTableStatus();
         printReceipt(order, table);
       })
       .catch(err => alert("❌ Error: " + err));
@@ -134,6 +167,10 @@
       receiptWindow.document.close();
       receiptWindow.print();
     }
+
+    // Auto-update table status every 3 seconds
+    setInterval(updateTableStatus, 3000);
+    updateTableStatus();
   </script>
 </body>
 </html>
