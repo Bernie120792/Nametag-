@@ -4,13 +4,67 @@
   <meta charset="UTF-8">
   <title>Cashier - Take Order</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    label { display: block; margin-top: 10px; }
-    button { margin-top: 15px; padding: 10px 20px; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      color: #333;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: 0 auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #00a8ff;
+      color: white;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #0097e6;
+    }
+    .home-btn {
+      display: block;
+      margin: 25px auto 0;
+      text-align: center;
+      width: fit-content;
+      background: #2ed573;
+    }
+    .home-btn:hover {
+      background: #26c281;
+    }
   </style>
 </head>
 <body>
-  <h2>Cashier - Take Order</h2>
+  <h2>💳 Cashier - Take Order</h2>
   <form id="orderForm">
     <label>Order:</label>
     <select id="order">
@@ -25,14 +79,34 @@
     <button type="submit">Submit Order</button>
   </form>
 
+  <a href="index.html" class="home-btn">🏠 Home</a>
+
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5T9B32bsNui8rACHcK5AMCHqNR1X4QW-qol3wOxzg9FRMeIxtdgxbBUIDxtp3NsZ4Uw/exec"; // <<--- palitan mo
 
-    document.getElementById("orderForm").addEventListener("submit", function(e){
+    async function getOrders() {
+      let res = await fetch(SCRIPT_URL);
+      let data = await res.json();
+      return data;
+    }
+
+    document.getElementById("orderForm").addEventListener("submit", async function(e){
       e.preventDefault();
       let order = document.getElementById("order").value;
-      let table = document.getElementById("table").value;
+      let table = document.getElementById("table").value.trim();
 
+      if (!table) return alert("⚠️ Enter Table Number");
+
+      // Check if table is already occupied
+      let orders = await getOrders();
+      let occupied = orders.some(o => o.table === table && o.status !== "Done");
+
+      if(occupied){
+        alert("❌ Table " + table + " is already occupied!");
+        return;
+      }
+
+      // Submit order
       fetch(SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify({order: order, table: table, status:"Pending"})
@@ -41,12 +115,25 @@
       .then(txt => {
         alert("✅ Order Sent!");
         document.getElementById("table").value = "";
+
+        // Print receipt
+        printReceipt(order, table);
       })
       .catch(err => alert("❌ Error: " + err));
     });
+
+    function printReceipt(order, table){
+      let receiptWindow = window.open('', '', 'width=300,height=400');
+      receiptWindow.document.write(`<h2 style="text-align:center;">🧾 Receipt</h2>`);
+      receiptWindow.document.write(`<p>Order: <b>${order}</b></p>`);
+      receiptWindow.document.write(`<p>Table: <b>${table}</b></p>`);
+      receiptWindow.document.write(`<p>Status: <b>Pending</b></p>`);
+      receiptWindow.document.write(`<p>Time: ${new Date().toLocaleString()}</p>`);
+      receiptWindow.document.write(`<hr>`);
+      receiptWindow.document.write(`<p style="text-align:center;">Thank you!</p>`);
+      receiptWindow.document.close();
+      receiptWindow.print();
+    }
   </script>
-<a href="index.html">
-  <button type="button">🏠 Home</button>
-</a>
 </body>
 </html>
