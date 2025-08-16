@@ -1,20 +1,51 @@
-<!-- items.html -->
-<script type="application/json" id="productData">
-[
-  {
-    "name": "skyflakes",
-    "price": 8,
-    "img": "img/skyflakes.jpeg"
-  },
-  {
-    "name": "Milo Sachet",
-    "price": 12,
-    "img": "img/milo.jpg"
-  },
-  {
-    "name": "Magic Sarap",
-    "price": 3,
-    "img": "img/magic-sarap.jpg"
-  }
-]
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kitchen Display</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    .order {
+      background: white; padding: 15px; margin: 10px 0;
+      border: 1px solid #ccc; border-radius: 8px;
+    }
+    .done { background: #c8f7c5; }
+    button { margin-top: 10px; padding: 5px 10px; }
+  </style>
+</head>
+<body>
+  <h2>Chef's Orders</h2>
+  <div id="orders">Loading orders...</div>
+
+  <script>
+    const SCRIPT_URL = "PASTE_YOUR_SCRIPT_URL_HERE"; // <<--- palitan mo
+
+    async function loadOrders(){
+      let res = await fetch(SCRIPT_URL);
+      let data = await res.json();
+
+      let container = document.getElementById("orders");
+      container.innerHTML = "";
+
+      data.forEach((o, i) => {
+        let div = document.createElement("div");
+        div.className = "order" + (o.status === "Done" ? " done" : "");
+        div.innerHTML = `<b>${o.order}</b> - Table ${o.table} <br>Status: ${o.status} 
+          ${o.status !== "Done" ? `<br><button onclick="markDone(${i})">Mark as Done</button>` : ""}`;
+        container.appendChild(div);
+      });
+    }
+
+    async function markDone(index){
+      await fetch(SCRIPT_URL, {
+        method:"POST",
+        body: JSON.stringify({index:index, status:"Done"})
+      });
+      loadOrders();
+    }
+
+    setInterval(loadOrders, 3000); // auto refresh every 3s
+    loadOrders();
+  </script>
+</body>
+</html>
