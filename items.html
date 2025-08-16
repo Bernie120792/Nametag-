@@ -4,17 +4,83 @@
   <meta charset="UTF-8">
   <title>Kitchen Display</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
-    .order {
-      background: white; padding: 15px; margin: 10px 0;
-      border: 1px solid #ccc; border-radius: 8px;
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #1e1e2f;
+      margin: 0; padding: 20px;
+      color: #fff;
     }
-    .done { background: #c8f7c5; }
-    button { margin-top: 10px; padding: 5px 10px; }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+    #orders {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    .order {
+      background: #2b2b3c;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+    .order:hover {
+      transform: scale(1.02);
+    }
+    .order b {
+      font-size: 20px;
+      display: block;
+      margin-bottom: 8px;
+      color: #ffd369;
+    }
+    .done {
+      background: #1e4620;
+      border: 2px solid #4caf50;
+    }
+    .status {
+      margin-top: 8px;
+      font-weight: bold;
+    }
+    button {
+      margin-top: 12px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #ff4757;
+      color: white;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #e84118;
+    }
+    .home-btn {
+      display: block;
+      margin: 25px auto;
+      text-align: center;
+      padding: 12px 20px;
+      font-size: 18px;
+      background: #00a8ff;
+      color: white;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.2s;
+      width: fit-content;
+    }
+    .home-btn:hover {
+      background: #0097e6;
+    }
   </style>
 </head>
 <body>
-  <h2>Chef's Orders</h2>
+  <h2>👨‍🍳 Kitchen Orders</h2>
   <div id="orders">Loading orders...</div>
 
   <script>
@@ -30,8 +96,12 @@
       data.forEach((o, i) => {
         let div = document.createElement("div");
         div.className = "order" + (o.status === "Done" ? " done" : "");
-        div.innerHTML = `<b>${o.order}</b> - Table ${o.table} <br>Status: ${o.status} 
-          ${o.status !== "Done" ? `<br><button onclick="markDone(${i})">Mark as Done</button>` : ""}`;
+        div.innerHTML = `
+          <b>${o.order}</b>
+          <div>🍽️ Table: <span>${o.table}</span></div>
+          <div class="status">Status: ${o.status}</div>
+          ${o.status !== "Done" ? `<button onclick="markDone(${i})">✅ Mark as Done</button>` : ""}
+        `;
         container.appendChild(div);
       });
     }
@@ -47,8 +117,7 @@
     setInterval(loadOrders, 3000); // auto refresh every 3s
     loadOrders();
   </script>
-<a href="index.html">
-  <button type="button">🏠 Home</button>
-</a>
+
+  <a href="index.html" class="home-btn">🏠 Home</a>
 </body>
 </html>
