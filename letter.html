@@ -1,20 +1,49 @@
-<!-- items.html -->
-<script type="application/json" id="productData">
-[
-  {
-    "name": "SkyFlakes",
-    "price": 8,
-    "img": "img/skyflakes.jpg"
-  },
-  {
-    "name": "Milo Sachet",
-    "price": 12,
-    "img": "img/milo.jpg"
-  },
-  {
-    "name": "Magic Sarap",
-    "price": 3,
-    "img": "img/magic-sarap.jpg"
-  }
-]
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cashier - Take Order</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    label { display: block; margin-top: 10px; }
+    button { margin-top: 15px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <h2>Cashier - Take Order</h2>
+  <form id="orderForm">
+    <label>Order:</label>
+    <select id="order">
+      <option value="Tapsilog">Tapsilog</option>
+      <option value="Longsilog">Longsilog</option>
+      <option value="Tocilog">Tocilog</option>
+    </select>
+
+    <label>Table No:</label>
+    <input type="text" id="table" required>
+
+    <button type="submit">Submit Order</button>
+  </form>
+
+  <script>
+    const SCRIPT_URL = "PASTE_YOUR_SCRIPT_URL_HERE"; // <<--- palitan mo
+
+    document.getElementById("orderForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      let order = document.getElementById("order").value;
+      let table = document.getElementById("table").value;
+
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({order: order, table: table, status:"Pending"})
+      })
+      .then(res => res.text())
+      .then(txt => {
+        alert("✅ Order Sent!");
+        document.getElementById("table").value = "";
+      })
+      .catch(err => alert("❌ Error: " + err));
+    });
+  </script>
+</body>
+</html>
