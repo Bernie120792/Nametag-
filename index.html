@@ -2,205 +2,75 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Balance Checker</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini POS — Add to Cart</title>
 <style>
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #f8f9fa;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-  }
-  .content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: none;
-    justify-content: center;
-    align-items: flex-start;
-  }
-  .container {
-    background: #ffffff;
-    padding: 30px 40px;
-    border-radius: 20px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    width: 350px;
-  }
-  h2 { color: #333; margin-bottom: 20px; }
-  input[type="password"], input[type="number"], input[type="text"] {
-    width: 100%; padding: 12px; font-size: 16px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px;
-  }
-  button.action {
-    width: 100%; padding: 12px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer;
-  }
-  button.action:hover { background-color: #0056b3; }
-
-  #balanceBox {
-    background-color: #8e44ad;
-    border: 2px solid #8e44ad;
-    border-radius: 15px;
-    padding: 20px;
-    font-size: 16px;
-    color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  #balanceBox .label { font-weight: bold; font-size: 14px; }
-  #balanceBox .value { font-size: 28px; font-weight: bold; margin-top: 10px; }
-
-  .buttons-box {
-    background: white;
-    padding: 15px;
-    border-radius: 15px;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.05);
-  }
-  .action-buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-  .action-buttons button {
-    flex: 1 1 45%; padding: 10px; background-color: #007bff; color: white; font-size: 14px; border: none; border-radius: 8px; cursor: pointer;
-  }
-  .action-buttons button:hover { background-color: #0056b3; }
-
-  table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 8px; border-bottom: 1px solid #ddd; font-size: 14px; text-align: left; }
-
-  .bottomnav {
-    display: none;
-    position: fixed; bottom: 0; left: 0; width: 100%;
-    background-color: #ffffff;
-    border-top: 1px solid #ccc;
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-  }
-  .bottomnav button {
-    background: none; border: none; color: #007bff; font-size: 14px; font-weight: bold;
-    cursor: pointer; display: flex; flex-direction: column; align-items: center;
-  }
-  .bottomnav button.logout { color: #dc3545; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f8f9fa;
+  margin: 0; padding: 0;
+}
+header { background:#007bff; color:white; padding:15px; text-align:center; }
+main { padding:20px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+.product {
+  background:white; border-radius:10px; padding:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1); text-align:center;
+}
+button {
+  background:#007bff; color:white; border:none;
+  padding:6px 10px; border-radius:6px; cursor:pointer;
+}
+footer {
+  position:fixed; bottom:0; left:0; right:0;
+  background:#fff; border-top:1px solid #ddd;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 20px;
+}
+footer a { text-decoration:none; color:#007bff; font-weight:bold; }
 </style>
 </head>
 <body>
 
-<!-- Login Page -->
-<div class="content" id="loginPanel" style="display:flex;">
-  <div class="container">
-    <h2>Secure Login</h2>
-    <input type="password" id="mpin" placeholder="Enter your MPIN" />
-    <button class="action" onclick="login()">Login</button>
+<header>
+  <h2>POS System — Add Products</h2>
+</header>
+
+<main>
+  <div class="product">
+    <h3>Item A</h3>
+    <p>₱10</p>
+    <button onclick="addToCart('Item A', 10)">Add to Cart</button>
   </div>
-</div>
-
-<!-- Home Page -->
-<div class="content" id="homePage">
-  <div class="container">
-    <h2>Account Dashboard</h2>
-    <div id="balanceBox">
-      <div class="label">BALANCE</div>
-      <div class="value" id="balance">Loading...</div>
-    </div>
-
-    <div class="buttons-box">
-      <div class="action-buttons">
-        <button onclick="openPage('item.html')"> GLOBE</button>
-        <button onclick="openPage('items.html')">Button 2</button>
-        <button onclick="openPage('letter.html')">Button 3</button>
-        <button onclick="openPage('button4.html')">Button 4</button>
-        <button onclick="openPage('button5.html')">Button 5</button>
-        <button onclick="openPage('button6.html')">Button 6</button>
-      </div>
-    </div>
+  <div class="product">
+    <h3>Item B</h3>
+    <p>₱15</p>
+    <button onclick="addToCart('Item B', 15)">Add to Cart</button>
   </div>
-</div>
-
-<!-- History Page -->
-<div class="content" id="historyPage">
-  <div class="container">
-    <h2>Transaction History</h2>
-    <table>
-      <thead>
-        <tr><th>Date</th><th>Type</th><th>Amount</th></tr>
-      </thead>
-      <tbody id="historyList">
-        <tr><td>2025-08-14</td><td>Cashout</td><td>₱500</td></tr>
-        <tr><td>2025-08-12</td><td>Load</td><td>₱100</td></tr>
-      </tbody>
-    </table>
+  <div class="product">
+    <h3>Item C</h3>
+    <p>₱20</p>
+    <button onclick="addToCart('Item C', 20)">Add to Cart</button>
   </div>
-</div>
+</main>
 
-<!-- Cashout Page -->
-<div class="content" id="cashoutPage">
-  <div class="container">
-    <h2>Cashout Request</h2>
-    <input type="number" id="cashoutAmount" placeholder="Enter amount" />
-    <input type="text" id="cashoutMethod" placeholder="Enter payment method (GCash, Bank...)" />
-    <button class="action" onclick="sendCashout()">Submit Request</button>
-  </div>
-</div>
-
-<!-- Bottom Navigation -->
-<div class="bottomnav" id="bottomNav">
-  <button onclick="showPage('homePage')">🏠<span>Home</span></button>
-  <button onclick="showPage('historyPage')">📜<span>History</span></button>
-  <button onclick="showPage('cashoutPage')">💸<span>Cashout</span></button>
-  <button class="logout" onclick="logout()">🚪<span>Logout</span></button>
-</div>
+<footer>
+  <span id="count">Cart: 0 items</span>
+  <a href="item.html">🛒 View Cart</a>
+</footer>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbxvZqeJpZtVAGFNOKhdFSj6DIwaerJ7t0W4m7BT5-EzM3x8CsWHa--x-gbSWepWRh5G/exec";
-let savedMPIN = "";
-
-function login() {
-  const mpin = document.getElementById("mpin").value.trim();
-  if (!mpin) { alert("⚠️ Please enter your MPIN."); return; }
-  savedMPIN = mpin;
-  document.getElementById("loginPanel").style.display = "none";
-  document.getElementById("bottomNav").style.display = "flex";
-  showPage('homePage');
-  loadBalance();
+function addToCart(name, price) {
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  cart.push({name, price});
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCount();
+  alert(name + " added to cart!");
 }
-
-function loadBalance() {
-  const balanceEl = document.getElementById("balance");
-  balanceEl.textContent = "Checking...";
-  fetch(scriptURL, { method: "POST", body: new URLSearchParams({ mpin: savedMPIN }) })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) { balanceEl.textContent = `₱${data.balance}`; }
-      else { alert("❌ " + data.message); logout(); }
-    })
-    .catch(err => { console.error(err); alert("⚠️ Connection error."); logout(); });
+function updateCount(){
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  document.getElementById('count').textContent = "Cart: " + cart.length + " items";
 }
-
-function showPage(pageId) {
-  document.querySelectorAll('.content').forEach(c => c.style.display = 'none');
-  document.getElementById(pageId).style.display = 'flex';
-  if (pageId === 'homePage') loadBalance();
-}
-
-function sendCashout() {
-  const amount = document.getElementById("cashoutAmount").value.trim();
-  const method = document.getElementById("cashoutMethod").value.trim();
-  if (!amount || !method) { alert("⚠️ Please fill in all cashout fields."); return; }
-  alert(`✅ Cashout request sent!\nAmount: ₱${amount}\nMethod: ${method}`);
-}
-
-function logout() {
-  savedMPIN = "";
-  document.getElementById("loginPanel").style.display = "flex";
-  document.querySelectorAll('.content').forEach(c => { if(c.id!=="loginPanel")c.style.display='none'; });
-  document.getElementById("bottomNav").style.display = "none";
-  document.getElementById("mpin").value = "";
-}
-
-// Function to open button pages
-function openPage(page) {
-  window.location.href = page; // magtawag sa HTML page
-}
+updateCount();
 </script>
 
 </body>
