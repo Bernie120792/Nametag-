@@ -1,182 +1,131 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bernie POS System</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Bernie POS — Index</title>
+<link rel="icon" href="data:,">
 <style>
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    background: #f9f9f9;
-  }
-
-  /* Header */
-  header {
-    background: #0d6efd;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    position: sticky;
-    top: 0;
-  }
-  .menu-btn, .profile-btn {
-    font-size: 22px;
-    cursor: pointer;
-  }
-  .dropdown {
-    display: none;
-    position: absolute;
-    background: white;
-    border: 1px solid #ddd;
-    right: 16px;
-    top: 50px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    z-index: 100;
-  }
-  .dropdown a {
-    display: block;
-    padding: 10px 16px;
-    text-decoration: none;
-    color: #333;
-  }
-  .dropdown a:hover {
-    background: #f0f0f0;
-  }
-
-  /* Product List */
-  .products {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 16px;
-  }
-  .product {
-    background: white;
-    border-radius: 10px;
-    padding: 16px;
-    text-align: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
-  .product button {
-    margin-top: 8px;
-    background: #0d6efd;
-    border: none;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  /* Sticky Bottom Nav */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: white;
-    border-top: 1px solid #ccc;
-    display: flex;
-    justify-content: space-around;
-    padding: 8px 0;
-  }
-  .bottom-nav button {
-    background: none;
-    border: none;
-    font-size: 14px;
-    color: #555;
-  }
-  .bottom-nav button.active {
-    color: #0d6efd;
-    font-weight: bold;
-  }
+:root{--primary:#0d6efd;--bg:#f5f7fb;--card:#fff;--muted:#6b6b6b}
+body{margin:0;font-family:Segoe UI,system-ui,Arial;background:var(--bg);color:#111}
+header{position:fixed;top:0;left:0;right:0;height:56px;background:var(--card);display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 4px 10px rgba(0,0,0,0.06);z-index:100}
+header h1{font-size:16px;color:var(--primary);margin:0}
+.header-btn{font-size:22px;background:none;border:0;cursor:pointer}
+.container{padding:72px 14px 110px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.card{background:var(--card);border-radius:10px;padding:12px;text-align:center;box-shadow:0 6px 16px rgba(17,24,39,0.03)}
+.card h3{margin:6px 0 4px;font-size:16px}
+.card p{margin:0;color:var(--muted)}
+.btn{margin-top:8px;background:var(--primary);color:#fff;border:0;padding:8px 10px;border-radius:8px;cursor:pointer}
+.footer-nav{position:fixed;left:0;right:0;bottom:0;height:72px;background:var(--card);display:flex;align-items:center;justify-content:space-around;box-shadow:0 -6px 16px rgba(2,6,23,0.06)}
+.nav-btn{background:none;border:0;font-size:13px;color:#333;cursor:pointer}
+.nav-btn .icon{display:block;font-size:20px;margin-bottom:4px}
+.counter{background:#ef4444;color:white;padding:2px 6px;border-radius:10px;font-size:12px;position:relative;left:6px;top:-6px}
+.dropdown{position:absolute;top:60px;left:14px;background:var(--card);box-shadow:0 6px 16px rgba(2,6,23,0.08);border-radius:8px;display:none;min-width:160px;z-index:200}
+.dropdown a{display:block;padding:10px 12px;text-decoration:none;color:#222}
+.dropdown a:hover{background:#f2f4f8}
+.profile-dd{position:absolute;right:14px;top:60px;background:var(--card);box-shadow:0 6px 16px rgba(2,6,23,0.08);border-radius:8px;display:none;min-width:160px;z-index:200}
+.small-note{font-size:13px;color:var(--muted);text-align:center;margin-top:12px}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="menu-btn">⋮</div>
-  <h3>Bernie POS</h3>
-  <div class="profile-btn">⋮</div>
+  <button id="menuBtn" class="header-btn" aria-label="menu">⋮</button>
+  <h1>Bernie POS</h1>
+  <button id="profileBtn" class="header-btn" aria-label="profile">⋮</button>
+
+  <div class="dropdown" id="menuDD" aria-hidden="true">
+    <a href="#">🏠 Home</a>
+    <a href="#">📦 Inventory</a>
+    <a href="#">📊 Reports</a>
+  </div>
+  <div class="profile-dd" id="profileDD" aria-hidden="true">
+    <a href="#">👤 Profile</a>
+    <a href="#" id="logout">🚪 Logout</a>
+  </div>
 </header>
 
-<!-- Dropdown Menus -->
-<div class="dropdown" id="menuDropdown">
-  <a href="#">🏠 Home</a>
-  <a href="#">📦 Sales</a>
-  <a href="#">📊 Reports</a>
-</div>
-<div class="dropdown" id="profileDropdown" style="right:16px;">
-  <a href="#">👤 Profile</a>
-  <a href="#">🚪 Logout</a>
-</div>
+<main class="container">
+  <h2 style="margin:0 0 12px">Products</h2>
 
-<!-- Products -->
-<section class="products">
-  <div class="product">
-    <h4>Dishwashing Liquid</h4>
-    <p>₱50</p>
-    <button onclick="addToCart('Dishwashing Liquid',50)">Add</button>
+  <div class="grid" id="productGrid">
+    <!-- JS injects product cards -->
   </div>
-  <div class="product">
-    <h4>Laundry Soap</h4>
-    <p>₱35</p>
-    <button onclick="addToCart('Laundry Soap',35)">Add</button>
-  </div>
-  <div class="product">
-    <h4>Fabric Conditioner</h4>
-    <p>₱40</p>
-    <button onclick="addToCart('Fabric Conditioner',40)">Add</button>
-  </div>
-  <div class="product">
-    <h4>Bleach</h4>
-    <p>₱25</p>
-    <button onclick="addToCart('Bleach',25)">Add</button>
-  </div>
-</section>
 
-<!-- Sticky Bottom Navigation -->
-<div class="bottom-nav">
-  <button class="active">🏠 Home</button>
-  <button onclick="window.location.href='index.html'">🛒 POS</button>
-  <button onclick="window.location.href='item.html'">🧾 Cart</button>
-  <button>📈 Sales</button>
-  <button>⚙️ More</button>
-</div>
+  <p class="small-note">Tip: Pindutin ang "Add" para idagdag sa cart. Pindutin ang Cart icon sa ilalim para tingnan ang summary.</p>
+</main>
+
+<nav class="footer-nav" role="navigation">
+  <button class="nav-btn" id="navHome"><span class="icon">🏠</span>Home</button>
+  <button class="nav-btn" id="navPos"><span class="icon">🧾</span>POS</button>
+  <button class="nav-btn" id="navCart"><span class="icon">🛒</span>Cart <span id="cartCount" class="counter" style="display:none">0</span></button>
+  <button class="nav-btn" id="navSales"><span class="icon">📈</span>Sales</button>
+  <button class="nav-btn" id="navMore"><span class="icon">⚙️</span>More</button>
+</nav>
 
 <script>
-  const menuBtn = document.querySelector('.menu-btn');
-  const profileBtn = document.querySelector('.profile-btn');
-  const menuDropdown = document.getElementById('menuDropdown');
-  const profileDropdown = document.getElementById('profileDropdown');
+/* === sample products (edit as needed) === */
+const PRODUCTS = [
+  {id:1, name:'Dishwashing Liquid', price:50},
+  {id:2, name:'Laundry Soap', price:35},
+  {id:3, name:'Fabric Conditioner', price:40},
+  {id:4, name:'Bleach', price:25},
+  {id:5, name:'Dish Sponge', price:12},
+  {id:6, name:'Hand Soap', price:45}
+];
 
-  menuBtn.addEventListener('click', () => {
-    menuDropdown.style.display = menuDropdown.style.display === 'block' ? 'none' : 'block';
-    profileDropdown.style.display = 'none';
-  });
+/* render products */
+const grid = document.getElementById('productGrid');
+PRODUCTS.forEach(p=>{
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.innerHTML = `<h3>${p.name}</h3><p>₱${p.price.toFixed(2)}</p><button class="btn" data-id="${p.id}">Add</button>`;
+  grid.appendChild(el);
+});
 
-  profileBtn.addEventListener('click', () => {
-    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-    menuDropdown.style.display = 'none';
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.menu-btn') && !e.target.closest('#menuDropdown')) {
-      menuDropdown.style.display = 'none';
-    }
-    if (!e.target.closest('.profile-btn') && !e.target.closest('#profileDropdown')) {
-      profileDropdown.style.display = 'none';
-    }
-  });
-
-  function addToCart(name, price) {
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    cart.push({ name, price });
+/* add to cart */
+function updateCartCount(){
+  const cart = JSON.parse(localStorage.getItem('cart'))||[];
+  const countEl = document.getElementById('cartCount');
+  if(cart.length>0){ countEl.style.display='inline-block'; countEl.textContent=cart.length; }
+  else { countEl.style.display='none'; }
+}
+grid.addEventListener('click', e=>{
+  if(e.target.matches('button[data-id]')){
+    const id = Number(e.target.getAttribute('data-id'));
+    const prod = PRODUCTS.find(x=>x.id===id);
+    if(!prod) return;
+    const cart = JSON.parse(localStorage.getItem('cart'))||[];
+    cart.push({id:prod.id,name:prod.name,price:prod.price, qty:1});
     localStorage.setItem('cart', JSON.stringify(cart));
-    alert(name + " added to cart!");
+    updateCartCount();
+    e.target.textContent='Added';
+    setTimeout(()=> e.target.textContent='Add',700);
   }
+});
+
+/* nav actions */
+document.getElementById('navCart').addEventListener('click', ()=> location.href='cart.html');
+
+/* header dropdowns */
+const menuBtn=document.getElementById('menuBtn'), profileBtn=document.getElementById('profileBtn');
+const menuDD=document.getElementById('menuDD'), profileDD=document.getElementById('profileDD');
+menuBtn.onclick = ()=>{ menuDD.style.display = menuDD.style.display==='block'?'none':'block'; profileDD.style.display='none' }
+profileBtn.onclick = ()=>{ profileDD.style.display = profileDD.style.display==='block'?'none':'block'; menuDD.style.display='none' }
+window.addEventListener('click', e=> {
+  if(!menuBtn.contains(e.target) && !menuDD.contains(e.target)) menuDD.style.display='none';
+  if(!profileBtn.contains(e.target) && !profileDD.contains(e.target)) profileDD.style.display='none';
+});
+
+/* logout (example) */
+document.getElementById('logout').addEventListener('click', e=>{
+  e.preventDefault();
+  alert('Logged out (demo).');
+});
+
+/* init */
+updateCartCount();
 </script>
 </body>
 </html>
