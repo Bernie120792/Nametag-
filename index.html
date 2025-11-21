@@ -1,131 +1,78 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Bernie POS — Index</title>
-<link rel="icon" href="data:,">
+<meta charset="UTF-8">
+<title>Image Slideshow</title>
+
+<!-- Disable zoom for WebView -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <style>
-:root{--primary:#0d6efd;--bg:#f5f7fb;--card:#fff;--muted:#6b6b6b}
-body{margin:0;font-family:Segoe UI,system-ui,Arial;background:var(--bg);color:#111}
-header{position:fixed;top:0;left:0;right:0;height:56px;background:var(--card);display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 4px 10px rgba(0,0,0,0.06);z-index:100}
-header h1{font-size:16px;color:var(--primary);margin:0}
-.header-btn{font-size:22px;background:none;border:0;cursor:pointer}
-.container{padding:72px 14px 110px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-.card{background:var(--card);border-radius:10px;padding:12px;text-align:center;box-shadow:0 6px 16px rgba(17,24,39,0.03)}
-.card h3{margin:6px 0 4px;font-size:16px}
-.card p{margin:0;color:var(--muted)}
-.btn{margin-top:8px;background:var(--primary);color:#fff;border:0;padding:8px 10px;border-radius:8px;cursor:pointer}
-.footer-nav{position:fixed;left:0;right:0;bottom:0;height:72px;background:var(--card);display:flex;align-items:center;justify-content:space-around;box-shadow:0 -6px 16px rgba(2,6,23,0.06)}
-.nav-btn{background:none;border:0;font-size:13px;color:#333;cursor:pointer}
-.nav-btn .icon{display:block;font-size:20px;margin-bottom:4px}
-.counter{background:#ef4444;color:white;padding:2px 6px;border-radius:10px;font-size:12px;position:relative;left:6px;top:-6px}
-.dropdown{position:absolute;top:60px;left:14px;background:var(--card);box-shadow:0 6px 16px rgba(2,6,23,0.08);border-radius:8px;display:none;min-width:160px;z-index:200}
-.dropdown a{display:block;padding:10px 12px;text-decoration:none;color:#222}
-.dropdown a:hover{background:#f2f4f8}
-.profile-dd{position:absolute;right:14px;top:60px;background:var(--card);box-shadow:0 6px 16px rgba(2,6,23,0.08);border-radius:8px;display:none;min-width:160px;z-index:200}
-.small-note{font-size:13px;color:var(--muted);text-align:center;margin-top:12px}
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #000;
+}
+
+/* Container: 2in width, 1in height */
+.slider {
+  width: 2in;      /* 2 inches wide */
+  height: 1in;     /* 1 inch tall */
+  overflow: hidden;
+  position: relative;
+  border-radius: 8px;
+  background: #000;
+}
+
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;  /* fill container, crop if needed */
+}
+
+.active {
+  opacity: 1;
+}
 </style>
+
 </head>
 <body>
 
-<header>
-  <button id="menuBtn" class="header-btn" aria-label="menu">⋮</button>
-  <h1>Bernie POS</h1>
-  <button id="profileBtn" class="header-btn" aria-label="profile">⋮</button>
-
-  <div class="dropdown" id="menuDD" aria-hidden="true">
-    <a href="#">🏠 Home</a>
-    <a href="#">📦 Inventory</a>
-    <a href="#">📊 Reports</a>
-  </div>
-  <div class="profile-dd" id="profileDD" aria-hidden="true">
-    <a href="#">👤 Profile</a>
-    <a href="#" id="logout">🚪 Logout</a>
-  </div>
-</header>
-
-<main class="container">
-  <h2 style="margin:0 0 12px">Products</h2>
-
-  <div class="grid" id="productGrid">
-    <!-- JS injects product cards -->
-  </div>
-
-  <p class="small-note">Tip: Pindutin ang "Add" para idagdag sa cart. Pindutin ang Cart icon sa ilalim para tingnan ang summary.</p>
-</main>
-
-<nav class="footer-nav" role="navigation">
-  <button class="nav-btn" id="navHome"><span class="icon">🏠</span>Home</button>
-  <button class="nav-btn" id="navPos"><span class="icon">🧾</span>POS</button>
-  <button class="nav-btn" id="navCart"><span class="icon">🛒</span>Cart <span id="cartCount" class="counter" style="display:none">0</span></button>
-  <button class="nav-btn" id="navSales"><span class="icon">📈</span>Sales</button>
-  <button class="nav-btn" id="navMore"><span class="icon">⚙️</span>More</button>
-</nav>
+<div class="slider">
+  <div class="slide active"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhlOlGgvIkbX5RzpPzqdo5qn1riPaRXuCzaPO2po22L7gCxKFe9Bi5694K2bXIdvBc6mJcZl54jK8AyQWpLlEtXeQH9tsNvU0HfAW4QR60JxFc7S2_ZkNjBoXo4FnqdAB6O71UfnhViy4xEqRob6LC0HTJJN9VpCNLYznDS84Z0xIjR5yMA1WUq9NsuuVA/s320/download%20%281%29.jpeg" alt="slide1"></div>
+  <div class="slide"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgoHSSH4WzE4MbS0fExsKH7ofIPBO8rxWu0U6iJ6weu61QS1gumwI54Nb4VQBEKOb-aWGrlucIjV2CCeztdplOMxGxGhH5CbZWpO68RFqfXkcxTrI644NXmj1ox8i2XAegrQaun0OpPRtfv3QHnqkDub9aR2xq1mR98AK8yEwuGteZ3t74U7zwdSn7-UqI/s320/Screenshot_20251110_152146.jpg" alt="slide2"></div>
+  <div class="slide"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhaHOaSA10Q_UUol49dd4T1OxBAI0WCc9un-5XLbLnAN1Etku-nrg9iHcXO66eH30z5eIwQ-Azt9il8OZecP81JphVM_cvtCMJodxB-7zjFG54h-NFQuw7MRfUieBrc7zFHcXThXt6EKp3CfbgSst-EL1TgjhJSYpFNqpgVzTS3Kw2wiNM_nE_RSM9kIiU/s320/IMG-6a9b9e552f87757f13985e749b437c6e-V.jpg" alt="slide3"></div>
+</div>
 
 <script>
-/* === sample products (edit as needed) === */
-const PRODUCTS = [
-  {id:1, name:'Dishwashing Liquid', price:50},
-  {id:2, name:'Laundry Soap', price:35},
-  {id:3, name:'Fabric Conditioner', price:40},
-  {id:4, name:'Bleach', price:25},
-  {id:5, name:'Dish Sponge', price:12},
-  {id:6, name:'Hand Soap', price:45}
-];
+let index = 0;
+const slides = document.querySelectorAll('.slide');
 
-/* render products */
-const grid = document.getElementById('productGrid');
-PRODUCTS.forEach(p=>{
-  const el = document.createElement('div');
-  el.className = 'card';
-  el.innerHTML = `<h3>${p.name}</h3><p>₱${p.price.toFixed(2)}</p><button class="btn" data-id="${p.id}">Add</button>`;
-  grid.appendChild(el);
-});
-
-/* add to cart */
-function updateCartCount(){
-  const cart = JSON.parse(localStorage.getItem('cart'))||[];
-  const countEl = document.getElementById('cartCount');
-  if(cart.length>0){ countEl.style.display='inline-block'; countEl.textContent=cart.length; }
-  else { countEl.style.display='none'; }
+function showSlide(i) {
+  slides.forEach((s, n) => {
+    s.classList.toggle("active", n === i);
+  });
 }
-grid.addEventListener('click', e=>{
-  if(e.target.matches('button[data-id]')){
-    const id = Number(e.target.getAttribute('data-id'));
-    const prod = PRODUCTS.find(x=>x.id===id);
-    if(!prod) return;
-    const cart = JSON.parse(localStorage.getItem('cart'))||[];
-    cart.push({id:prod.id,name:prod.name,price:prod.price, qty:1});
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateCartCount();
-    e.target.textContent='Added';
-    setTimeout(()=> e.target.textContent='Add',700);
-  }
-});
 
-/* nav actions */
-document.getElementById('navCart').addEventListener('click', ()=> location.href='cart.html');
+function nextSlide() {
+  index = (index + 1) % slides.length;
+  showSlide(index);
+}
 
-/* header dropdowns */
-const menuBtn=document.getElementById('menuBtn'), profileBtn=document.getElementById('profileBtn');
-const menuDD=document.getElementById('menuDD'), profileDD=document.getElementById('profileDD');
-menuBtn.onclick = ()=>{ menuDD.style.display = menuDD.style.display==='block'?'none':'block'; profileDD.style.display='none' }
-profileBtn.onclick = ()=>{ profileDD.style.display = profileDD.style.display==='block'?'none':'block'; menuDD.style.display='none' }
-window.addEventListener('click', e=> {
-  if(!menuBtn.contains(e.target) && !menuDD.contains(e.target)) menuDD.style.display='none';
-  if(!profileBtn.contains(e.target) && !profileDD.contains(e.target)) profileDD.style.display='none';
-});
-
-/* logout (example) */
-document.getElementById('logout').addEventListener('click', e=>{
-  e.preventDefault();
-  alert('Logged out (demo).');
-});
-
-/* init */
-updateCartCount();
+setInterval(nextSlide, 2000); // slide every 2 seconds
 </script>
+
 </body>
 </html>
