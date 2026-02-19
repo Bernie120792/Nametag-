@@ -1,88 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Image Slideshow</title>
-
-<!-- Disable zoom for WebView -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<style>
-body {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #000;
-}
-
-/* Container: 2in width, 1in height */
-.slider {
-  width: 290px;      /* 2 inches wide */
-  height: 96px;      /* 1 inch tall */
-  overflow: hidden;
-  position: relative;
-  border-radius: 8px;
-  background: #000;
-}
-
-.slide {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-
-.slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;  /* fill container, crop if needed */
-}
-
-.active {
-  opacity: 1;
-}
-</style>
-
+  <title>Reward Dashboard</title>
+  <style>
+    body { font-family: Arial; text-align:center; padding:50px; background:#f4f4f4; }
+    .card { background:#fff; padding:20px; border-radius:10px; width:300px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+    h2 { color:#4CAF50; }
+    p { font-size:18px; }
+  </style>
 </head>
 <body>
 
-<div class="slider">
-  <div class="slide active"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgjxwAiHMXUSuBlHK3F5j25rowNGNIpLXvqOQ6hSV5wontwAhMPPvlzdOOHTbDuqUVvr6tbUGkAVDeeOdyxsuuUJ_dF_MF-mXhEjG9VM59jT1OhkNuw-ATFWsLI-Jc1VPt1b9wixBoU1UrfqiU_MNuFToPwfcflM_Vrj7t9NS4ADReYJlpd1WYpT0zvjI0/s1600/new_20251121_122657_0001.png" alt="slide1"></div>
-  <div class="slide"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEigObk0MetPkuWAZnALDtDbCaoBRvkcNnq3AFvMcYKH3asotv7tvErImdxN2kMCwnR9eim4c1OTUbhflvDV1Z9SBsYyEBoM90-0t_VcQdX8oYL3-W9DydX0HWAa6qMW58G3n3K7IDKNyO8gAS2i95UO9F3yr5_khvhp4dVU0NzL45LXZ5HwV4HQlDe2Pq0/s1600/new_20251121_122658_0002.png" alt="slide2"></div>
-  <div class="slide"><img src=https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiM4s2VwI-n-5dz6sleexAufSSUs15xvfGU25ELAyBaYyo8NoDfO84sM1OQquNT2aNlYjem3Ixl_hhAwsaVBR_dE6h_AzvHw83GhaEZXY31I7GabkG5cAK7zX0WGa9vWFjsVWkmyuzjJvBYLXSm74FrwtlejMHZcIumt-HWxOE0wyeJvj0R_zG-YTmc0TM/s1600/new_20251121_122657_0000.png" alt="slide3"></div>
+<div class="card">
+  <h2>Reward Summary</h2>
+  <p>Total Add: <span id="add">Loading...</span></p>
+  <p>Total Redeem: <span id="redeem">Loading...</span></p>
+  <p>Net Points: <span id="net">Loading...</span></p>
 </div>
 
 <script>
-let index = 0;
-const slides = document.querySelectorAll('.slide');
-
-// Function to add cache-buster query string
-function addCacheBuster(url) {
-  return url + '?v=' + new Date().getTime();
-}
-
-// Apply cache-buster to all images
-slides.forEach(slide => {
-  const img = slide.querySelector('img');
-  img.src = addCacheBuster(img.src);
-});
-
-function showSlide(i) {
-  slides.forEach((s, n) => {
-    s.classList.toggle("active", n === i);
+fetch("https://script.google.com/macros/s/AKfycbwj-w4B00XIy_8dpALfetSbMiSGJOjz3KCb2YBxDAwS7NOq8vrmCwwYzY9UIiuSQZSQFQ/exec")
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById("add").textContent = data.totalAdd;
+    document.getElementById("redeem").textContent = data.totalRedeem;
+    document.getElementById("net").textContent = data.netPoints;
+  })
+  .catch(error => {
+    console.error("Error:", error);
   });
-}
-
-function nextSlide() {
-  index = (index + 1) % slides.length;
-  showSlide(index);
-}
-
-setInterval(nextSlide, 10000); // slide every 10 seconds
 </script>
 
 </body>
