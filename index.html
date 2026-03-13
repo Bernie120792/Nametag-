@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sidebar System</title>
+
+<!-- Disable zoom -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+overflow:hidden;
+touch-action:manipulation;
+}
+
+/* top bar */
+.topbar{
+height:55px;
+background:#111;
+color:white;
+display:flex;
+align-items:center;
+padding-left:15px;
+font-size:22px;
+}
+
+.menu-btn{
+font-size:28px;
+cursor:pointer;
+margin-right:15px;
+}
+
+/* sidebar */
+
+.sidebar{
+position:fixed;
+left:-250px;
+top:0;
+width:250px;
+height:100%;
+background:#222;
+transition:0.3s;
+padding-top:60px;
+}
+
+.sidebar button{
+width:90%;
+margin:10px auto;
+display:block;
+padding:12px;
+border:none;
+background:#333;
+color:white;
+font-size:16px;
+cursor:pointer;
+border-radius:6px;
+}
+
+.sidebar button:hover{
+background:#555;
+}
+
+/* main */
+
+.main{
+height:calc(100vh - 55px);
+}
+
+iframe{
+width:100%;
+height:100%;
+border:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+<span class="menu-btn" onclick="toggleMenu()">☰</span>
+Menu
+</div>
+
+<!-- SIDEBAR -->
+
+<div id="sidebar" class="sidebar">
+
+<button onclick="loadPage('customer.html')">Buy Voucher</button>
+
+<button onclick="loadPage('voucher.html')">Buy Voucher</button>
+
+<button onclick="loadPage('history.html')">History</button>
+
+<button onclick="loadPage('settings.html')">Settings</button>
+
+</div>
+
+<!-- MAIN CONTENT -->
+
+<div class="main">
+
+<iframe id="frame" src="home.html"></iframe>
+
+</div>
+
+<script>
+
+let menuOpen=false;
+
+function toggleMenu(){
+
+let sidebar=document.getElementById("sidebar");
+
+if(menuOpen){
+sidebar.style.left="-250px";
+menuOpen=false;
+}else{
+sidebar.style.left="0";
+menuOpen=true;
+}
+
+}
+
+function loadPage(page){
+
+document.getElementById("frame").src=page;
+
+toggleMenu();
+
+}
+
+/* Disable pinch zoom */
+
+document.addEventListener('gesturestart', function (e) {
+e.preventDefault();
+});
+
+document.addEventListener('touchmove', function (e) {
+if (e.scale !== 1) { e.preventDefault(); }
+}, { passive: false });
+
+</script>
+
+</body>
+</html>
