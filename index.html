@@ -46,6 +46,25 @@ transition:0.3s;
 padding-top:60px;
 }
 
+/* back arrow */
+
+.back-btn{
+width:90%;
+margin:10px auto;
+display:block;
+padding:12px;
+border:none;
+background:#444;
+color:white;
+font-size:18px;
+cursor:pointer;
+border-radius:6px;
+}
+
+.back-btn:hover{
+background:#666;
+}
+
 .sidebar button{
 width:90%;
 margin:10px auto;
@@ -90,7 +109,9 @@ Menu
 
 <div id="sidebar" class="sidebar">
 
-<button onclick="loadPage('home.html')">Buy Voucher</button>
+<button class="back-btn" onclick="goHome()">Back home</button>
+
+<button onclick="loadPage('customer.html')">Buy Voucher</button>
 
 <button onclick="loadPage('voucher.html')">Buy Voucher</button>
 
@@ -129,6 +150,14 @@ menuOpen=true;
 function loadPage(page){
 
 document.getElementById("frame").src=page;
+
+toggleMenu();
+
+}
+
+function goHome(){
+
+document.getElementById("frame").src="home.html";
 
 toggleMenu();
 
