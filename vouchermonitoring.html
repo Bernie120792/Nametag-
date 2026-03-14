@@ -109,7 +109,7 @@ async function loadData(){
     try {
       const data = await loadSheet(sheet.gid);
       const rows = data.split("\n");
-      const cells = rows[0].split(",");
+      const cells = rows[1].split(",");
 
       let sales = parseFloat(cells[5]) || 0;
       totalSalesValue += sales;
@@ -138,7 +138,7 @@ async function loadData(){
 }
 
 loadData();
-setInterval(loadData, 5000);
+setInterval(loadData, 1000);
 </script>
 
 </body>
