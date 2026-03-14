@@ -105,7 +105,12 @@ async function loadData(){
         <td>${sheet.name}</td>
         <td class="total">${cells[2]}</td>
         <td class="used">${cells[3]}</td>
-        <td class="unused">${cells[4]}</td>
+        <td class="unused">${cells[4]}
+
+</td>
+        <td class="unused">${cells[5]}
+
+</td>
       </tr>`;
     } catch(e) {
       html += `<tr>
@@ -113,7 +118,8 @@ async function loadData(){
         <td class="total">0</td>
         <td class="used">0</td>
         <td class="unused">0</td>
-      </tr>`;
+        <td class="total sales">0</td>
+    </tr>`;
       console.error(e);
     }
   }
