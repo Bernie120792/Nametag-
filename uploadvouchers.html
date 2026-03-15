@@ -1,95 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Voucher Loader</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voucher Loader with MPIN Notifications</title>
 <style>
+body{font-family:Arial;background:#0f172a;color:white;padding:20px;}
+.container{max-width:520px;margin:auto;background:#1e293b;padding:25px;border-radius:12px;box-shadow:0 0 20px rgba(0,0,0,0.4);}
+h3{text-align:center;margin-bottom:20px;}
+label{font-size:14px;opacity:.8;}
+select,textarea,input{width:100%;padding:12px;font-size:16px;margin-top:5px;margin-bottom:15px;border-radius:6px;border:none;}
+textarea{height:200px;resize:none;}
+button{margin-top:15px;width:100%;padding:14px;font-size:18px;border:none;border-radius:8px;background:linear-gradient(45deg,#22c55e,#16a34a);color:white;font-weight:bold;cursor:pointer;}
+button:disabled{opacity:.5;}
+#status{text-align:center;margin-top:12px;font-size:14px;transition:all 0.3s ease;}
 
-body{
-  font-family:Arial, sans-serif;
-  background:#0f172a;
-  color:white;
-  padding:20px;
-}
-
-.container{
-  max-width:520px;
-  margin:auto;
-  background:#1e293b;
-  padding:25px;
-  border-radius:12px;
-  box-shadow:0 0 20px rgba(0,0,0,0.4);
-}
-
-h3{
-  text-align:center;
-  margin-bottom:20px;
-}
-
-label{
-  font-size:14px;
-  opacity:.8;
-}
-
-select{
-  width:100%;
-  padding:12px;
-  font-size:16px;
-  margin-top:5px;
-  margin-bottom:15px;
-  border-radius:6px;
-  border:none;
-}
-
-textarea{
-  width:100%;
-  height:200px;
-  font-size:16px;
-  padding:12px;
-  border-radius:6px;
-  border:none;
-  resize:none;
-}
-
-.info{
-  display:flex;
-  justify-content:space-between;
-  margin-top:6px;
-  font-size:13px;
-  opacity:.8;
-}
-
-button{
-  margin-top:15px;
-  width:100%;
-  padding:14px;
-  font-size:18px;
-  border:none;
-  border-radius:8px;
-  background:linear-gradient(45deg,#22c55e,#16a34a);
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-button:disabled{
-  opacity:.5;
-}
-
-#status{
-  text-align:center;
-  margin-top:12px;
-  font-size:14px;
-}
-
+/* Modal styles */
+.modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,0.6);}
+.modal-content{background:#1e293b;margin:15% auto;padding:20px;border-radius:12px;width:90%;max-width:400px;text-align:center;}
+.modal-content input{margin-bottom:10px;}
+.modal-content button{width:100%;}
 </style>
 </head>
-
 <body>
 
 <div class="container">
-
 <h3>Voucher Loader</h3>
 
 <label>Select Sheet</label>
@@ -112,79 +47,109 @@ button:disabled{
 <span>1 per line</span>
 </div>
 
-<button id="uploadBtn" onclick="send()">UPLOAD</button>
-
+<button id="uploadBtn">UPLOAD</button>
 <div id="status"></div>
+</div>
 
+<!-- MPIN Modal -->
+<div id="mpinModal" class="modal">
+  <div class="modal-content">
+    <h3>Enter MPIN</h3>
+    <input type="password" id="mpinInput" placeholder="Enter MPIN">
+    <button id="mpinSubmit">Submit</button>
+    <div id="mpinError" style="margin-top:10px;color:#f87171;"></div>
+  </div>
 </div>
 
 <script>
-
-const url="https://script.google.com/macros/s/AKfycbx6VN4TQ0G0li35EZ4YAFqcXnOnBVR6XSHe9FCIAn6DRnUDkF7Py-w0uCQilv6wqaQgFQ/exec";
-
+const url="https://script.google.com/macros/s/AKfycby-AmoPg1xir01gQvAsBfPM2SzuADKY-iIBvxYSfC6aOT2oHr1WdN16nD0m-NXnWncMsg/exec"; // Palitan ng Apps Script URL
 const textarea=document.getElementById("vouchers");
 const count=document.getElementById("count");
 const btn=document.getElementById("uploadBtn");
+const modal=document.getElementById("mpinModal");
+const mpinInput=document.getElementById("mpinInput");
+const mpinSubmit=document.getElementById("mpinSubmit");
+const mpinError=document.getElementById("mpinError");
+const statusDiv=document.getElementById("status");
+let currentMPIN="";
 
-/* COUNT VOUCHERS */
+// Count vouchers
 textarea.addEventListener("input",()=>{
-let lines=textarea.value
-.split("\n")
-.filter(v=>v.trim()!="");
-
-count.innerText=lines.length+" vouchers";
+  let lines=textarea.value.split("\n").filter(v=>v.trim()!="");
+  count.innerText=lines.length+" vouchers";
 });
 
-function send(){
-
-let sheet=document.getElementById("sheet").value;
-
-let lines=textarea.value
-.split("\n")
-.filter(v=>v.trim()!="");
-
-if(lines.length==0){
-alert("Paste vouchers first");
-return;
-}
-
-btn.disabled=true;
-btn.innerText="Uploading...";
-
-document.getElementById("status").innerHTML="⏳ Uploading...";
-
-fetch(url,{
-method:"POST",
-body:JSON.stringify({
-sheet:sheet,
-vouchers:lines
-})
-})
-.then(res=>res.text())
-.then(data=>{
-
-document.getElementById("status").innerHTML="✅ Uploaded "+lines.length+" vouchers to "+sheet;
-
-/* CLEAR */
-textarea.value="";
-count.innerText="0 vouchers";
-
-btn.disabled=false;
-btn.innerText="UPLOAD";
-
-})
-.catch(()=>{
-
-document.getElementById("status").innerHTML="❌ Upload failed";
-
-btn.disabled=false;
-btn.innerText="UPLOAD";
-
+// Show MPIN modal when upload clicked
+btn.addEventListener("click",()=>{
+  let lines=textarea.value.split("\n").map(v=>v.trim()).filter(v=>v!="");
+  if(lines.length===0){
+    showStatus("❌ Paste vouchers first", "red");
+    return;
+  }
+  mpinError.innerText="";
+  mpinInput.value="";
+  modal.style.display="block";
+  mpinInput.focus();
 });
 
+// Handle MPIN submission
+mpinSubmit.addEventListener("click",()=>{
+  const mpin = mpinInput.value.trim();
+  if(!mpin){
+    mpinError.innerText="MPIN is required";
+    return;
+  }
+  modal.style.display="none";
+  currentMPIN = mpin;
+  uploadVouchers();
+});
+
+// Upload function
+function uploadVouchers(){
+  const sheet=document.getElementById("sheet").value;
+  const lines=textarea.value.split("\n").map(v=>v.trim()).filter(v=>v!="");
+
+  btn.disabled=true;
+  btn.innerText="Uploading...";
+  showStatus("⏳ Uploading...", "white");
+
+  fetch(url,{
+    method:"POST",
+    body:JSON.stringify({sheet:sheet,vouchers:lines,mpin:currentMPIN})
+  })
+  .then(res=>res.text())
+  .then(data=>{
+    const res=JSON.parse(data);
+    if(res.error){
+      showStatus(`❌ ${res.error}`, "red");
+    } else {
+      showStatus(`✅ Uploaded ${res.uploaded} vouchers to ${res.sheet}. Skipped ${res.skipped} duplicates.`, "green");
+      textarea.value="";
+      count.innerText="0 vouchers";
+    }
+    btn.disabled=false;
+    btn.innerText="UPLOAD";
+  })
+  .catch(()=>{
+    showStatus("❌ Upload failed", "red");
+    btn.disabled=false;
+    btn.innerText="UPLOAD";
+  });
 }
 
+// Function to show status messages with color and auto-fade
+function showStatus(msg, color){
+  statusDiv.innerText = msg;
+  statusDiv.style.color = color;
+  setTimeout(()=>{statusDiv.innerText="";},60000);
+}
+
+// Close modal if clicked outside
+window.onclick = function(event) {
+  if(event.target==modal){
+    modal.style.display="none";
+  }
+}
 </script>
-
 </body>
 </html>
