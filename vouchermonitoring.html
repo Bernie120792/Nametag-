@@ -4,142 +4,169 @@
 <meta charset="UTF-8">
 <title>Voucher Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #121212;
-    color: #fff;
-    margin: 0;
-    padding: 20px;
-  }
 
-  h3 {
-    text-align: center;
-    font-size: 20px;
-    margin-bottom: 5px;
-    font-color: white;
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #121212;
+  color: #fff;
+  margin: 0;
+  padding: 20px;
 }
 
-  table {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    border-collapse: collapse;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.5);
-  }
+h3 {
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
 
-  thead {
-    background: #1e1e1e;
-  }
+table {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.5);
+}
 
+thead {
+  background: #1e1e1e;
+}
+
+th, td {
+  padding: 12px 10px;
+  text-align: center;
+  border: 1px solid #333;
+}
+
+tr:nth-child(even) {
+  background: #1a1a1a;
+}
+
+tr:hover {
+  background: #2c2c2c;
+}
+
+.total { color: #ff6b6b; font-weight: bold; }
+.used { color: #1dd1a1; font-weight: bold; }
+.unused { color: #54a0ff; font-weight: bold; }
+.sales { color: #feca57; font-weight: bold; }
+
+tfoot td {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+@media (max-width:650px) {
   th, td {
-    padding: 12px 10px;
-    text-align: center;
-    border: 1px solid #333;
+    padding: 8px 5px;
+    font-size: 14px;
   }
-
-  th {
-    font-weight: bold;
-    color: #fff;
-  }
-
-  tr:nth-child(even) {
-    background: #1a1a1a;
-  }
-
-  tr:hover {
-    background: #2c2c2c;
-  }
-
-  .total { color: #ff6b6b; font-weight: bold; }
-  .used { color: #1dd1a1; font-weight: bold; }
-  .unused { color: #54a0ff; font-weight: bold; }
-  .sales { color: #feca57; font-weight: bold; }
-  tfoot td { font-weight: bold; }
-
-  @media (max-width: 650px) {
-    th, td { padding: 8px 5px; font-size: 14px; }
-  }
+}
 </style>
 </head>
+
 <body>
 
-<h3>Voucher Monitor</h3>
+<h3>Voucher Monitor Dashboard</h3>
+
 <table>
-  <thead>
-    <tr>
-      <th>Amount</th>
-      <th>TotalVoucher</th>
-      <th>Used</th>
-      <th>Unused</th>
-      <th>Sales</th>
-    </tr>
-  </thead>
-  <tbody id="voucherBody">
-    <!-- Data will load here -->
-  </tbody>
-  <tfoot>
-    <tr>
-      <td colspan="4">Total Sales</td>
-      <td id="totalSales" class="sales">0</td>
-    </tr>
-  </tfoot>
+<thead>
+<tr>
+<th>Amount</th>
+<th>Total Voucher</th>
+<th>Used</th>
+<th>Unused</th>
+<th>Sales</th>
+</tr>
+</thead>
+
+<tbody id="voucherBody"></tbody>
+
+<tfoot>
+<tr>
+<td colspan="4">Total Sales</td>
+<td id="totalSales" class="sales">0.00</td>
+</tr>
+</tfoot>
 </table>
 
 <script>
+// Google Spreadsheet ID
 const SPREADSHEET_ID = "1eFJZBfsipeC8XW8BZ3lOgLtuIPNEa--dugzhKpOi8HQ";
+
+// Define sheets & GIDs
 const sheets = [
- {name: "5pesos", gid: "0"},
- {name: "10pesos", gid: "2011951890"},
- {name: "15pesos", gid: "1912689784"},
- {name: "20pesos", gid: "698952633"},
- // dagdagan dito
+  { name: "₱5", gid: "0" },
+  { name: "₱10", gid: "2011951890" },
+  { name: "₱15", gid: "1912689784" },
+  { name: "₱20", gid: "698952633" }
 ];
 
-async function loadSheet(gid){
+let lastSales = 0;
+
+// Fetch CSV from Google Sheet
+async function loadSheet(gid) {
   const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${gid}`;
   const res = await fetch(url);
   return res.text();
 }
 
-async function loadData(){
+// Create table rows
+function createRows() {
   let html = "";
-  let totalSalesValue = 0;
+  sheets.forEach((s, i) => {
+    html += `
+    <tr id="row${i}">
+      <td>${s.name}</td>
+      <td class="total" id="total${i}">0</td>
+      <td class="used" id="used${i}">0</td>
+      <td class="unused" id="unused${i}">0</td>
+      <td class="sales" id="sales${i}">0.00</td>
+    </tr>`;
+  });
+  document.getElementById("voucherBody").innerHTML = html;
+}
 
-  for(let sheet of sheets){
+// Load data and update table
+async function loadData() {
+  let totalSalesValue = 0;
+  let newData = [];
+
+  for (let i = 0; i < sheets.length; i++) {
     try {
-      const data = await loadSheet(sheet.gid);
+      const data = await loadSheet(sheets[i].gid);
       const rows = data.split("\n");
       const cells = rows[1].split(",");
 
+      let total = cells[2] || 0;
+      let used = cells[3] || 0;
+      let unused = cells[4] || 0;
       let sales = parseFloat(cells[5]) || 0;
-      totalSalesValue += sales;
 
-      html += `<tr>
-        <td>${sheet.name}</td>
-        <td class="total">${cells[2]}</td>
-        <td class="used">${cells[3]}</td>
-        <td class="unused">${cells[4]}</td>
-        <td class="sales">${sales}</td>
-      </tr>`;
-    } catch(e) {
-      html += `<tr>
-        <td>${sheet.name}</td>
-        <td class="total">0</td>
-        <td class="used">0</td>
-        <td class="unused">0</td>
-        <td class="sales">0</td>
-      </tr>`;
-      console.error(e);
+      totalSalesValue += sales;
+      newData.push({ total, used, unused, sales });
+    } catch (e) {
+      console.log("Error loading sheet:", e);
     }
   }
 
-  document.getElementById("voucherBody").innerHTML = html;
+  // Update table values
+  for (let i = 0; i < newData.length; i++) {
+    document.getElementById("total" + i).innerText = newData[i].total;
+    document.getElementById("used" + i).innerText = newData[i].used;
+    document.getElementById("unused" + i).innerText = newData[i].unused;
+    document.getElementById("sales" + i).innerText = newData[i].sales.toFixed(2);
+  }
+
   document.getElementById("totalSales").innerText = totalSalesValue.toFixed(2);
+  lastSales = totalSalesValue;
 }
 
+// Initialize
+createRows();
 loadData();
-setInterval(loadData, 1000);
+setInterval(loadData, 3000);
 </script>
 
 </body>
