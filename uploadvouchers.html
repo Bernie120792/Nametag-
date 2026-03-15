@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Voucher Loader</title>
+
+<style>
+
+body{
+  font-family:Arial, sans-serif;
+  background:#0f172a;
+  color:white;
+  padding:20px;
+}
+
+.container{
+  max-width:520px;
+  margin:auto;
+  background:#1e293b;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+
+h3{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+label{
+  font-size:14px;
+  opacity:.8;
+}
+
+select{
+  width:100%;
+  padding:12px;
+  font-size:16px;
+  margin-top:5px;
+  margin-bottom:15px;
+  border-radius:6px;
+  border:none;
+}
+
+textarea{
+  width:100%;
+  height:200px;
+  font-size:16px;
+  padding:12px;
+  border-radius:6px;
+  border:none;
+  resize:none;
+}
+
+.info{
+  display:flex;
+  justify-content:space-between;
+  margin-top:6px;
+  font-size:13px;
+  opacity:.8;
+}
+
+button{
+  margin-top:15px;
+  width:100%;
+  padding:14px;
+  font-size:18px;
+  border:none;
+  border-radius:8px;
+  background:linear-gradient(45deg,#22c55e,#16a34a);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:.5;
+}
+
+#status{
+  text-align:center;
+  margin-top:12px;
+  font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h3>Voucher Loader</h3>
+
+<label>Select Sheet</label>
+<select id="sheet">
+<option value="V5">V5</option>
+<option value="V10">V10</option>
+<option value="V15">V15</option>
+<option value="V20">V20</option>
+<option value="V25">V25</option>
+<option value="V30">V30</option>
+<option value="V35">V35</option>
+<option value="V50">V50</option>
+</select>
+
+<label>Paste Vouchers</label>
+<textarea id="vouchers" placeholder="Paste vouchers here..."></textarea>
+
+<div class="info">
+<span id="count">0 vouchers</span>
+<span>1 per line</span>
+</div>
+
+<button id="uploadBtn" onclick="send()">UPLOAD</button>
+
+<div id="status"></div>
+
+</div>
+
+<script>
+
+const url="https://script.google.com/macros/s/AKfycbx6VN4TQ0G0li35EZ4YAFqcXnOnBVR6XSHe9FCIAn6DRnUDkF7Py-w0uCQilv6wqaQgFQ/exec";
+
+const textarea=document.getElementById("vouchers");
+const count=document.getElementById("count");
+const btn=document.getElementById("uploadBtn");
+
+/* COUNT VOUCHERS */
+textarea.addEventListener("input",()=>{
+let lines=textarea.value
+.split("\n")
+.filter(v=>v.trim()!="");
+
+count.innerText=lines.length+" vouchers";
+});
+
+function send(){
+
+let sheet=document.getElementById("sheet").value;
+
+let lines=textarea.value
+.split("\n")
+.filter(v=>v.trim()!="");
+
+if(lines.length==0){
+alert("Paste vouchers first");
+return;
+}
+
+btn.disabled=true;
+btn.innerText="Uploading...";
+
+document.getElementById("status").innerHTML="⏳ Uploading...";
+
+fetch(url,{
+method:"POST",
+body:JSON.stringify({
+sheet:sheet,
+vouchers:lines
+})
+})
+.then(res=>res.text())
+.then(data=>{
+
+document.getElementById("status").innerHTML="✅ Uploaded "+lines.length+" vouchers to "+sheet;
+
+/* CLEAR */
+textarea.value="";
+count.innerText="0 vouchers";
+
+btn.disabled=false;
+btn.innerText="UPLOAD";
+
+})
+.catch(()=>{
+
+document.getElementById("status").innerHTML="❌ Upload failed";
+
+btn.disabled=false;
+btn.innerText="UPLOAD";
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
