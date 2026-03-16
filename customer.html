@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <style>
-/* Disable scroll completely */
+/* Basic Styles */
 html, body {
   width: 100%;
   height: 100%;
@@ -21,24 +21,17 @@ html, body {
   background-position: center;
   touch-action: manipulation;
 }
-/* H3 white text */
-h3{
-  color: white;
-  margin-top: 10px;
-  font-size: 20px;
-}
-/* H1 white text */
-h1{
-  color: white;
-  font-size: 25px;
-}
-/* CONTAINER */
-.container {
-  display: block;
-  width: 100%;
-}
 
-/* BUTTON GRID */
+/* Top title image */
+img.top-title { width: 80%; height: 150px; margin-top: 15px; }
+
+/* H3 white text */
+h3 { color: white; margin-top: 10px; font-size: 20px; }
+
+/* Container */
+.container { display: block; width: 100%; }
+
+/* Button grid */
 .buttons {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -58,21 +51,12 @@ button {
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   transition: .2s;
 }
-
-button:hover {
-  background: #16a34a;
-  transform: scale(1.03);
-}
-
+button:hover { background: #16a34a; transform: scale(1.03); }
 .price { font-size: 16px; }
 .validity { font-size: 12px; opacity: .9; }
+button:disabled { background: #94a3b8; cursor: not-allowed; }
 
-button:disabled {
-  background: #94a3b8;
-  cursor: not-allowed;
-}
-
-/* VOUCHER CARD */
+/* Voucher Card */
 .card {
   display: none;
   padding: 20px;
@@ -87,20 +71,10 @@ button:disabled {
   transform: translate(-50%,-50%);
   z-index: 1000;
 }
-
-.close {
-  position: absolute;
-  top: 10px;
-  right: 14px;
-  font-size: 20px;
-  cursor: pointer;
-  color: #64748b;
-}
-
+.close { position: absolute; top: 10px; right: 14px; font-size: 20px; cursor: pointer; color: #64748b; }
 .small { font-size: 14px; color: #64748b; }
 .voucher { font-size: 26px; font-weight: bold; letter-spacing: 3px; margin-top: 10px; color: #0f172a; }
 .validity-card { margin-top: 12px; font-size: 15px; color: #16a34a; font-weight: bold; }
-
 .copy-btn, .buy-btn {
   margin-top: 15px;
   background: #2563eb;
@@ -111,34 +85,58 @@ button:disabled {
   cursor: pointer;
   border: none;
 }
-
 .copy-btn:hover, .buy-btn:hover { background: #1d4ed8; }
+.processing { display: none; margin-top: 12px; font-size: 18px; color: #334155; }
 
-.processing {
+/* MPIN Modal */
+.modal {
   display: none;
-  margin-top: 12px;
-  font-size: 18px;
-  color: #334155;
+  position: fixed;
+  z-index: 2000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.6);
 }
-
-/* IFRAME */
-#iframeContainer {
-  width: 100%;
-  height: 500px;
-  margin-top: 15px;
-  border-top: 2px solid #ccc;
+.modal-content {
+  background: #1e293b;
+  margin: 15% auto;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  color: white;
 }
-
-#iframeContainer iframe {
+.modal-content input {
   width: 80%;
-  height: 80%;
+  padding: 12px;
+  font-size: 16px;
+  margin-bottom: 10px;
+  border-radius: 6px;
   border: none;
 }
+.modal-content button {
+  width: 50%;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  background: #22c55e;
+  color: white;
+  cursor: pointer;
+}
+.modal-content button:hover { background: #16a34a; }
+#errorMPIN { margin-top: 10px; color: #f87171; font-size: 14px; }
+
+/* Iframe */
+#iframeContainer { width: 100%; height: 300px; margin-top: 15px; border-top: 2px solid #ccc; }
+#iframeContainer iframe { width: 100%; height: 100%; border: none; }
 </style>
 </head>
 
 <body>
-<H1>BUY VOUCHER HERE</H1>
+<img class="top-title" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiye-B_drr_mqYae15aQkkLrUTn2uGs8PZohbBlX7ZOE4ysF9LhN2RkSgEb5f8pahFKBtwRlEA_uKfie-crn41MBktA634w8arFNYABqyD2eDCrhWuEuqWLjDdQZKwIY3wb0j34xa5AmEL4XVHGiAIzS7nEoihdXbgvxxoEUKvSnhNXRzm_6FMIfBhjlqs/s200/1.png" alt="Voucher Dispenser">
+
 <h3>Select Amount</h3>
 
 <div class="container">
@@ -156,21 +154,32 @@ button:disabled {
     <div class="small">Selected Voucher</div>
     <div class="voucher" id="voucherAmount">₱0</div>
     <div class="validity-card" id="validityCard"></div>
-    <button class="buy-btn" onclick="buyVoucher()" id="buyBtn">Buy Voucher</button>
+    <button class="buy-btn" onclick="showMPINModal()" id="buyBtn">Buy Voucher</button>
     <div class="processing" id="loading">Processing...</div>
     <button class="copy-btn" onclick="copyVoucher()" id="copyBtn" style="display:none;">Copy Voucher</button>
   </div>
 
-  <!-- IFRAME -->
   <div id="iframeContainer">
-    <iframe src="vouchermonitoring.html"></iframe>
+    <iframe src="vouchermonitor.html"></iframe>
+  </div>
+</div>
+
+<!-- MPIN Modal -->
+<div id="mpinModal" class="modal">
+  <div class="modal-content">
+    <h3>Enter MPIN</h3>
+    <input type="password" id="mpinInput" placeholder="Enter MPIN">
+    <button onclick="submitMPIN()">Submit</button>
+    <div id="errorMPIN"></div>
   </div>
 </div>
 
 <script>
 let used = false;
 let selectedVoucher = null;
+let currentMPIN = "";
 
+// Select voucher
 function selectVoucher(button, sheet, validity){
   if(document.getElementById('voucherCard').style.display==="block") return;
   selectedVoucher = {sheet, validity};
@@ -182,24 +191,57 @@ function selectVoucher(button, sheet, validity){
   document.querySelectorAll('#buttonGrid button').forEach(b => { if(b!==button) b.disabled = true; });
 }
 
-function buyVoucher(){
+// Show MPIN modal
+function showMPINModal(){
+  if(!selectedVoucher || used) return;
+  document.getElementById('mpinModal').style.display = "block";
+  document.getElementById('mpinInput').value = "";
+  document.getElementById('errorMPIN').innerText = "";
+  document.getElementById('mpinInput').focus();
+}
+
+// Submit MPIN
+function submitMPIN(){
+  const mpin = document.getElementById('mpinInput').value.trim();
+  if(!mpin){ document.getElementById('errorMPIN').innerText = "MPIN is required"; return; }
+  currentMPIN = mpin;
+  document.getElementById('mpinModal').style.display = "none";
+  buyVoucherWithMPIN();
+}
+
+// Buy voucher with MPIN verification
+function buyVoucherWithMPIN(){
   if(!selectedVoucher || used) return;
   used = true;
-  document.getElementById('loading').style.display = "block";
-  fetch("https://script.google.com/macros/s/AKfycbyahQIRUSYU_1qx_hAb3dZPAdc94gDp5MHgohTHqk2QoPSN0QfopVmoL68a-hN7oofkuw/exec?sheet="+selectedVoucher.sheet)
-    .then(r => r.text())
-    .then(v => {
-      document.getElementById('loading').style.display = "none";
-      document.getElementById('voucherAmount').innerText = v;
-      document.getElementById('copyBtn').style.display = "inline-block";
+  const loading = document.getElementById('loading');
+  const voucherDisplay = document.getElementById('voucherAmount');
+  const copyBtn = document.getElementById('copyBtn');
+  loading.style.display = "block";
+
+  // Call your Apps Script with MPIN parameter
+  fetch(`https://script.google.com/macros/s/AKfycbxl21YXKPN45BLW9VXb2ENQLI_4M0D-S7F3LsI4nksIfNyU-HQu5UCVBTDLmg9zU-EmKw/exec?sheet=${selectedVoucher.sheet}&mpin=${currentMPIN}`)
+    .then(res => res.json())
+    .then(data => {
+      loading.style.display = "none";
+      if(data.error){
+        alert(data.error);
+        used = false;
+      } else if(data.voucher){
+        voucherDisplay.innerText = data.voucher;
+        copyBtn.style.display = "inline-block";
+      } else {
+        alert("Unknown error");
+        used = false;
+      }
     })
-    .catch(() => {
-      document.getElementById('loading').style.display = "none";
+    .catch(()=>{
+      loading.style.display = "none";
       alert("Error getting voucher");
       used = false;
     });
 }
 
+// Copy voucher
 function copyVoucher(){
   let code = document.getElementById("voucherAmount").innerText;
   navigator.clipboard.writeText(code);
@@ -208,12 +250,20 @@ function copyVoucher(){
   setTimeout(()=>{ btn.innerText = "Copy Voucher"; },1000);
 }
 
+// Reset card
 function resetCard(){
   used = false;
   document.getElementById('voucherCard').style.display = "none";
   document.getElementById('copyBtn').style.display = "none";
   selectedVoucher = null;
+  currentMPIN = "";
   document.querySelectorAll('#buttonGrid button').forEach(b => b.disabled = false);
+}
+
+// Close modal on outside click
+window.onclick = function(event){
+  const modal = document.getElementById('mpinModal');
+  if(event.target == modal){ modal.style.display = "none"; }
 }
 </script>
 </body>
