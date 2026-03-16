@@ -2,98 +2,73 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Sidebar System</title>
-
-<!-- Disable zoom -->
+<title>Mini Sidebar System</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <style>
-
 body{
-margin:0;
-font-family:Arial;
-overflow:hidden;
-touch-action:manipulation;
+  margin:0;
+  font-family:Arial;
+  overflow:hidden;
+  touch-action:manipulation;
 }
 
 /* top bar */
 .topbar{
-height:55px;
-background:#111;
-color:white;
-display:flex;
-align-items:center;
-padding-left:15px;
-font-size:22px;
+  height:40px;          /* mas compact topbar */
+  background:#111;
+  color:white;
+  display:flex;
+  align-items:center;
+  padding-left:8px;
+  font-size:10px;       /* Menu label 10px */
 }
 
 .menu-btn{
-font-size:28px;
-cursor:pointer;
-margin-right:15px;
+  font-size:20px;       /* smaller menu icon */
+  cursor:pointer;
+  margin-right:8px;
 }
 
 /* sidebar */
-
 .sidebar{
-position:fixed;
-left:-250px;
-top:0;
-width:250px;
-height:100%;
-background:#222;
-transition:0.3s;
-padding-top:60px;
-}
-
-/* back arrow */
-
-.back-btn{
-width:90%;
-margin:10px auto;
-display:block;
-padding:12px;
-border:none;
-background:#444;
-color:white;
-font-size:18px;
-cursor:pointer;
-border-radius:6px;
-}
-
-.back-btn:hover{
-background:#666;
+  position:fixed;
+  left:-180px;          /* narrower sidebar */
+  top:0;
+  width:180px;          /* mini width */
+  height:100%;
+  background:#222;
+  transition:0.3s;
+  padding-top:40px;     /* adjust for topbar height */
 }
 
 .sidebar button{
-width:90%;
-margin:10px auto;
-display:block;
-padding:12px;
-border:none;
-background:#333;
-color:white;
-font-size:16px;
-cursor:pointer;
-border-radius:6px;
+  width:85%;            /* smaller buttons */
+  margin:8px auto;
+  display:block;
+  padding:10px;
+  border:none;
+  background:#333;
+  color:white;
+  font-size:14px;
+  cursor:pointer;
+  border-radius:5px;
 }
 
 .sidebar button:hover{
-background:#555;
+  background:#555;
 }
 
-/* main */
-
+/* main content */
 .main{
-height:calc(100vh - 55px);
+  height:calc(100vh - 40px);
 }
 
 iframe{
-width:100%;
-height:100%;
-border:none;
+  width:100%;
+  height:100%;
+  border:none;
 }
-
 </style>
 </head>
 
@@ -101,78 +76,51 @@ border:none;
 
 <!-- TOP BAR -->
 <div class="topbar">
-<span class="menu-btn" onclick="toggleMenu()">☰</span>
-Menu
-</div>
+  <span class="menu-btn" onclick="toggleMenu()">=</span>Menu</div>
 
 <!-- SIDEBAR -->
-
 <div id="sidebar" class="sidebar">
-
-<button class="back-btn" onclick="goHome()">Back home</button>
-
-<button onclick="loadPage('uploadvouchers.html')">Upload vouchers </button>
-
-<button onclick="loadPage('firebase.html')">Buy Voucher</button>
-
-<button onclick="loadPage('history.html')">History</button>
-
-<button onclick="loadPage('https://bernie120792.github.io/Centralize-login-/')">log out</button>
-
+  <button onclick="loadPage('voucher.html')">Buy Voucher</button>
+  <button onclick="loadPage('history.html')">History</button>
+  <button onclick="loadPage('settings.html')">Settings</button>
 </div>
 
 <!-- MAIN CONTENT -->
-
-<div class="main">
-
-<iframe id="frame" src="customer.html"></iframe>
-
+<div class="main" onclick="goHome()">
+  <iframe id="frame" src="customer.html"></iframe>
 </div>
 
 <script>
-
 let menuOpen=false;
 
 function toggleMenu(){
-
-let sidebar=document.getElementById("sidebar");
-
-if(menuOpen){
-sidebar.style.left="-250px";
-menuOpen=false;
-}else{
-sidebar.style.left="0";
-menuOpen=true;
-}
-
+  let sidebar=document.getElementById("sidebar");
+  if(menuOpen){
+    sidebar.style.left="-180px";
+    menuOpen=false;
+  }else{
+    sidebar.style.left="0";
+    menuOpen=true;
+  }
 }
 
 function loadPage(page){
-
-document.getElementById("frame").src=page;
-
-toggleMenu();
-
+  document.getElementById("frame").src=page;
+  toggleMenu();
 }
 
 function goHome(){
-
-document.getElementById("frame").src="customer.html";
-
-toggleMenu();
-
+  document.getElementById("frame").src="home.html";
 }
 
 /* Disable pinch zoom */
-
 document.addEventListener('gesturestart', function (e) {
-e.preventDefault();
+  e.preventDefault();
 });
 
 document.addEventListener('touchmove', function (e) {
-if (e.scale !== 1) { e.preventDefault(); }
+  if (e.scale !== 1) { e.preventDefault(); }
 }, { passive: false });
-
 </script>
 
 </body>
