@@ -5,6 +5,9 @@
 <title>Mini Sidebar System</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-pap8SxH8fP5Lr14p+s+I1M0rQK2t0X+8x+rcxBja4VfWZRh5u+cXv6OQZ2Pvafc3iPjRWtUeX3rc7hGdTwB6UQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 <style>
 body{
   margin:0;
@@ -15,17 +18,17 @@ body{
 
 /* top bar */
 .topbar{
-  height:40px;          /* mas compact topbar */
+  height:40px;          
   background:#111;
   color:white;
   display:flex;
   align-items:center;
   padding-left:8px;
-  font-size:10px;       /* Menu label 10px */
+  font-size:10px;       
 }
 
 .menu-btn{
-  font-size:20px;       /* smaller menu icon */
+  font-size:20px;       
   cursor:pointer;
   margin-right:8px;
 }
@@ -33,26 +36,32 @@ body{
 /* sidebar */
 .sidebar{
   position:fixed;
-  left:-180px;          /* narrower sidebar */
+  left:-180px;          
   top:0;
-  width:180px;          /* mini width */
+  width:180px;          
   height:100%;
   background:#222;
   transition:0.3s;
-  padding-top:40px;     /* adjust for topbar height */
+  padding-top:40px;     
 }
 
 .sidebar button{
-  width:85%;            /* smaller buttons */
+  width:85%;            
   margin:8px auto;
-  display:block;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   padding:10px;
   border:none;
   background:#333;
   color:white;
-  font-size:14px;
+  font-size:16px;
   cursor:pointer;
   border-radius:5px;
+}
+
+.sidebar button i{
+  margin-right:5px;
 }
 
 .sidebar button:hover{
@@ -76,16 +85,19 @@ iframe{
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <span class="menu-btn" onclick="toggleMenu()">=</span>Menu</div>
+  <span class="menu-btn" onclick="toggleMenu()">=</span>Menu
+</div>
 
 <!-- SIDEBAR -->
 <div id="sidebar" class="sidebar">
-  <button 
- <button onclick="loadPage('customer.html')">Back home</button>
- <button
-onclick="loadPage('uploadvouchers.html')">Add Voucher</button>
+  <button onclick="loadPage('customer.html')">Back home</button>
+  <button onclick="loadPage('uploadvouchers.html')">Add Voucher</button>
   <button onclick="loadPage('history.html')">History</button>
   <button onclick="loadPage('settings.html')">Settings</button>
+
+  <!-- Logout button gamit ang Font Awesome icon -->
+  <button onclick="confirmLogout()" style="position:absolute; bottom:40px; width:85%;">
+  <i class="fas fa-right-from-bracket"></i>logout</button>
 </div>
 
 <!-- MAIN CONTENT -->
@@ -114,6 +126,23 @@ function loadPage(page){
 
 function goHome(){
   document.getElementById("frame").src="home.html";
+}
+
+// Function to directly open MIT App Inventor Screen 1
+function openMITScreen(screenName){
+  if(typeof webstring === "function"){
+    webstring(screenName); // tatawag sa MIT WebViewer
+  } else {
+    console.log("Webstring function not found. MIT App Inventor only.");
+  }
+  toggleMenu(); // close sidebar
+}
+
+// Confirmation before logout
+function confirmLogout(){
+  if(confirm("Are you sure you want to logout?")){
+    openMITScreen('Screen1'); // tatawag ng MIT Screen1
+  }
 }
 
 /* Disable pinch zoom */
