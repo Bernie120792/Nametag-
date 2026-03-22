@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <!-- Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-pap8SxH8fP5Lr14p+s+I1M0rQK2t0X+8x+rcxBja4VfWZRh5u+cXv6OQZ2Pvafc3iPjRWtUeX3rc7hGdTwB6UQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
 <style>
 body{
@@ -43,6 +43,7 @@ body{
   background:#222;
   transition:0.3s;
   padding-top:40px;     
+  z-index:10;
 }
 
 .sidebar button{
@@ -68,9 +69,20 @@ body{
   background:#555;
 }
 
+/* overlay para sa click outside */
+#overlay{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:5;
+}
+
 /* main content */
 .main{
-  height:calc(100vh - 40px);
+  height:100vh;
 }
 
 iframe{
@@ -88,6 +100,9 @@ iframe{
   <span class="menu-btn" onclick="toggleMenu()">=</span>Menu
 </div>
 
+<!-- Overlay -->
+<div id="overlay" onclick="toggleMenu()"></div>
+
 <!-- SIDEBAR -->
 <div id="sidebar" class="sidebar">
   <button onclick="loadPage('customer.html')">Back home</button>
@@ -95,13 +110,14 @@ iframe{
   <button onclick="loadPage('history.html')">History</button>
   <button onclick="loadPage('settings.html')">Settings</button>
 
-  <!-- Logout button gamit ang Font Awesome icon -->
-  <button onclick="confirmLogout()" style="position:absolute; bottom:40px; width:85%;">
-  <i class="fas fa-right-from-bracket"></i>logout</button>
+  <!-- Logout button sa pinaka-baba, icon-only -->
+  <button onclick="openMITScreen('Screen1')" style="position:absolute; bottom:50px; width:100%; background-color:transparent;">
+    <i class="fas fa-right-from-bracket"></i>logout
+  </button>
 </div>
 
 <!-- MAIN CONTENT -->
-<div class="main" onclick="goHome()">
+<div class="main">
   <iframe id="frame" src="customer.html"></iframe>
 </div>
 
@@ -110,11 +126,14 @@ let menuOpen=false;
 
 function toggleMenu(){
   let sidebar=document.getElementById("sidebar");
+  let overlay=document.getElementById("overlay");
   if(menuOpen){
     sidebar.style.left="-180px";
+    overlay.style.display="none";
     menuOpen=false;
   }else{
     sidebar.style.left="0";
+    overlay.style.display="block";
     menuOpen=true;
   }
 }
@@ -124,25 +143,14 @@ function loadPage(page){
   toggleMenu();
 }
 
-function goHome(){
-  document.getElementById("frame").src="home.html";
-}
-
-// Function to directly open MIT App Inventor Screen 1
+// Direktang logout, tawagin agad MIT Screen1
 function openMITScreen(screenName){
   if(typeof webstring === "function"){
     webstring(screenName); // tatawag sa MIT WebViewer
   } else {
     console.log("Webstring function not found. MIT App Inventor only.");
   }
-  toggleMenu(); // close sidebar
-}
-
-// Confirmation before logout
-function confirmLogout(){
-  if(confirm("Are you sure you want to logout?")){
-    openMITScreen('Screen1'); // tatawag ng MIT Screen1
-  }
+  toggleMenu(); // close sidebar kung open
 }
 
 /* Disable pinch zoom */
