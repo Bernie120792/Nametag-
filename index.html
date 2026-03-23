@@ -1,167 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Mini Sidebar System</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
-<!-- Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Telepreneur Main Page</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  overflow:hidden;
-  touch-action:manipulation;
+html, body {
+    margin:0;
+    font-family: Arial, sans-serif;
+    height:100vh;
+    background:black;
+    color:white;
+}
+.content {
+    height:100vh;
+    overflow:hidden;
+}
+#mainFrame {
+    width:100%;
+    height:90%;
+    border:none;
 }
 
-/* top bar */
-.topbar{
-  height:40px;          
-  background:#111;
-  color:white;
-  display:flex;
-  align-items:center;
-  padding-left:8px;
-  font-size:10px;       
+/* Floating Bottom */
+.bottom-bar {
+    position:fixed;
+    bottom:20px;
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    padding:0 10px;
+    box-sizing:border-box;
 }
-
-.menu-btn{
-  font-size:20px;       
-  cursor:pointer;
-  margin-right:8px;
+.side-container { display:flex; flex-direction:row; gap:10px; }
+.side-item { display:flex; flex-direction:column; align-items:center; }
+.side-btn {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    width:65px;
+    height:30px;
+    background:transparent;
+    backdrop-filter:blur(2px);
+    border-radius:12px;
+    color: #3498db;
+    font-size:22px;
+    cursor:pointer;
+    box-shadow:0 4px 10px rgba(0,0,0,0.5);
+    transition: transform 0.2s;
 }
+.side-btn:hover { transform: scale(1.1); }
+.side-label { font-size:14px; margin-top:2px; }
 
-/* sidebar */
-.sidebar{
-  position:fixed;
-  left:-180px;          
-  top:0;
-  width:180px;          
-  height:100%;
-  background:#222;
-  transition:0.3s;
-  padding-top:40px;     
-  z-index:10;
+/* Center Floating */
+.center-btn {
+    position:fixed;
+    bottom:40px;
+    left:50%;
+    transform:translateX(-50%);
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    background: #3498db;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:30px;
+    color:white;
+    cursor:pointer;
+    box-shadow:0 8px 20px rgba(0,0,0,0.6);
+    transition: transform 0.2s;
 }
-
-.sidebar button{
-  width:85%;            
-  margin:8px auto;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:10px;
-  border:none;
-  background:#333;
-  color:white;
-  font-size:16px;
-  cursor:pointer;
-  border-radius:5px;
-}
-
-.sidebar button i{
-  margin-right:5px;
-}
-
-.sidebar button:hover{
-  background:#555;
-}
-
-/* overlay para sa click outside */
-#overlay{
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  z-index:5;
-}
-
-/* main content */
-.main{
-  height:100vh;
-}
-
-iframe{
-  width:100%;
-  height:100%;
-  border:none;
+.center-btn:hover { transform: translateX(-50%) scale(1.1); }
+.center-label {
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:14px;
 }
 </style>
 </head>
-
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar">
-  <span class="menu-btn" onclick="toggleMenu()">=</span>Menu
+<div class="content">
+    <iframe id="mainFrame" src="submainpage.html"></iframe>
 </div>
 
-<!-- Overlay -->
-<div id="overlay" onclick="toggleMenu()"></div>
-
-<!-- SIDEBAR -->
-<div id="sidebar" class="sidebar">
-  <button onclick="loadPage('customer.html')">Back home</button>
-  <button onclick="loadPage('uploadvouchers.html')">Add Voucher</button>
-  <button onclick="loadPage('history.html')">History</button>
-  <button onclick="loadPage('settings.html')">Settings</button>
-
-  <!-- Logout button sa pinaka-baba, icon-only -->
-  <button onclick="openMITScreen('Screen1')" style="position:absolute; bottom:50px; width:100%; background-color:transparent;">
-    <i class="fas fa-right-from-bracket"></i>logout
-  </button>
+<!-- Floating Side -->
+<div class="bottom-bar">
+    <div class="side-container">
+        <div class="side-item">
+            <div class="side-btn" onclick="loadPage('s.html')"><i class="fas fa-arrow-left"></i></div>
+            <div class="side-label">Back</div>
+        </div>
+        <div class="side-item">
+            <div class="side-btn" onclick="loadPage('submainpage.html')"><i class="fas fa-home"></i></div>
+            <div class="side-label">Home</div>
+        </div>
+    </div>
+    <div class="side-container">
+        <div class="side-item">
+            <div class="side-btn" onclick="loadPage('settings.html')"><i class="fas fa-cog"></i></div>
+            <div class="side-label">Settings</div>
+        </div>
+        <div class="side-item">
+            <div class="side-btn" onclick="loadPage('next.html')"><i class="fas fa-arrow-right"></i></div>
+            <div class="side-label">Next</div>
+        </div>
+    </div>
 </div>
 
-<!-- MAIN CONTENT -->
-<div class="main">
-  <iframe id="frame" src="customer.html"></iframe>
+<!-- Center Floating -->
+<div class="center-btn" onclick="loadPage('customer.html')">
+    <i class="fas fa-store-alt"></i>
 </div>
+<div class="center-label">Store</div>
 
 <script>
-let menuOpen=false;
-
-function toggleMenu(){
-  let sidebar=document.getElementById("sidebar");
-  let overlay=document.getElementById("overlay");
-  if(menuOpen){
-    sidebar.style.left="-180px";
-    overlay.style.display="none";
-    menuOpen=false;
-  }else{
-    sidebar.style.left="0";
-    overlay.style.display="block";
-    menuOpen=true;
-  }
+function loadPage(url) {
+    document.getElementById('mainFrame').src = url;
 }
-
-function loadPage(page){
-  document.getElementById("frame").src=page;
-  toggleMenu();
-}
-
-// Direktang logout, tawagin agad MIT Screen1
-function openMITScreen(screenName){
-  if(typeof webstring === "function"){
-    webstring(screenName); // tatawag sa MIT WebViewer
-  } else {
-    console.log("Webstring function not found. MIT App Inventor only.");
-  }
-  toggleMenu(); // close sidebar kung open
-}
-
-/* Disable pinch zoom */
-document.addEventListener('gesturestart', function (e) {
-  e.preventDefault();
-});
-
-document.addEventListener('touchmove', function (e) {
-  if (e.scale !== 1) { e.preventDefault(); }
-}, { passive: false });
 </script>
-
 </body>
 </html>
