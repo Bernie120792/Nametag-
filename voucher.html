@@ -1,0 +1,262 @@
+<!DOCTYPE html><html>
+<head>
+<meta charset="UTF-8">
+<title>Voucher Dispenser</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><!-- Font Awesome CDN --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><style>
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEieoBYMZuPf40J-gqgVHejJSqHHBUC2qzf7XVgDlGlyYeamMmW8zS-r93w9s-RaTAnEtAJz7tbkKPwh9fBt3ZSyK3yqPetAj1lBQop7fvPvADq7j55JsXVe_lxIMTHRAy_YRjORO2hAV1G5VwbEQ2oBy7uE9O52O4Wo48e2qKehgqsTPIcfNKoE3GYV1io/s320/file_000000002ed47208a1f063a4a98974e6.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  touch-action: manipulation;
+}
+
+img.top-title { width: 80%; height: 150px; margin-top: 15px; }
+h3 { color: white; margin-top: 10px; font-size: 20px; }
+.container { display: block; width: 100%; }
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  max-width: 360px;
+  margin: 25px auto 10px auto;
+}
+
+button {
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #22c55e;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: .2s;
+}
+
+button i {
+  font-size: 65px;
+  margin-bottom: 5px;
+  display: block;
+  color: yellow;
+  position: relative;
+}
+
+button i span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: green;
+  font-weight: bold;
+}
+
+button {
+  background: green; /* yellow green */
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+button:hover { background: #16a34a; transform: scale(1.03); }
+.price { font-size: 20px; }
+.validity { font-size: 18px; opacity: .9; }
+button:disabled { background: #94a3b8; cursor: not-allowed; }
+
+.card {
+  display: none;
+  padding: 20px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 10px 20px rgba(0,0,0,.1);
+  width: 280px;
+  margin: auto;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  z-index: 1000;
+}
+
+.close { position: absolute; top: 10px; right: 14px; font-size: 20px; cursor: pointer; color: #64748b; }
+.small { font-size: 14px; color: #64748b; }
+.voucher { font-size: 26px; font-weight: bold; letter-spacing: 3px; margin-top: 10px; color: #0f172a; }
+.validity-card { margin-top: 12px; font-size: 15px; color: #16a34a; font-weight: bold; }
+
+.copy-btn, .buy-btn {
+  margin-top: 15px;
+  background: #2563eb;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+  border: none;
+}
+
+.copy-btn:hover, .buy-btn:hover { background: #1d4ed8; }
+.processing { display: none; margin-top: 12px; font-size: 18px; color: #334155; }
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.6);
+}
+
+.modal-content {
+  background: #1e293b;
+  margin: 15% auto;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  color: white;
+}
+
+.modal-content input {
+  width: 80%;
+  padding: 12px;
+  font-size: 16px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: none;
+}
+
+.modal-content button {
+  width: 50%;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  background: #22c55e;
+  color: white;
+  cursor: pointer;
+}
+
+.modal-content button:hover { background: #16a34a; }
+#errorMPIN { margin-top: 10px; color: #f87171; font-size: 14px; }
+</style></head><body>
+<img class="top-title" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiye-B_drr_mqYae15aQkkLrUTn2uGs8PZohbBlX7ZOE4ysF9LhN2RkSgEb5f8pahFKBtwRlEA_uKfie-crn41MBktA634w8arFNYABqyD2eDCrhWuEuqWLjDdQZKwIY3wb0j34xa5AmEL4XVHGiAIzS7nEoihdXbgvxxoEUKvSnhNXRzm_6FMIfBhjlqs/s200/1.png"><h3>Select Amount</h3><div class="container">
+  <div class="buttons" id="buttonGrid">
+    <button onclick="selectVoucher(this,'V5','1 Hour')"><i class="fas fa-ticket-alt"><span>₱5</span></i><div class="price" style="display:none;">₱5</div><div class="validity">1 Hour</div></button>
+    <button onclick="selectVoucher(this,'V10','3 Hours')"><i class="fas fa-ticket-alt"><span>₱10</span></i><div class="price" style="display:none;">₱10</div><div class="validity">3 Hours</div></button>
+    <button onclick="selectVoucher(this,'V15','5 Hours')"><i class="fas fa-ticket-alt"><span>₱15</span></i><div class="price" style="display:none;">₱15</div><div class="validity">5 Hours</div></button>
+    <button onclick="selectVoucher(this,'V20','8 Hours')"><i class="fas fa-ticket-alt"><span>₱20</span></i><div class="price" style="display:none;">₱20</div><div class="validity">8 Hours</div></button>
+    <button onclick="selectVoucher(this,'V30','12 Hours')"><i class="fas fa-ticket-alt"><span>₱30</span></i><div class="price" style="display:none;">₱30</div><div class="validity">12 Hours</div></button>
+    <button onclick="selectVoucher(this,'V50','1 Day')"><i class="fas fa-ticket-alt"><span>₱50</span></i><div class="price" style="display:none;">₱50</div><div class="validity">3 Day</div></button>
+  </div> 
+    <div class="card" id="voucherCard">
+    <div class="close" onclick="resetCard()">✕</div>
+    <div class="small">Selected Voucher</div>
+    <div class="voucher" id="voucherAmount">₱0</div>
+    <div class="validity-card" id="validityCard"></div>
+    <button class="buy-btn" onclick="showMPINModal()" id="buyBtn">Buy Voucher</button>
+    <div class="processing" id="loading">Processing...</div>
+    <button class="copy-btn" onclick="copyVoucher()" id="copyBtn" style="display:none;">Copy Voucher</button>
+  </div>
+</div><div id="mpinModal" class="modal">
+  <div class="modal-content">
+    <h3>Enter MPIN</h3>
+    <input type="password" id="mpinInput" placeholder="Enter MPIN">
+    <button onclick="submitMPIN()">Submit</button>
+    <div id="errorMPIN"></div>
+  </div>
+</div><script>
+let used = false;
+let selectedVoucher = null;
+let currentMPIN = "";
+
+function selectVoucher(button, sheet, validity){
+  if(document.getElementById('voucherCard').style.display==="block") return;
+  selectedVoucher = {sheet, validity};
+  document.getElementById('voucherAmount').innerText = sheet.replace('V','₱');
+  document.getElementById('validityCard').innerText = "Validity: " + validity;
+  document.getElementById('voucherCard').style.display = "block";
+  document.getElementById('copyBtn').style.display = "none";
+  document.getElementById('loading').style.display = "none";
+  document.querySelectorAll('#buttonGrid button').forEach(b => { if(b!==button) b.disabled = true; });
+}
+
+function showMPINModal(){
+  if(!selectedVoucher || used) return;
+  document.getElementById('mpinModal').style.display = "block";
+  document.getElementById('mpinInput').value = "";
+  document.getElementById('errorMPIN').innerText = "";
+  document.getElementById('mpinInput').focus();
+}
+
+function submitMPIN(){
+  const mpin = document.getElementById('mpinInput').value.trim();
+  if(!mpin){ document.getElementById('errorMPIN').innerText = "MPIN is required"; return; }
+  currentMPIN = mpin;
+  document.getElementById('mpinModal').style.display = "none";
+  buyVoucherWithMPIN();
+}
+
+function buyVoucherWithMPIN(){
+  if(!selectedVoucher || used) return;
+  used = true;
+  const loading = document.getElementById('loading');
+  const voucherDisplay = document.getElementById('voucherAmount');
+  const copyBtn = document.getElementById('copyBtn');
+  loading.style.display = "block";
+
+  fetch(`https://script.google.com/macros/s/AKfycbxl21YXKPN45BLW9VXb2ENQLI_4M0D-S7F3LsI4nksIfNyU-HQu5UCVBTDLmg9zU-EmKw/exec?sheet=${selectedVoucher.sheet}&mpin=${currentMPIN}`)
+    .then(res => res.json())
+    .then(data => {
+      loading.style.display = "none";
+      if(data.error){
+        alert(data.error);
+        used = false;
+      } else if(data.voucher){
+        voucherDisplay.innerText = data.voucher;
+        copyBtn.style.display = "inline-block";
+      } else {
+        alert("Unknown error");
+        used = false;
+      }
+    })
+    .catch(()=>{
+      loading.style.display = "none";
+      alert("Error getting voucher");
+      used = false;
+    });
+}
+
+function copyVoucher(){
+  let code = document.getElementById("voucherAmount").innerText;
+  navigator.clipboard.writeText(code);
+  let btn = document.getElementById("copyBtn");
+  btn.innerText = "Copied!";
+  setTimeout(()=>{ btn.innerText = "Copy Voucher"; },1000);
+}
+
+function resetCard(){
+  used = false;
+  document.getElementById('voucherCard').style.display = "none";
+  document.getElementById('copyBtn').style.display = "none";
+  selectedVoucher = null;
+  currentMPIN = "";
+  document.querySelectorAll('#buttonGrid button').forEach(b => b.disabled = false);
+}
+
+window.onclick = function(event){
+  const modal = document.getElementById('mpinModal');
+  if(event.target == modal){ modal.style.display = "none"; }
+}
+</script></body>
+</html>
