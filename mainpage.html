@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Home - Telepreneur</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+  html, body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #1a1a1a;
+    color: white;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Promo iframe */
+  .promo-frame {
+    width: 100%;
+    height: flex; /* maliit na display */
+    border: none;
+    background-color: #111;
+  }
+
+  /* Content */
+  .content {
+    padding: 10px;
+    height: calc(200vh - 300px); /* space for iframe */
+    overflow-y: auto;
+  }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  /* Buttons */
+  .load-btn {
+    background-color: transparent;
+    color: white;
+    border: 2px solid yellow;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .load-btn:hover {
+    background-color: #ffffff11;
+    transform: scale(1.05);
+  }
+
+  .load-btn i {
+    font-size: 30px;
+    margin-bottom: 10px;
+    color: #3498db;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- Promo iframe -->
+<iframe class="promo-frame" src="https://bernie120792.github.io/Berniesite/"></iframe>
+
+<!-- Content -->
+<div class="content">
+  <div class="grid">
+    <button class="load-btn" onclick="window.location.href='Network.html'">
+      <i class="fas fa-mobile-alt"></i> Load
+    </button>
+    <button class="load-btn" onclick="window.location.href='direct_load.html'">
+      <i class="fas fa-bolt"></i> Direct Load
+    </button>
+    <button class="load-btn" onclick="window.location.href='cable.html'">
+      <i class="fas fa-satellite-dish"></i> Cable
+    </button>
+    <button class="load-btn" onclick="window.location.href='epins.html'">
+      <i class="fas fa-gamepad"></i> E-Pins
+    </button>
+    <button class="load-btn" onclick="window.location.href='wifi.html'">
+      <i class="fas fa-wifi"></i> Wifi/Fiber
+    </button>
+    <button class="load-btn" onclick="window.location.href='streaming.html'">
+      <i class="fas fa-tv"></i> Streaming
+    </button>
+    <button class="load-btn" onclick="window.location.href='bills.html'">
+      <i class="fas fa-file-alt"></i> Bills
+    </button>
+    <button class="load-btn" onclick="window.location.href='kunsulta.html'">
+      <i class="fas fa-stethoscope"></i> Kunsulta
+    </button>
+    <button class="load-btn" onclick="window.location.href='balance.html'">
+      <i class="fas fa-coins"></i> Balance
+    </button>
+  </div>
+</div>
+
+</body>
+</html>
