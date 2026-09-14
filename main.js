@@ -6,21 +6,8 @@ const LIBRARY_ID = "752623";
 const API_KEY = "f1814a26-eb38-4379-b630bd285d98-aee4-4368";
 
 
-/*
-    BUNNY API
-*/
-
 const API_BASE =
-    "https://video.bunnycdn.com/library/" +
-    LIBRARY_ID;
-
-
-/*
-    ACTUAL BUNNY CDN HOSTNAME
-*/
-
-const CDN_BASE =
-    "https://vz-44e1c5b3-3fc.b-cdn.net";
+    "https://video.bunnycdn.com/library/" + LIBRARY_ID;
 
 
 const ITEMS_PER_PAGE = 100;
@@ -30,29 +17,16 @@ const ITEMS_PER_PAGE = 100;
     ELEMENTS
 */
 
-const videoGrid =
-    document.getElementById("videoGrid");
+const videoGrid = document.getElementById("videoGrid");
+const loading = document.getElementById("loading");
+const errorBox = document.getElementById("error");
+const loadMoreBtn = document.getElementById("loadMoreBtn");
 
-const loading =
-    document.getElementById("loading");
+const searchInput = document.getElementById("searchInput");
 
-const errorBox =
-    document.getElementById("error");
-
-const loadMoreBtn =
-    document.getElementById("loadMoreBtn");
-
-const searchInput =
-    document.getElementById("searchInput");
-
-const playerScreen =
-    document.getElementById("playerScreen");
-
-const player =
-    document.getElementById("player");
-
-const closePlayer =
-    document.getElementById("closePlayer");
+const playerScreen = document.getElementById("playerScreen");
+const player = document.getElementById("player");
+const closePlayer = document.getElementById("closePlayer");
 
 
 /*
@@ -74,55 +48,37 @@ let isLoading = false;
 
 async function bunnyAPI(endpoint) {
 
-    const response =
-        await fetch(
-            API_BASE + endpoint,
-            {
-                method: "GET",
-
-                headers: {
-                    "AccessKey": API_KEY,
-                    "Accept": "application/json"
-                },
-
-                cache: "no-store"
-            }
-        );
-
+    const response = await fetch(
+        API_BASE + endpoint,
+        {
+            method: "GET",
+            headers: {
+                "AccessKey": API_KEY,
+                "Accept": "application/json"
+            },
+            cache: "no-store"
+        }
+    );
 
     if (!response.ok) {
-
         throw new Error(
             "Bunny API Error: " +
             response.status
         );
-
     }
 
-
-    const text =
-        await response.text();
-
+    const text = await response.text();
 
     if (!text) {
-
-        throw new Error(
-            "Empty response from Bunny API."
-        );
-
+        throw new Error("Empty response from Bunny API.");
     }
 
-
     try {
-
         return JSON.parse(text);
-
     } catch (error) {
-
         throw new Error(
             "Invalid JSON response from Bunny API."
         );
-
     }
 }
 
@@ -143,7 +99,6 @@ async function getVideos(
         itemsPerPage +
         "&orderBy=date";
 
-
     return await bunnyAPI(endpoint);
 }
 
@@ -155,7 +110,6 @@ async function getVideos(
 function getVideoId(video) {
 
     return video.guid || "";
-
 }
 
 
@@ -165,11 +119,8 @@ function getVideoId(video) {
 
 function getVideoTitle(video) {
 
-    return (
-        video.title ||
-        "Untitled Video"
-    );
-
+    return video.title ||
+        "Untitled Video";
 }
 
 
@@ -180,73 +131,17 @@ function getVideoTitle(video) {
 function getVideoThumbnail(video) {
 
     /*
-        Kung may thumbnail URL mismo
-        sa Bunny API, gamitin iyon.
-    */
+        Thumbnail must come from Bunny API.
 
-    if (video.thumbnailUrl) {
-
-        return video.thumbnailUrl;
-
-    }
-
-
-    if (video.thumbnailURL) {
-
-        return video.thumbnailURL;
-
-    }
-
-
-    if (video.thumbnail) {
-
-        return video.thumbnail;
-
-    }
-
-
-    /*
-        KUNIN ANG VIDEO GUID
-    */
-
-    const videoId =
-        getVideoId(video);
-
-
-    if (!videoId) {
-
-        return "";
-
-    }
-
-
-    /*
-        Kung may thumbnailFileName
-        mula sa Bunny API.
-    */
-
-    if (video.thumbnailFileName) {
-
-        return (
-            CDN_BASE +
-            "/" +
-            videoId +
-            "/" +
-            video.thumbnailFileName
-        );
-
-    }
-
-
-    /*
-        STANDARD BUNNY THUMBNAIL
+        Walang manual thumbnail URL
+        na ginagawa dito.
     */
 
     return (
-        CDN_BASE +
-        "/" +
-        videoId +
-        "/thumbnail.jpg"
+        video.thumbnailUrl ||
+        video.thumbnailURL ||
+        video.thumbnail ||
+        ""
     );
 }
 
@@ -261,41 +156,24 @@ function getVideoDuration(video) {
         video.length === undefined ||
         video.length === null
     ) {
-
         return "";
-
     }
 
-
-    const seconds =
-        Number(video.length);
-
+    const seconds = Number(video.length);
 
     if (isNaN(seconds)) {
-
         return "";
-
     }
 
-
-    const minutes =
-        Math.floor(
-            seconds / 60
-        );
-
+    const minutes = Math.floor(seconds / 60);
 
     const remainingSeconds =
-        Math.floor(
-            seconds % 60
-        );
-
+        Math.floor(seconds % 60);
 
     return (
         minutes +
         ":" +
-        String(
-            remainingSeconds
-        ).padStart(2, "0")
+        String(remainingSeconds).padStart(2, "0")
     );
 }
 
@@ -311,24 +189,15 @@ function getVideoDate(video) {
         video.dateCreated ||
         "";
 
-
     if (!dateValue) {
-
         return "";
-
     }
 
-
-    const date =
-        new Date(dateValue);
-
+    const date = new Date(dateValue);
 
     if (isNaN(date.getTime())) {
-
         return "";
-
     }
-
 
     return date.toLocaleDateString();
 }
@@ -340,165 +209,105 @@ function getVideoDate(video) {
 
 async function loadVideos() {
 
-    if (
-        isLoading ||
-        !hasMore
-    ) {
-
+    if (isLoading || !hasMore) {
         return;
-
     }
-
 
     isLoading = true;
 
+    loading.classList.remove("hidden");
 
-    loading.classList.remove(
-        "hidden"
-    );
-
-
-    errorBox.classList.add(
-        "hidden"
-    );
-
+    errorBox.classList.add("hidden");
 
     try {
 
-        const result =
-            await getVideos(
-                currentPage,
-                ITEMS_PER_PAGE
-            );
+        const result = await getVideos(
+            currentPage,
+            ITEMS_PER_PAGE
+        );
 
 
         /*
-            BUNNY RESPONSE
-
-            {
-                items: [...]
-            }
+            Bunny normally returns items
+            inside "items".
         */
 
         const newVideos =
             Array.isArray(result)
                 ? result
                 : (
-                    Array.isArray(
-                        result.items
-                    )
+                    Array.isArray(result.items)
                         ? result.items
                         : []
                 );
 
 
-        /*
-            WALANG VIDEO
-        */
-
-        if (
-            newVideos.length === 0
-        ) {
+        if (newVideos.length === 0) {
 
             hasMore = false;
 
+            loadMoreBtn.classList.add("hidden");
 
-            loadMoreBtn.classList.add(
-                "hidden"
-            );
-
-
-            if (
-                videos.length === 0
-            ) {
+            if (videos.length === 0) {
 
                 errorBox.textContent =
                     "Walang video na nakuha mula sa Bunny.";
 
-                errorBox.classList.remove(
-                    "hidden"
-                );
-
+                errorBox.classList.remove("hidden");
             }
 
-
             return;
-
         }
 
 
         /*
-            SAVE VIDEOS
+            ADD NEW VIDEOS
         */
 
         videos =
-            videos.concat(
-                newVideos
-            );
+            videos.concat(newVideos);
 
 
         /*
-            DISPLAY VIDEOS
+            DISPLAY ONLY NEW VIDEOS
         */
 
-        displayVideos(
-            newVideos
-        );
+        displayVideos(newVideos);
 
 
         /*
-            PAGINATION
+            CHECK PAGINATION
         */
 
         if (
-            newVideos.length <
-            ITEMS_PER_PAGE
+            newVideos.length < ITEMS_PER_PAGE
         ) {
 
             hasMore = false;
 
-
-            loadMoreBtn.classList.add(
-                "hidden"
-            );
+            loadMoreBtn.classList.add("hidden");
 
         } else {
 
             currentPage++;
 
-
-            loadMoreBtn.classList.remove(
-                "hidden"
-            );
-
+            loadMoreBtn.classList.remove("hidden");
         }
-
 
     } catch (error) {
 
-        console.error(
-            error
-        );
-
+        console.error(error);
 
         errorBox.textContent =
             "Hindi makakonekta sa Bunny API.";
 
-
-        errorBox.classList.remove(
-            "hidden"
-        );
-
+        errorBox.classList.remove("hidden");
 
     } finally {
 
         isLoading = false;
 
-
-        loading.classList.add(
-            "hidden"
-        );
-
+        loading.classList.add("hidden");
     }
 }
 
@@ -509,282 +318,187 @@ async function loadVideos() {
 
 function displayVideos(videoList) {
 
-    videoList.forEach(
-        function(video) {
+    videoList.forEach(function(video) {
 
-            const videoId =
-                getVideoId(video);
+        const videoId =
+            getVideoId(video);
 
+        if (!videoId) {
+            return;
+        }
 
-            if (!videoId) {
 
-                return;
+        const card =
+            document.createElement("div");
 
-            }
+        card.className =
+            "videoCard";
 
+        card.dataset.videoId =
+            videoId;
 
-            /*
-                VIDEO CARD
-            */
 
-            const card =
-                document.createElement(
-                    "div"
-                );
+        /*
+            THUMBNAIL BOX
+        */
 
+        const thumbnailBox =
+            document.createElement("div");
 
-            card.className =
-                "videoCard";
+        thumbnailBox.className =
+            "thumbnailBox";
 
 
-            card.dataset.videoId =
-                videoId;
+        const thumbnailUrl =
+            getVideoThumbnail(video);
 
 
-            /*
-                THUMBNAIL BOX
-            */
+        if (thumbnailUrl) {
 
-            const thumbnailBox =
-                document.createElement(
-                    "div"
-                );
+            const image =
+                document.createElement("img");
 
+            image.className =
+                "thumbnail";
 
-            thumbnailBox.className =
-                "thumbnailBox";
+            image.src =
+                thumbnailUrl;
 
+            image.alt =
+                getVideoTitle(video);
 
-            /*
-                THUMBNAIL URL
-            */
+            image.loading =
+                "lazy";
 
-            const thumbnailUrl =
-                getVideoThumbnail(
-                    video
-                );
-
-
-            /*
-                IMAGE
-            */
-
-            if (thumbnailUrl) {
-
-                const image =
-                    document.createElement(
-                        "img"
-                    );
-
-
-                image.className =
-                    "thumbnail";
-
-
-                image.src =
-                    thumbnailUrl;
-
-
-                image.alt =
-                    getVideoTitle(
-                        video
-                    );
-
-
-                image.loading =
-                    "lazy";
-
-
-                /*
-                    KAPAG ERROR ANG THUMBNAIL
-                */
-
-                image.onerror =
-                    function() {
-
-                        this.style.display =
-                            "none";
-
-
-                        if (
-                            !thumbnailBox.querySelector(
-                                ".noThumbnail"
-                            )
-                        ) {
-
-                            const noThumbnail =
-                                document.createElement(
-                                    "div"
-                                );
-
-
-                            noThumbnail.className =
-                                "noThumbnail";
-
-
-                            noThumbnail.textContent =
-                                "No thumbnail";
-
-
-                            thumbnailBox.appendChild(
-                                noThumbnail
-                            );
-
-                        }
-
-                    };
-
-
-                thumbnailBox.appendChild(
-                    image
-                );
-
-            } else {
-
-                const noThumbnail =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                noThumbnail.className =
-                    "noThumbnail";
-
-
-                noThumbnail.textContent =
-                    "No thumbnail";
-
-
-                thumbnailBox.appendChild(
-                    noThumbnail
-                );
-
-            }
-
-
-            /*
-                TITLE
-            */
-
-            const title =
-                document.createElement(
-                    "div"
-                );
-
-
-            title.className =
-                "videoTitle";
-
-
-            title.textContent =
-                getVideoTitle(
-                    video
-                );
-
-
-            /*
-                INFO
-            */
-
-            const info =
-                document.createElement(
-                    "div"
-                );
-
-
-            info.className =
-                "videoInfo";
-
-
-            const duration =
-                getVideoDuration(
-                    video
-                );
-
-
-            const date =
-                getVideoDate(
-                    video
-                );
-
-
-            let infoText = "";
-
-
-            if (duration) {
-
-                infoText += duration;
-
-            }
-
-
-            if (
-                duration &&
-                date
-            ) {
-
-                infoText +=
-                    " • ";
-
-            }
-
-
-            if (date) {
-
-                infoText += date;
-
-            }
-
-
-            info.textContent =
-                infoText;
-
-
-            /*
-                ADD CONTENT
-            */
-
-            card.appendChild(
-                thumbnailBox
-            );
-
-
-            card.appendChild(
-                title
-            );
-
-
-            card.appendChild(
-                info
-            );
-
-
-            /*
-                CLICK VIDEO
-            */
-
-            card.addEventListener(
-                "click",
+            image.onerror =
                 function() {
 
-                    playVideo(
-                        videoId
+                    this.style.display =
+                        "none";
+
+                    const noThumbnail =
+                        document.createElement("div");
+
+                    noThumbnail.className =
+                        "noThumbnail";
+
+                    noThumbnail.textContent =
+                        "No thumbnail";
+
+                    thumbnailBox.appendChild(
+                        noThumbnail
                     );
+                };
 
-                }
+            thumbnailBox.appendChild(
+                image
             );
 
+        } else {
 
-            /*
-                ADD CARD
-            */
+            const noThumbnail =
+                document.createElement("div");
 
-            videoGrid.appendChild(
-                card
+            noThumbnail.className =
+                "noThumbnail";
+
+            noThumbnail.textContent =
+                "No thumbnail";
+
+            thumbnailBox.appendChild(
+                noThumbnail
             );
-
         }
-    );
+
+
+        /*
+            TITLE
+        */
+
+        const title =
+            document.createElement("div");
+
+        title.className =
+            "videoTitle";
+
+        title.textContent =
+            getVideoTitle(video);
+
+
+        /*
+            INFO
+        */
+
+        const info =
+            document.createElement("div");
+
+        info.className =
+            "videoInfo";
+
+
+        const duration =
+            getVideoDuration(video);
+
+        const date =
+            getVideoDate(video);
+
+
+        let infoText = "";
+
+
+        if (duration) {
+            infoText += duration;
+        }
+
+        if (duration && date) {
+            infoText += " • ";
+        }
+
+        if (date) {
+            infoText += date;
+        }
+
+
+        info.textContent =
+            infoText;
+
+
+        /*
+            CARD
+        */
+
+        card.appendChild(
+            thumbnailBox
+        );
+
+        card.appendChild(
+            title
+        );
+
+        card.appendChild(
+            info
+        );
+
+
+        /*
+            CLICK VIDEO
+        */
+
+        card.addEventListener(
+            "click",
+            function() {
+
+                playVideo(videoId);
+
+            }
+        );
+
+
+        videoGrid.appendChild(
+            card
+        );
+
+    });
 }
 
 
@@ -795,14 +509,12 @@ function displayVideos(videoList) {
 function playVideo(videoId) {
 
     if (!videoId) {
-
         return;
-
     }
 
 
     /*
-        BUNNY PLAYER
+        BUNNY EMBED URL
     */
 
     const playerUrl =
@@ -817,12 +529,18 @@ function playVideo(videoId) {
         "&responsive=true";
 
 
+    /*
+        ISANG IFRAME LANG.
+
+        SRC LANG ANG PINAPALITAN.
+    */
+
     player.src =
         playerUrl;
 
 
     /*
-        SHOW PLAYER
+        SHOW FULL PLAYER SCREEN
     */
 
     playerScreen.classList.remove(
@@ -831,7 +549,7 @@ function playVideo(videoId) {
 
 
     /*
-        STOP BACKGROUND SCROLL
+        PREVENT BACKGROUND SCROLL
     */
 
     document.body.style.overflow =
@@ -840,20 +558,21 @@ function playVideo(videoId) {
 
 
 /*
-    CLOSE VIDEO PLAYER
+    CLOSE PLAYER
 */
 
 function closeVideoPlayer() {
 
     /*
-        STOP VIDEO
+        Tanggalin muna ang src
+        para huminto ang video.
     */
 
     player.src = "";
 
 
     /*
-        HIDE PLAYER
+        Hide player screen
     */
 
     playerScreen.classList.add(
@@ -862,7 +581,7 @@ function closeVideoPlayer() {
 
 
     /*
-        ENABLE SCROLL
+        Enable scrolling again
     */
 
     document.body.style.overflow =
@@ -886,6 +605,10 @@ closePlayer.addEventListener(
 
 /*
     CLICK OUTSIDE PLAYER
+
+    Sa setup na ito, hindi natin
+    isasara kapag mismong iframe
+    ang pinindot.
 */
 
 playerScreen.addEventListener(
@@ -893,8 +616,7 @@ playerScreen.addEventListener(
     function(event) {
 
         if (
-            event.target ===
-            playerScreen
+            event.target === playerScreen
         ) {
 
             closeVideoPlayer();
@@ -906,7 +628,10 @@ playerScreen.addEventListener(
 
 
 /*
-    BROWSER BACK
+    ANDROID BACK BUTTON / BROWSER BACK
+
+    Kapag supported ng WebView,
+    ito ang magiging fallback.
 */
 
 window.addEventListener(
@@ -929,16 +654,15 @@ window.addEventListener(
 
 /*
     ESC KEY
+
+    Para sa browser/desktop.
 */
 
 document.addEventListener(
     "keydown",
     function(event) {
 
-        if (
-            event.key ===
-            "Escape"
-        ) {
+        if (event.key === "Escape") {
 
             closeVideoPlayer();
 
@@ -989,22 +713,17 @@ searchInput.addEventListener(
 
 
                 if (!video) {
-
                     return;
-
                 }
 
 
                 const title =
-                    getVideoTitle(
-                        video
-                    ).toLowerCase();
+                    getVideoTitle(video)
+                        .toLowerCase();
 
 
                 if (
-                    title.includes(
-                        keyword
-                    )
+                    title.includes(keyword)
                 ) {
 
                     card.style.display =
