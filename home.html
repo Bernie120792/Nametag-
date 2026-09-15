@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bedyo</title>
+
+    <link
+        rel="stylesheet"
+        href="home.css"
+    >
+
+</head>
+
+
+<body>
+
+    <main>
+
+        <div
+            id="videoGallery"
+            class="video-gallery"
+        >
+
+            <div class="loading">
+                Loading videos...
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- ================================
+         VIDEO PLAYER
+    ================================= -->
+
+    <div
+        id="playerBox"
+        class="player-box"
+    >
+
+        <button
+            class="close-button"
+            onclick="closeVideo()"
+        >
+            ×
+        </button>
+
+
+        <div class="player-container">
+
+            <iframe
+                id="videoPlayer"
+                allow="autoplay; fullscreen"
+                allowfullscreen
+            ></iframe>
+
+        </div>
+
+    </div>
+
+
+    <script src="home.js"></script>
+
+</body>
+
+</html>
