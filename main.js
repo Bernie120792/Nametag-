@@ -5,57 +5,191 @@ const COLLECTION_ID =
     "257764af-3ad3-4d82-ad22-5ea2e96ae9a4";
 
 
+/* =========================================
+   SAFE STORAGE
+   Chrome + MIT APP INVENTOR COMPATIBLE
+========================================= */
+
+const memoryStorage = {};
+
+function storageGet(key) {
+
+    try {
+
+        if (
+            typeof window !== "undefined" &&
+            window.localStorage
+        ) {
+            return window.localStorage.getItem(key);
+        }
+
+    } catch (error) {
+
+        console.log(
+            "localStorage unavailable:",
+            error
+        );
+    }
+
+    return Object.prototype.hasOwnProperty.call(
+        memoryStorage,
+        key
+    )
+        ? memoryStorage[key]
+        : null;
+}
+
+
+function storageSet(key, value) {
+
+    try {
+
+        if (
+            typeof window !== "undefined" &&
+            window.localStorage
+        ) {
+
+            window.localStorage.setItem(
+                key,
+                value
+            );
+
+            return true;
+        }
+
+    } catch (error) {
+
+        console.log(
+            "localStorage unavailable:",
+            error
+        );
+    }
+
+    memoryStorage[key] =
+        String(value);
+
+    return false;
+}
+
+
+function storageRemove(key) {
+
+    try {
+
+        if (
+            typeof window !== "undefined" &&
+            window.localStorage
+        ) {
+
+            window.localStorage.removeItem(
+                key
+            );
+
+            return true;
+        }
+
+    } catch (error) {
+
+        console.log(
+            "localStorage unavailable:",
+            error
+        );
+    }
+
+    delete memoryStorage[key];
+
+    return false;
+}
+
+
+/* =========================================
+   DOM ELEMENTS
+========================================= */
+
 const videoGallery =
-    document.getElementById("videoGallery");
+    document.getElementById(
+        "videoGallery"
+    );
 
 const videoPlayer =
-    document.getElementById("videoPlayer");
+    document.getElementById(
+        "videoPlayer"
+    );
 
 const videoTitle =
-    document.getElementById("videoTitle");
+    document.getElementById(
+        "videoTitle"
+    );
 
 const videoDetails =
-    document.getElementById("videoDetails");
+    document.getElementById(
+        "videoDetails"
+    );
 
 const videoCount =
-    document.getElementById("videoCount");
+    document.getElementById(
+        "videoCount"
+    );
 
 const loading =
-    document.getElementById("loading");
+    document.getElementById(
+        "loading"
+    );
 
 const errorMessage =
-    document.getElementById("errorMessage");
+    document.getElementById(
+        "errorMessage"
+    );
 
 const playerLoading =
-    document.getElementById("playerLoading");
+    document.getElementById(
+        "playerLoading"
+    );
 
 const homeBtn =
-    document.getElementById("homeBtn");
+    document.getElementById(
+        "homeBtn"
+    );
 
 const searchInput =
-    document.getElementById("searchInput");
+    document.getElementById(
+        "searchInput"
+    );
 
 const searchBtn =
-    document.getElementById("searchBtn");
-
+    document.getElementById(
+        "searchBtn"
+    );
 
 const loginScreen =
-    document.getElementById("loginScreen");
+    document.getElementById(
+        "loginScreen"
+    );
 
 const app =
-    document.getElementById("app");
+    document.getElementById(
+        "app"
+    );
 
 const mpinInput =
-    document.getElementById("mpinInput");
+    document.getElementById(
+        "mpinInput"
+    );
 
 const loginBtn =
-    document.getElementById("loginBtn");
+    document.getElementById(
+        "loginBtn"
+    );
 
 const loginLoading =
-    document.getElementById("loginLoading");
+    document.getElementById(
+        "loginLoading"
+    );
 
 const loginError =
-    document.getElementById("loginError");
+    document.getElementById(
+        "loginError"
+    );
 
 
 let videos = [];
@@ -65,24 +199,28 @@ let loadingVideos = false;
 let loggingIn = false;
 
 
-/* DEVICE ID */
+/* =========================================
+   DEVICE ID
+========================================= */
 
 function getDeviceId() {
 
     let deviceId =
-        localStorage.getItem(
+        storageGet(
             "bedyo_device_id"
         );
+
 
     if (!deviceId) {
 
         if (
             window.crypto &&
-            crypto.randomUUID
+            typeof window.crypto.randomUUID ===
+                "function"
         ) {
 
             deviceId =
-                crypto.randomUUID();
+                window.crypto.randomUUID();
 
         } else {
 
@@ -95,21 +233,25 @@ function getDeviceId() {
                     .substring(2, 12);
         }
 
-        localStorage.setItem(
+
+        storageSet(
             "bedyo_device_id",
             deviceId
         );
     }
 
+
     return deviceId;
 }
 
 
-/* SESSION */
+/* =========================================
+   SESSION
+========================================= */
 
 function getSessionToken() {
 
-    return localStorage.getItem(
+    return storageGet(
         "bedyo_session_token"
     );
 }
@@ -117,7 +259,7 @@ function getSessionToken() {
 
 function saveSessionToken(token) {
 
-    localStorage.setItem(
+    storageSet(
         "bedyo_session_token",
         token
     );
@@ -126,37 +268,67 @@ function saveSessionToken(token) {
 
 function clearSession() {
 
-    localStorage.removeItem(
+    storageRemove(
         "bedyo_session_token"
     );
+
 
     videos = [];
     filteredVideos = [];
 
-    videoGallery.innerHTML = "";
 
-    app.classList.add("hidden");
+    if (videoGallery) {
 
-    loginScreen.classList.remove(
-        "hidden"
-    );
+        videoGallery.innerHTML =
+            "";
+    }
 
-    mpinInput.value = "";
 
-    mpinInput.focus();
+    if (app) {
+
+        app.classList.add(
+            "hidden"
+        );
+    }
+
+
+    if (loginScreen) {
+
+        loginScreen.classList.remove(
+            "hidden"
+        );
+    }
+
+
+    if (mpinInput) {
+
+        mpinInput.value =
+            "";
+    }
+
+
+    if (mpinInput) {
+
+        mpinInput.focus();
+    }
 }
 
 
-/* LOGIN */
+/* =========================================
+   LOGIN
+========================================= */
 
 async function login() {
 
     if (loggingIn) {
+
         return;
     }
 
+
     const mpin =
         mpinInput.value.trim();
+
 
     if (
         !/^\d{6}$/.test(mpin)
@@ -169,21 +341,27 @@ async function login() {
         return;
     }
 
+
     loggingIn = true;
 
-    loginBtn.disabled = true;
+    loginBtn.disabled =
+        true;
+
 
     loginError.classList.remove(
         "show"
     );
 
+
     loginLoading.style.display =
         "flex";
+
 
     try {
 
         const deviceId =
             getDeviceId();
+
 
         const response =
             await fetch(
@@ -207,10 +385,13 @@ async function login() {
                 }
             );
 
+
         const text =
             await response.text();
 
+
         let data;
+
 
         try {
 
@@ -224,6 +405,7 @@ async function login() {
             );
         }
 
+
         if (
             !response.ok ||
             !data.success ||
@@ -236,6 +418,7 @@ async function login() {
             );
         }
 
+
         if (!data.token) {
 
             throw new Error(
@@ -243,17 +426,21 @@ async function login() {
             );
         }
 
+
         saveSessionToken(
             data.token
         );
+
 
         loginScreen.classList.add(
             "hidden"
         );
 
+
         app.classList.remove(
             "hidden"
         );
+
 
         await loadVideos();
 
@@ -263,6 +450,7 @@ async function login() {
             "Login error:",
             error
         );
+
 
         showLoginError(
             error.message ||
@@ -308,6 +496,7 @@ mpinInput.addEventListener(
                 .replace(/\D/g, "")
                 .slice(0, 6);
 
+
         loginError.classList.remove(
             "show"
         );
@@ -322,33 +511,42 @@ mpinInput.addEventListener(
         if (
             event.key === "Enter"
         ) {
+
             login();
         }
     }
 );
 
 
-/* LOAD VIDEOS */
+/* =========================================
+   LOAD VIDEOS
+========================================= */
 
 async function loadVideos() {
 
     if (loadingVideos) {
+
         return;
     }
 
+
     loadingVideos = true;
+
 
     loading.style.display =
         "flex";
+
 
     errorMessage.classList.remove(
         "show"
     );
 
+
     try {
 
         const token =
             getSessionToken();
+
 
         if (!token) {
 
@@ -356,6 +554,7 @@ async function loadVideos() {
 
             return;
         }
+
 
         const url =
             EDGE_URL +
@@ -366,6 +565,7 @@ async function loadVideos() {
             ) +
             "&page=1" +
             "&itemsPerPage=100";
+
 
         const response =
             await fetch(
@@ -383,10 +583,13 @@ async function loadVideos() {
                 }
             );
 
+
         const text =
             await response.text();
 
+
         let data;
+
 
         try {
 
@@ -400,18 +603,22 @@ async function loadVideos() {
             );
         }
 
+
         if (
             response.status === 401
         ) {
 
             clearSession();
 
+
             showLoginError(
                 "Your session has expired. Please login again."
             );
 
+
             return;
         }
+
 
         if (!response.ok) {
 
@@ -420,6 +627,7 @@ async function loadVideos() {
                 "Unable to load videos"
             );
         }
+
 
         if (
             !data.items ||
@@ -431,15 +639,19 @@ async function loadVideos() {
             );
         }
 
+
         videos =
             data.items;
+
 
         filteredVideos =
             [...videos];
 
+
         updateCount();
 
         renderVideos();
+
 
         if (
             videos.length > 0
@@ -457,9 +669,11 @@ async function loadVideos() {
             error
         );
 
+
         errorMessage.textContent =
             error.message ||
             "Unable to load videos.";
+
 
         errorMessage.classList.add(
             "show"
@@ -475,12 +689,15 @@ async function loadVideos() {
 }
 
 
-/* RENDER */
+/* =========================================
+   RENDER
+========================================= */
 
 function renderVideos() {
 
     videoGallery.innerHTML =
         "";
+
 
     if (
         filteredVideos.length === 0
@@ -492,6 +709,7 @@ function renderVideos() {
         return;
     }
 
+
     filteredVideos.forEach(
         function(video) {
 
@@ -500,8 +718,10 @@ function renderVideos() {
                     "div"
                 );
 
+
             card.className =
                 "video-card";
+
 
             card.dataset.guid =
                 video.guid;
@@ -512,6 +732,7 @@ function renderVideos() {
                     "div"
                 );
 
+
             thumbnailContainer.className =
                 "thumbnail-container";
 
@@ -521,15 +742,19 @@ function renderVideos() {
                     "img"
                 );
 
+
             image.className =
                 "thumbnail";
+
 
             image.loading =
                 "lazy";
 
+
             image.alt =
                 video.title ||
                 "Video";
+
 
             image.src =
                 video.thumbnailUrl ||
@@ -549,8 +774,10 @@ function renderVideos() {
                     "span"
                 );
 
+
             duration.className =
                 "duration";
+
 
             duration.textContent =
                 formatDuration(
@@ -562,6 +789,7 @@ function renderVideos() {
                 image
             );
 
+
             thumbnailContainer.appendChild(
                 duration
             );
@@ -572,8 +800,10 @@ function renderVideos() {
                     "div"
                 );
 
+
             title.className =
                 "card-title";
+
 
             title.textContent =
                 video.title ||
@@ -583,6 +813,7 @@ function renderVideos() {
             card.appendChild(
                 thumbnailContainer
             );
+
 
             card.appendChild(
                 title
@@ -608,12 +839,15 @@ function renderVideos() {
 }
 
 
-/* SELECT VIDEO */
+/* =========================================
+   SELECT VIDEO
+========================================= */
 
 function selectVideo(video) {
 
     selectedVideo =
         video;
+
 
     document
         .querySelectorAll(
@@ -625,6 +859,7 @@ function selectVideo(video) {
                 card.classList.remove(
                     "active"
                 );
+
 
                 if (
                     card.dataset.guid ===
@@ -664,14 +899,18 @@ function selectVideo(video) {
 
     videoPlayer.pause();
 
+
     videoPlayer.removeAttribute(
         "src"
     );
 
+
     videoPlayer.load();
+
 
     videoPlayer.src =
         videoUrl;
+
 
     videoPlayer.load();
 
@@ -692,6 +931,7 @@ function selectVideo(video) {
                 "show"
             );
 
+
             console.error(
                 "Unable to play:",
                 videoUrl
@@ -710,7 +950,9 @@ function selectVideo(video) {
 }
 
 
-/* VIDEO URL */
+/* =========================================
+   VIDEO URL
+========================================= */
 
 function getVideoUrl(video) {
 
@@ -722,13 +964,16 @@ function getVideoUrl(video) {
         return "";
     }
 
+
     const thumbnailUrl =
         new URL(
             video.thumbnailUrl
         );
 
+
     const hostname =
         thumbnailUrl.hostname;
+
 
     return (
         "https://" +
@@ -740,7 +985,9 @@ function getVideoUrl(video) {
 }
 
 
-/* SEARCH */
+/* =========================================
+   SEARCH
+========================================= */
 
 function searchVideos() {
 
@@ -748,6 +995,7 @@ function searchVideos() {
         searchInput.value
             .trim()
             .toLowerCase();
+
 
     if (!keyword) {
 
@@ -766,6 +1014,7 @@ function searchVideos() {
                             ""
                         ).toLowerCase();
 
+
                     return title.includes(
                         keyword
                     );
@@ -773,7 +1022,9 @@ function searchVideos() {
             );
     }
 
+
     updateCount();
+
     renderVideos();
 }
 
@@ -790,7 +1041,9 @@ searchBtn.addEventListener(
 );
 
 
-/* CATEGORIES */
+/* =========================================
+   CATEGORIES
+========================================= */
 
 document
     .querySelectorAll(
@@ -900,7 +1153,9 @@ document
                             );
                     }
 
+
                     updateCount();
+
                     renderVideos();
                 }
             );
@@ -908,7 +1163,9 @@ document
     );
 
 
-/* COUNT */
+/* =========================================
+   COUNT
+========================================= */
 
 function updateCount() {
 
@@ -922,22 +1179,27 @@ function updateCount() {
 }
 
 
-/* DURATION */
+/* =========================================
+   DURATION
+========================================= */
 
 function formatDuration(seconds) {
 
     seconds =
         Number(seconds) || 0;
 
+
     const hours =
         Math.floor(
             seconds / 3600
         );
 
+
     const minutes =
         Math.floor(
             (seconds % 3600) / 60
         );
+
 
     const secs =
         Math.floor(
@@ -968,7 +1230,9 @@ function formatDuration(seconds) {
 }
 
 
-/* HOME */
+/* =========================================
+   HOME
+========================================= */
 
 homeBtn.addEventListener(
     "click",
@@ -976,6 +1240,7 @@ homeBtn.addEventListener(
 
         searchInput.value =
             "";
+
 
         filteredVideos =
             [...videos];
@@ -1022,7 +1287,9 @@ homeBtn.addEventListener(
 );
 
 
-/* START */
+/* =========================================
+   START
+========================================= */
 
 async function startApp() {
 
@@ -1036,9 +1303,11 @@ async function startApp() {
             "hidden"
         );
 
+
         app.classList.add(
             "hidden"
         );
+
 
         setTimeout(
             function() {
@@ -1049,6 +1318,7 @@ async function startApp() {
             100
         );
 
+
         return;
     }
 
@@ -1056,6 +1326,7 @@ async function startApp() {
     loginScreen.classList.add(
         "hidden"
     );
+
 
     app.classList.remove(
         "hidden"
