@@ -1,993 +1,419 @@
 const EDGE_URL =
-    "https://bedyompin-4kpra.bunny.run";
+    "https://bedyoscript-5rcjl.bunny.run";
 
 const COLLECTION_ID =
     "257764af-3ad3-4d82-ad22-5ea2e96ae9a4";
 
+let allVideos = [];
 
-/* =========================================
-   SAFE STORAGE
-   Chrome + MIT APP INVENTOR COMPATIBLE
-========================================= */
-
-const memoryStorage = {};
-
-function storageGet(key) {
-
-    try {
-
-        if (
-            typeof window !== "undefined" &&
-            window.localStorage
-        ) {
-            return window.localStorage.getItem(key);
-        }
-
-    } catch (error) {
-
-        console.log(
-            "localStorage unavailable:",
-            error
-        );
-    }
-
-    return Object.prototype.hasOwnProperty.call(
-        memoryStorage,
-        key
-    )
-        ? memoryStorage[key]
-        : null;
-}
-
-
-function storageSet(key, value) {
-
-    try {
-
-        if (
-            typeof window !== "undefined" &&
-            window.localStorage
-        ) {
-
-            window.localStorage.setItem(
-                key,
-                value
-            );
-
-            return true;
-        }
-
-    } catch (error) {
-
-        console.log(
-            "localStorage unavailable:",
-            error
-        );
-    }
-
-    memoryStorage[key] =
-        String(value);
-
-    return false;
-}
-
-
-function storageRemove(key) {
-
-    try {
-
-        if (
-            typeof window !== "undefined" &&
-            window.localStorage
-        ) {
-
-            window.localStorage.removeItem(
-                key
-            );
-
-            return true;
-        }
-
-    } catch (error) {
-
-        console.log(
-            "localStorage unavailable:",
-            error
-        );
-    }
-
-    delete memoryStorage[key];
-
-    return false;
-}
-
-
-/* =========================================
-   DOM ELEMENTS
-========================================= */
-
-const videoGallery =
-    document.getElementById(
-        "videoGallery"
-    );
-
-const videoPlayer =
-    document.getElementById(
-        "videoPlayer"
-    );
-
-const videoTitle =
-    document.getElementById(
-        "videoTitle"
-    );
-
-const videoDetails =
-    document.getElementById(
-        "videoDetails"
-    );
-
-const videoCount =
-    document.getElementById(
-        "videoCount"
-    );
+const gallery =
+    document.getElementById("videoGallery");
 
 const loading =
-    document.getElementById(
-        "loading"
-    );
+    document.getElementById("loading");
 
 const errorMessage =
-    document.getElementById(
-        "errorMessage"
-    );
+    document.getElementById("errorMessage");
 
-const playerLoading =
-    document.getElementById(
-        "playerLoading"
-    );
+const videoCount =
+    document.getElementById("videoCount");
 
-const homeBtn =
-    document.getElementById(
-        "homeBtn"
-    );
+const player =
+    document.getElementById("videoPlayer");
+
+const videoTitle =
+    document.getElementById("videoTitle");
+
+const videoDetails =
+    document.getElementById("videoDetails");
 
 const searchInput =
-    document.getElementById(
-        "searchInput"
-    );
+    document.getElementById("searchInput");
 
-const searchBtn =
-    document.getElementById(
-        "searchBtn"
-    );
+const searchButton =
+    document.getElementById("searchButton");
 
-const loginScreen =
-    document.getElementById(
-        "loginScreen"
-    );
 
-const app =
-    document.getElementById(
-        "app"
-    );
-
-const mpinInput =
-    document.getElementById(
-        "mpinInput"
-    );
-
-const loginBtn =
-    document.getElementById(
-        "loginBtn"
-    );
-
-const loginLoading =
-    document.getElementById(
-        "loginLoading"
-    );
-
-const loginError =
-    document.getElementById(
-        "loginError"
-    );
-
-
-let videos = [];
-let filteredVideos = [];
-let selectedVideo = null;
-let loadingVideos = false;
-let loggingIn = false;
-
-
-/* =========================================
-   DEVICE ID
-========================================= */
-
-function getDeviceId() {
-
-    let deviceId =
-        storageGet(
-            "bedyo_device_id"
-        );
-
-
-    if (!deviceId) {
-
-        if (
-            window.crypto &&
-            typeof window.crypto.randomUUID ===
-                "function"
-        ) {
-
-            deviceId =
-                window.crypto.randomUUID();
-
-        } else {
-
-            deviceId =
-                "BEDYO-" +
-                Date.now() +
-                "-" +
-                Math.random()
-                    .toString(36)
-                    .substring(2, 12);
-        }
-
-
-        storageSet(
-            "bedyo_device_id",
-            deviceId
-        );
-    }
-
-
-    return deviceId;
-}
-
-
-/* =========================================
-   SESSION
-========================================= */
-
-function getSessionToken() {
-
-    return storageGet(
-        "bedyo_session_token"
-    );
-}
-
-
-function saveSessionToken(token) {
-
-    storageSet(
-        "bedyo_session_token",
-        token
-    );
-}
-
-
-function clearSession() {
-
-    storageRemove(
-        "bedyo_session_token"
-    );
-
-
-    videos = [];
-    filteredVideos = [];
-
-
-    if (videoGallery) {
-
-        videoGallery.innerHTML =
-            "";
-    }
-
-
-    if (app) {
-
-        app.classList.add(
-            "hidden"
-        );
-    }
-
-
-    if (loginScreen) {
-
-        loginScreen.classList.remove(
-            "hidden"
-        );
-    }
-
-
-    if (mpinInput) {
-
-        mpinInput.value =
-            "";
-    }
-
-
-    if (mpinInput) {
-
-        mpinInput.focus();
-    }
-}
-
-
-/* =========================================
-   LOGIN
-========================================= */
-
-async function login() {
-
-    if (loggingIn) {
-
-        return;
-    }
-
-
-    const mpin =
-        mpinInput.value.trim();
-
-
-    if (
-        !/^\d{6}$/.test(mpin)
-    ) {
-
-        showLoginError(
-            "Please enter your 6-digit MPIN."
-        );
-
-        return;
-    }
-
-
-    loggingIn = true;
-
-    loginBtn.disabled =
-        true;
-
-
-    loginError.classList.remove(
-        "show"
-    );
-
-
-    loginLoading.style.display =
-        "flex";
-
-
-    try {
-
-        const deviceId =
-            getDeviceId();
-
-
-        const response =
-            await fetch(
-                EDGE_URL + "/auth",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-                            mpin: mpin,
-                            deviceId:
-                                deviceId
-                        }),
-
-                    cache: "no-store"
-                }
-            );
-
-
-        const text =
-            await response.text();
-
-
-        let data;
-
-
-        try {
-
-            data =
-                JSON.parse(text);
-
-        } catch (error) {
-
-            throw new Error(
-                "Invalid server response"
-            );
-        }
-
-
-        if (
-            !response.ok ||
-            !data.success ||
-            !data.authorized
-        ) {
-
-            throw new Error(
-                data.error ||
-                "Login failed"
-            );
-        }
-
-
-        if (!data.token) {
-
-            throw new Error(
-                "No session token received"
-            );
-        }
-
-
-        saveSessionToken(
-            data.token
-        );
-
-
-        loginScreen.classList.add(
-            "hidden"
-        );
-
-
-        app.classList.remove(
-            "hidden"
-        );
-
-
-        await loadVideos();
-
-    } catch (error) {
-
-        console.error(
-            "Login error:",
-            error
-        );
-
-
-        showLoginError(
-            error.message ||
-            "Unable to login."
-        );
-
-    } finally {
-
-        loggingIn = false;
-
-        loginBtn.disabled =
-            false;
-
-        loginLoading.style.display =
-            "none";
-    }
-}
-
-
-function showLoginError(message) {
-
-    loginError.textContent =
-        message;
-
-    loginError.classList.add(
-        "show"
-    );
-}
-
-
-loginBtn.addEventListener(
-    "click",
-    login
-);
-
-
-mpinInput.addEventListener(
-    "input",
-    function() {
-
-        this.value =
-            this.value
-                .replace(/\D/g, "")
-                .slice(0, 6);
-
-
-        loginError.classList.remove(
-            "show"
-        );
-    }
-);
-
-
-mpinInput.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            event.key === "Enter"
-        ) {
-
-            login();
-        }
-    }
-);
-
-
-/* =========================================
-   LOAD VIDEOS
-========================================= */
+// ======================================
+// LOAD VIDEOS
+// ======================================
 
 async function loadVideos() {
 
-    if (loadingVideos) {
+    loading.style.display = "block";
+    loading.textContent = "Loading videos...";
 
-        return;
-    }
+    errorMessage.style.display = "none";
 
+    gallery.innerHTML = "";
 
-    loadingVideos = true;
-
-
-    loading.style.display =
-        "flex";
-
-
-    errorMessage.classList.remove(
-        "show"
-    );
-
+    const url =
+        EDGE_URL +
+        "/videos?collectionId=" +
+        encodeURIComponent(COLLECTION_ID) +
+        "&page=1&itemsPerPage=100";
 
     try {
 
-        const token =
-            getSessionToken();
-
-
-        if (!token) {
-
-            clearSession();
-
-            return;
-        }
-
-
-        const url =
-            EDGE_URL +
-            "/videos" +
-            "?collectionId=" +
-            encodeURIComponent(
-                COLLECTION_ID
-            ) +
-            "&page=1" +
-            "&itemsPerPage=100";
-
-
         const response =
-            await fetch(
-                url,
-                {
-                    method: "GET",
-
-                    headers: {
-                        "Authorization":
-                            "Bearer " +
-                            token
-                    },
-
-                    cache: "no-store"
-                }
-            );
-
+            await fetch(url);
 
         const text =
             await response.text();
 
-
-        let data;
-
-
-        try {
-
-            data =
-                JSON.parse(text);
-
-        } catch (error) {
-
-            throw new Error(
-                "Invalid server response"
-            );
-        }
-
-
-        if (
-            response.status === 401
-        ) {
-
-            clearSession();
-
-
-            showLoginError(
-                "Your session has expired. Please login again."
-            );
-
-
-            return;
-        }
-
-
         if (!response.ok) {
-
             throw new Error(
-                data.error ||
-                "Unable to load videos"
+                "HTTP " + response.status
             );
         }
 
+        const data =
+            JSON.parse(text);
 
         if (
             !data.items ||
             !Array.isArray(data.items)
         ) {
-
             throw new Error(
-                "No videos found"
+                "Invalid video data"
             );
         }
 
-
-        videos =
+        allVideos =
             data.items;
 
+        renderVideos(allVideos);
 
-        filteredVideos =
-            [...videos];
-
-
-        updateCount();
-
-        renderVideos();
-
-
-        if (
-            videos.length > 0
-        ) {
-
-            selectVideo(
-                videos[0]
-            );
-        }
+        loading.style.display =
+            "none";
 
     } catch (error) {
 
         console.error(
-            "Video loading error:",
+            "BEDYO ERROR:",
             error
         );
 
-
-        errorMessage.textContent =
-            error.message ||
-            "Unable to load videos.";
-
-
-        errorMessage.classList.add(
-            "show"
-        );
-
-    } finally {
-
-        loadingVideos = false;
-
         loading.style.display =
             "none";
+
+        errorMessage.style.display =
+            "block";
+
+        errorMessage.textContent =
+            "Connection error: " +
+            error.message;
     }
 }
 
 
-/* =========================================
-   RENDER
-========================================= */
+// ======================================
+// RENDER VIDEOS
+// ======================================
 
-function renderVideos() {
+function renderVideos(videos) {
 
-    videoGallery.innerHTML =
-        "";
+    gallery.innerHTML = "";
 
+    videoCount.textContent =
+        videos.length +
+        (
+            videos.length === 1
+                ? " video"
+                : " videos"
+        );
 
-    if (
-        filteredVideos.length === 0
-    ) {
+    if (videos.length === 0) {
 
-        videoGallery.innerHTML =
-            "<div style='grid-column:1/-1;text-align:center;padding:40px;color:#777;'>No videos found</div>";
+        gallery.innerHTML =
+            '<div class="loading">No videos found.</div>';
 
         return;
     }
 
 
-    filteredVideos.forEach(
-        function(video) {
+    videos.forEach(function(video) {
 
-            const card =
-                document.createElement(
-                    "div"
-                );
+        const card =
+            document.createElement("article");
 
-
-            card.className =
-                "video-card";
+        card.className =
+            "video-card";
 
 
-            card.dataset.guid =
-                video.guid;
+        // -----------------------------
+        // THUMBNAIL
+        // -----------------------------
+
+        const thumbnailContainer =
+            document.createElement("div");
+
+        thumbnailContainer.className =
+            "thumbnail-container";
 
 
-            const thumbnailContainer =
-                document.createElement(
-                    "div"
-                );
+        const image =
+            document.createElement("img");
+
+        image.className =
+            "thumbnail";
+
+        image.src =
+            video.thumbnailUrl;
+
+        image.alt =
+            video.title ||
+            "BEDYO video";
+
+        image.loading =
+            "lazy";
 
 
-            thumbnailContainer.className =
-                "thumbnail-container";
+        // -----------------------------
+        // PLAY BUTTON
+        // -----------------------------
+
+        const overlay =
+            document.createElement("div");
+
+        overlay.className =
+            "play-overlay";
 
 
-            const image =
-                document.createElement(
-                    "img"
-                );
+        const playButton =
+            document.createElement("div");
+
+        playButton.className =
+            "play-button";
+
+        playButton.textContent =
+            "▶";
 
 
-            image.className =
-                "thumbnail";
+        overlay.appendChild(
+            playButton
+        );
 
 
-            image.loading =
-                "lazy";
+        // -----------------------------
+        // DURATION
+        // -----------------------------
 
+        const duration =
+            document.createElement("span");
 
-            image.alt =
-                video.title ||
-                "Video";
+        duration.className =
+            "duration";
 
-
-            image.src =
-                video.thumbnailUrl ||
-                "";
-
-
-            image.onerror =
-                function() {
-
-                    this.style.display =
-                        "none";
-                };
-
-
-            const duration =
-                document.createElement(
-                    "span"
-                );
-
-
-            duration.className =
-                "duration";
-
-
-            duration.textContent =
-                formatDuration(
-                    video.length
-                );
-
-
-            thumbnailContainer.appendChild(
-                image
+        duration.textContent =
+            formatDuration(
+                video.length
             );
 
 
-            thumbnailContainer.appendChild(
-                duration
+        thumbnailContainer.appendChild(
+            image
+        );
+
+        thumbnailContainer.appendChild(
+            overlay
+        );
+
+        thumbnailContainer.appendChild(
+            duration
+        );
+
+
+        // -----------------------------
+        // INFO
+        // -----------------------------
+
+        const info =
+            document.createElement("div");
+
+        info.className =
+            "card-info";
+
+
+        const avatar =
+            document.createElement("div");
+
+        avatar.className =
+            "card-avatar";
+
+        avatar.textContent =
+            "B";
+
+
+        const text =
+            document.createElement("div");
+
+        text.className =
+            "card-text";
+
+
+        // TITLE
+
+        const title =
+            document.createElement("h3");
+
+        title.className =
+            "card-title";
+
+        title.textContent =
+            video.title ||
+            "Untitled video";
+
+
+        // META
+
+        const meta =
+            document.createElement("div");
+
+        meta.className =
+            "card-meta";
+
+
+        meta.textContent =
+            "BEDYO • " +
+            formatViews(video.views) +
+            " views • " +
+            formatUploadDate(
+                video.dateUploaded
             );
 
 
-            const title =
-                document.createElement(
-                    "div"
-                );
+        text.appendChild(
+            title
+        );
+
+        text.appendChild(
+            meta
+        );
 
 
-            title.className =
-                "card-title";
+        info.appendChild(
+            avatar
+        );
+
+        info.appendChild(
+            text
+        );
 
 
-            title.textContent =
-                video.title ||
-                "Untitled";
+        card.appendChild(
+            thumbnailContainer
+        );
+
+        card.appendChild(
+            info
+        );
 
 
-            card.appendChild(
-                thumbnailContainer
-            );
+        // -----------------------------
+        // CLICK
+        // -----------------------------
 
+        card.addEventListener(
+            "click",
+            function() {
 
-            card.appendChild(
-                title
-            );
+                playVideo(video);
 
-
-            card.addEventListener(
-                "click",
-                function() {
-
-                    selectVideo(
-                        video
-                    );
-                }
-            );
-
-
-            videoGallery.appendChild(
-                card
-            );
-        }
-    );
-}
-
-
-/* =========================================
-   SELECT VIDEO
-========================================= */
-
-function selectVideo(video) {
-
-    selectedVideo =
-        video;
-
-
-    document
-        .querySelectorAll(
-            ".video-card"
-        )
-        .forEach(
-            function(card) {
-
-                card.classList.remove(
-                    "active"
-                );
-
-
-                if (
-                    card.dataset.guid ===
-                    video.guid
-                ) {
-
-                    card.classList.add(
-                        "active"
-                    );
-                }
             }
         );
 
 
-    videoTitle.textContent =
-        video.title ||
-        "Untitled";
+        gallery.appendChild(
+            card
+        );
 
-
-    videoDetails.textContent =
-        formatDuration(
-            video.length
-        ) +
-        " • " +
-        (video.views || 0) +
-        " views";
-
-
-    playerLoading.classList.add(
-        "show"
-    );
-
-
-    const videoUrl =
-        getVideoUrl(video);
-
-
-    videoPlayer.pause();
-
-
-    videoPlayer.removeAttribute(
-        "src"
-    );
-
-
-    videoPlayer.load();
-
-
-    videoPlayer.src =
-        videoUrl;
-
-
-    videoPlayer.load();
-
-
-    videoPlayer.onloadeddata =
-        function() {
-
-            playerLoading.classList.remove(
-                "show"
-            );
-        };
-
-
-    videoPlayer.onerror =
-        function() {
-
-            playerLoading.classList.remove(
-                "show"
-            );
-
-
-            console.error(
-                "Unable to play:",
-                videoUrl
-            );
-        };
-
-
-    document
-        .getElementById(
-            "playerPanel"
-        )
-        .scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
+    });
 }
 
 
-/* =========================================
-   VIDEO URL
-========================================= */
+// ======================================
+// PLAY VIDEO
+// ======================================
 
-function getVideoUrl(video) {
+function playVideo(video) {
 
     if (
-        !video.thumbnailUrl ||
+        !video ||
         !video.guid
     ) {
-
-        return "";
+        return;
     }
 
 
-    const thumbnailUrl =
-        new URL(
-            video.thumbnailUrl
+    let hostname = "";
+
+
+    try {
+
+        hostname =
+            new URL(
+                video.thumbnailUrl
+            ).hostname;
+
+    } catch (error) {
+
+        console.error(
+            error
         );
 
+        return;
+    }
 
-    const hostname =
-        thumbnailUrl.hostname;
+
+    if (!hostname) {
+        return;
+    }
 
 
-    return (
+    const videoUrl =
         "https://" +
         hostname +
         "/" +
         video.guid +
-        "/play_720p.mp4"
+        "/play_720p.mp4";
+
+
+    player.src =
+        videoUrl;
+
+    player.load();
+
+
+    videoTitle.textContent =
+        video.title ||
+        "Untitled video";
+
+
+    videoDetails.textContent =
+        "BEDYO • " +
+        formatViews(video.views) +
+        " views • " +
+        formatUploadDate(
+            video.dateUploaded
+        );
+
+
+    player.play().catch(
+        function() {}
     );
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
 
-/* =========================================
-   SEARCH
-========================================= */
+// ======================================
+// SEARCH
+// ======================================
 
 function searchVideos() {
 
@@ -997,36 +423,55 @@ function searchVideos() {
             .toLowerCase();
 
 
-    if (!keyword) {
+    if (keyword === "") {
 
-        filteredVideos =
-            [...videos];
+        renderVideos(
+            allVideos
+        );
 
-    } else {
-
-        filteredVideos =
-            videos.filter(
-                function(video) {
-
-                    const title =
-                        (
-                            video.title ||
-                            ""
-                        ).toLowerCase();
-
-
-                    return title.includes(
-                        keyword
-                    );
-                }
-            );
+        return;
     }
 
 
-    updateCount();
+    const results =
+        allVideos.filter(
+            function(video) {
 
-    renderVideos();
+                const title =
+                    (
+                        video.title ||
+                        ""
+                    ).toLowerCase();
+
+                return title.includes(
+                    keyword
+                );
+            }
+        );
+
+
+    renderVideos(
+        results
+    );
 }
+
+
+searchButton.addEventListener(
+    "click",
+    searchVideos
+);
+
+
+searchInput.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+            searchVideos();
+        }
+
+    }
+);
 
 
 searchInput.addEventListener(
@@ -1035,153 +480,167 @@ searchInput.addEventListener(
 );
 
 
-searchBtn.addEventListener(
-    "click",
-    searchVideos
-);
+// ======================================
+// FORMAT VIEWS
+// ======================================
+
+function formatViews(views) {
+
+    views =
+        Number(views) || 0;
 
 
-/* =========================================
-   CATEGORIES
-========================================= */
+    if (views >= 1000000) {
 
-document
-    .querySelectorAll(
-        ".category"
-    )
-    .forEach(
-        function(button) {
-
-            button.addEventListener(
-                "click",
-                function() {
-
-                    document
-                        .querySelectorAll(
-                            ".category"
-                        )
-                        .forEach(
-                            function(item) {
-
-                                item.classList.remove(
-                                    "active"
-                                );
-                            }
-                        );
-
-
-                    button.classList.add(
-                        "active"
-                    );
-
-
-                    const category =
-                        button.dataset.category;
-
-
-                    if (
-                        category === "all"
-                    ) {
-
-                        filteredVideos =
-                            [...videos];
-
-                    } else if (
-                        category === "latest"
-                    ) {
-
-                        filteredVideos =
-                            [...videos].sort(
-                                function(a, b) {
-
-                                    return (
-                                        new Date(
-                                            b.dateUploaded
-                                        ) -
-                                        new Date(
-                                            a.dateUploaded
-                                        )
-                                    );
-                                }
-                            );
-
-                    } else if (
-                        category === "popular"
-                    ) {
-
-                        filteredVideos =
-                            [...videos].sort(
-                                function(a, b) {
-
-                                    return (
-                                        (b.views || 0) -
-                                        (a.views || 0)
-                                    );
-                                }
-                            );
-
-                    } else if (
-                        category === "long"
-                    ) {
-
-                        filteredVideos =
-                            videos.filter(
-                                function(video) {
-
-                                    return (
-                                        Number(
-                                            video.length
-                                        ) >= 600
-                                    );
-                                }
-                            );
-
-                    } else if (
-                        category === "short"
-                    ) {
-
-                        filteredVideos =
-                            videos.filter(
-                                function(video) {
-
-                                    return (
-                                        Number(
-                                            video.length
-                                        ) < 600
-                                    );
-                                }
-                            );
-                    }
-
-
-                    updateCount();
-
-                    renderVideos();
-                }
-            );
-        }
-    );
-
-
-/* =========================================
-   COUNT
-========================================= */
-
-function updateCount() {
-
-    videoCount.textContent =
-        filteredVideos.length +
-        (
-            filteredVideos.length === 1
-                ? " video"
-                : " videos"
+        return (
+            (views / 1000000)
+                .toFixed(1)
+                .replace(".0", "") +
+            "M"
         );
+    }
+
+
+    if (views >= 1000) {
+
+        return (
+            (views / 1000)
+                .toFixed(1)
+                .replace(".0", "") +
+            "K"
+        );
+    }
+
+
+    return String(views);
 }
 
 
-/* =========================================
-   DURATION
-========================================= */
+// ======================================
+// FORMAT UPLOAD DATE
+// ======================================
+
+function formatUploadDate(date) {
+
+    if (!date) {
+        return "Unknown date";
+    }
+
+
+    /*
+       Bunny date has no timezone:
+       2026-09-15T09:01:11.764
+
+       Treat it as the upload timestamp
+       returned by Bunny.
+    */
+
+    const uploaded =
+        new Date(
+            date + "Z"
+        );
+
+
+    if (
+        isNaN(
+            uploaded.getTime()
+        )
+    ) {
+        return "Unknown date";
+    }
+
+
+    const now =
+        new Date();
+
+
+    const difference =
+        now.getTime() -
+        uploaded.getTime();
+
+
+    const seconds =
+        Math.floor(
+            difference / 1000
+        );
+
+
+    const minutes =
+        Math.floor(
+            seconds / 60
+        );
+
+
+    const hours =
+        Math.floor(
+            minutes / 60
+        );
+
+
+    const days =
+        Math.floor(
+            hours / 24
+        );
+
+
+    if (seconds < 60) {
+        return "just now";
+    }
+
+
+    if (minutes < 60) {
+
+        return (
+            minutes +
+            (
+                minutes === 1
+                    ? " minute ago"
+                    : " minutes ago"
+            )
+        );
+    }
+
+
+    if (hours < 24) {
+
+        return (
+            hours +
+            (
+                hours === 1
+                    ? " hour ago"
+                    : " hours ago"
+            )
+        );
+    }
+
+
+    if (days < 7) {
+
+        return (
+            days +
+            (
+                days === 1
+                    ? " day ago"
+                    : " days ago"
+            )
+        );
+    }
+
+
+    return uploaded.toLocaleDateString(
+        "en-US",
+        {
+            month: "short",
+            day: "numeric",
+            year: "numeric"
+        }
+    );
+}
+
+
+// ======================================
+// FORMAT DURATION
+// ======================================
 
 function formatDuration(seconds) {
 
@@ -1230,111 +689,8 @@ function formatDuration(seconds) {
 }
 
 
-/* =========================================
-   HOME
-========================================= */
+// ======================================
+// START
+// ======================================
 
-homeBtn.addEventListener(
-    "click",
-    function() {
-
-        searchInput.value =
-            "";
-
-
-        filteredVideos =
-            [...videos];
-
-
-        document
-            .querySelectorAll(
-                ".category"
-            )
-            .forEach(
-                function(item) {
-
-                    item.classList.remove(
-                        "active"
-                    );
-                }
-            );
-
-
-        const allButton =
-            document.querySelector(
-                '[data-category="all"]'
-            );
-
-
-        if (allButton) {
-
-            allButton.classList.add(
-                "active"
-            );
-        }
-
-
-        updateCount();
-
-        renderVideos();
-
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-    }
-);
-
-
-/* =========================================
-   START
-========================================= */
-
-async function startApp() {
-
-    const token =
-        getSessionToken();
-
-
-    if (!token) {
-
-        loginScreen.classList.remove(
-            "hidden"
-        );
-
-
-        app.classList.add(
-            "hidden"
-        );
-
-
-        setTimeout(
-            function() {
-
-                mpinInput.focus();
-
-            },
-            100
-        );
-
-
-        return;
-    }
-
-
-    loginScreen.classList.add(
-        "hidden"
-    );
-
-
-    app.classList.remove(
-        "hidden"
-    );
-
-
-    await loadVideos();
-}
-
-
-startApp();
+loadVideos();
