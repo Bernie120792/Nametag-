@@ -1,225 +1,105 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<title>BEDYO</title>
+
+<link rel="stylesheet" href="main.css">
+
+</head><body><!-- =====================================
+     BEDYO SPLASH
+===================================== --><div id="splashScreen" class="splash-screen"><div class="splash-glow"></div>
+
+<div class="splash-logo">
+
+    <div class="splash-play">
+        ▶
+    </div>
+
+    <div class="splash-name">
+        BEDYO
+    </div>
+
+</div>
+
+<div class="splash-line"></div>
+
+</div><!-- =====================================
+     MAIN APP
+===================================== --><div id="mainApp" class="main-app"><header class="topbar"><div class="brand">
+
+    <div class="brand-icon">
+        B
+    </div>
+
+    <span>
+        BEDYO
+    </span>
+
+</div>
+
+
+<div class="search-box">
+
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="Search"
+        autocomplete="off"
     >
-    <title>BEDYO</title>
-    <link rel="stylesheet" href="main.css">
-</head>
-<body>
 
-<div id="loginScreen" class="login-screen">
-    <div class="login-box">
-
-        <div class="login-logo">
-            <div class="login-logo-icon">▶</div>
-            <div class="login-logo-text">BEDYO</div>
-        </div>
-
-        <h1>Welcome</h1>
-
-        <p class="login-subtitle">
-            Enter your 6-digit MPIN
-        </p>
-
-        <input
-            id="mpinInput"
-            class="mpin-input"
-            type="password"
-            inputmode="numeric"
-            maxlength="6"
-            placeholder="••••••"
-            autocomplete="off"
-        >
-
-        <button
-            id="loginBtn"
-            class="login-btn"
-        >
-            Login
-        </button>
-
-        <div
-            id="loginLoading"
-            class="login-loading"
-        >
-            <div class="spinner"></div>
-            <span>Checking...</span>
-        </div>
-
-        <div
-            id="loginError"
-            class="login-error"
-        ></div>
-
-    </div>
-</div>
-
-
-<div id="app" class="app hidden">
-
-    <header class="topbar">
-
-        <div class="brand">
-            <div class="brand-icon">▶</div>
-            <span>BEDYO</span>
-        </div>
-
-        <div class="search-box">
-
-            <input
-                id="searchInput"
-                type="search"
-                placeholder="Search videos"
-                autocomplete="off"
-            >
-
-            <button
-                id="searchBtn"
-                aria-label="Search"
-            >
-                🔍
-            </button>
-
-        </div>
-
-        <button
-            id="homeBtn"
-            class="home-btn"
-        >
-            Home
-        </button>
-
-    </header>
-
-
-    <div class="categories">
-
-        <button
-            class="category active"
-            data-category="all"
-        >
-            All
-        </button>
-
-        <button
-            class="category"
-            data-category="latest"
-        >
-            Latest
-        </button>
-
-        <button
-            class="category"
-            data-category="popular"
-        >
-            Popular
-        </button>
-
-        <button
-            class="category"
-            data-category="long"
-        >
-            Long videos
-        </button>
-
-        <button
-            class="category"
-            data-category="short"
-        >
-            Short videos
-        </button>
-
-    </div>
-
-
-    <main>
-
-        <section
-            id="playerPanel"
-            class="player-panel"
-        >
-
-            <div class="video-wrapper">
-
-                <video
-                    id="videoPlayer"
-                    controls
-                    playsinline
-                    preload="metadata"
-                ></video>
-
-                <div
-                    id="playerLoading"
-                    class="player-loading"
-                >
-                    <div class="spinner"></div>
-                    <span>Loading video...</span>
-                </div>
-
-            </div>
-
-            <div class="video-info">
-
-                <h1 id="videoTitle">
-                    Select a video
-                </h1>
-
-                <div
-                    id="videoDetails"
-                    class="video-details"
-                >
-                    Choose a video below
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <section class="gallery-section">
-
-            <div class="section-header">
-
-                <div>
-                    <h2>Videos</h2>
-
-                    <p id="videoCount">
-                        0 videos
-                    </p>
-                </div>
-
-            </div>
-
-            <div
-                id="videoGallery"
-                class="video-gallery"
-            ></div>
-
-            <div
-                id="loading"
-                class="loading"
-            >
-                <div class="spinner dark"></div>
-                <span>Loading videos...</span>
-            </div>
-
-            <div
-                id="errorMessage"
-                class="error-message"
-            ></div>
-
-        </section>
-
-    </main>
+    <button
+        id="searchButton"
+        type="button"
+    >
+        🔍
+    </button>
 
 </div>
 
+</header><main><!-- PLAYER --><section
+    id="playerPanel"
+    class="player-panel"
+><video
+    id="videoPlayer"
+    controls
+    playsinline
+    preload="metadata"
+></video>
 
-<script src="main.js"></script>
 
-</body>
-</html>
+<div class="player-info">
+
+    <h1 id="videoTitle">
+        Select a video
+    </h1>
+
+    <div id="videoDetails">
+        BEDYO
+    </div>
+
+</div>
+
+</section><!-- VIDEO HEADER --><div class="section-header"><h2>
+    Videos
+</h2>
+
+<span id="videoCount">
+    0 videos
+</span>
+
+</div><!-- LOADING --><div
+    id="loading"
+    class="loading"
+>
+    Loading videos...
+</div><!-- ERROR --><div
+    id="errorMessage"
+    class="error-message"
+></div><!-- GALLERY --><section
+    id="videoGallery"
+    class="video-gallery"
+></section></main></div><script src="main.js"></script></body></html>
