@@ -1,711 +1,225 @@
-* {
-    box-sizing: border-box;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+    <title>BEDYO</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+<div id="loginScreen" class="login-screen">
+    <div class="login-box">
+
+        <div class="login-logo">
+            <div class="login-logo-icon">▶</div>
+            <div class="login-logo-text">BEDYO</div>
+        </div>
+
+        <h1>Welcome</h1>
+
+        <p class="login-subtitle">
+            Enter your 6-digit MPIN
+        </p>
+
+        <input
+            id="mpinInput"
+            class="mpin-input"
+            type="password"
+            inputmode="numeric"
+            maxlength="6"
+            placeholder="••••••"
+            autocomplete="off"
+        >
+
+        <button
+            id="loginBtn"
+            class="login-btn"
+        >
+            Login
+        </button>
+
+        <div
+            id="loginLoading"
+            class="login-loading"
+        >
+            <div class="spinner"></div>
+            <span>Checking...</span>
+        </div>
+
+        <div
+            id="loginError"
+            class="login-error"
+        ></div>
+
+    </div>
+</div>
+
+
+<div id="app" class="app hidden">
+
+    <header class="topbar">
+
+        <div class="brand">
+            <div class="brand-icon">▶</div>
+            <span>BEDYO</span>
+        </div>
+
+        <div class="search-box">
+
+            <input
+                id="searchInput"
+                type="search"
+                placeholder="Search videos"
+                autocomplete="off"
+            >
+
+            <button
+                id="searchBtn"
+                aria-label="Search"
+            >
+                🔍
+            </button>
+
+        </div>
+
+        <button
+            id="homeBtn"
+            class="home-btn"
+        >
+            Home
+        </button>
+
+    </header>
+
+
+    <div class="categories">
+
+        <button
+            class="category active"
+            data-category="all"
+        >
+            All
+        </button>
+
+        <button
+            class="category"
+            data-category="latest"
+        >
+            Latest
+        </button>
+
+        <button
+            class="category"
+            data-category="popular"
+        >
+            Popular
+        </button>
 
-html,
-body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100%;
-}
+        <button
+            class="category"
+            data-category="long"
+        >
+            Long videos
+        </button>
 
-body {
-    background: #f9f9f9;
-    color: #111;
-    font-family: Arial, sans-serif;
-}
+        <button
+            class="category"
+            data-category="short"
+        >
+            Short videos
+        </button>
 
-button,
-input {
-    font-family: inherit;
-}
+    </div>
 
-button {
-    cursor: pointer;
-}
 
-.hidden {
-    display: none !important;
-}
+    <main>
 
+        <section
+            id="playerPanel"
+            class="player-panel"
+        >
 
-/* LOGIN */
+            <div class="video-wrapper">
 
-.login-screen {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
+                <video
+                    id="videoPlayer"
+                    controls
+                    playsinline
+                    preload="metadata"
+                ></video>
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+                <div
+                    id="playerLoading"
+                    class="player-loading"
+                >
+                    <div class="spinner"></div>
+                    <span>Loading video...</span>
+                </div>
 
-    padding: 20px;
+            </div>
 
-    background:
-        linear-gradient(
-            135deg,
-            #4900D3,
-            #26006e
-        );
-}
+            <div class="video-info">
 
-.login-box {
-    width: 100%;
-    max-width: 380px;
+                <h1 id="videoTitle">
+                    Select a video
+                </h1>
 
-    padding: 35px 25px;
+                <div
+                    id="videoDetails"
+                    class="video-details"
+                >
+                    Choose a video below
+                </div>
 
-    background: white;
+            </div>
 
-    border-radius: 18px;
+        </section>
 
-    box-shadow:
-        0 20px 60px
-        rgba(0, 0, 0, 0.25);
 
-    text-align: center;
-}
+        <section class="gallery-section">
 
-.login-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+            <div class="section-header">
 
-    gap: 10px;
+                <div>
+                    <h2>Videos</h2>
 
-    margin-bottom: 25px;
-}
+                    <p id="videoCount">
+                        0 videos
+                    </p>
+                </div>
 
-.login-logo-icon {
-    width: 42px;
-    height: 42px;
+            </div>
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+            <div
+                id="videoGallery"
+                class="video-gallery"
+            ></div>
 
-    border-radius: 12px;
+            <div
+                id="loading"
+                class="loading"
+            >
+                <div class="spinner dark"></div>
+                <span>Loading videos...</span>
+            </div>
 
-    background: #4900D3;
-    color: white;
+            <div
+                id="errorMessage"
+                class="error-message"
+            ></div>
 
-    font-size: 18px;
-}
+        </section>
 
-.login-logo-text {
-    font-size: 25px;
-    font-weight: 800;
-    color: #4900D3;
-}
+    </main>
 
-.login-box h1 {
-    margin: 0 0 8px;
-    font-size: 26px;
-}
+</div>
 
-.login-subtitle {
-    margin: 0 0 25px;
-    color: #777;
-    font-size: 14px;
-}
 
-.mpin-input {
-    width: 100%;
-    height: 54px;
+<script src="main.js"></script>
 
-    border: 1px solid #ddd;
-    border-radius: 10px;
-
-    outline: none;
-
-    text-align: center;
-
-    font-size: 25px;
-    font-weight: bold;
-
-    letter-spacing: 8px;
-
-    padding-left: 8px;
-}
-
-.mpin-input:focus {
-    border-color: #4900D3;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(73, 0, 211, 0.12);
-}
-
-.login-btn {
-    width: 100%;
-    height: 52px;
-
-    margin-top: 15px;
-
-    border: 0;
-    border-radius: 10px;
-
-    background: #4900D3;
-    color: white;
-
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.login-btn:active {
-    transform: scale(0.98);
-}
-
-.login-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.login-loading {
-    display: none;
-
-    align-items: center;
-    justify-content: center;
-
-    gap: 8px;
-
-    margin-top: 15px;
-
-    color: #666;
-    font-size: 13px;
-}
-
-.login-error {
-    display: none;
-
-    margin-top: 15px;
-    padding: 10px;
-
-    border-radius: 8px;
-
-    background: #fff0f0;
-    color: #d00000;
-
-    font-size: 13px;
-}
-
-.login-error.show {
-    display: block;
-}
-
-
-/* TOPBAR */
-
-.topbar {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-
-    height: 64px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 20px;
-
-    padding: 0 18px;
-
-    background: white;
-
-    border-bottom: 1px solid #e5e5e5;
-}
-
-.brand {
-    display: flex;
-    align-items: center;
-
-    gap: 8px;
-
-    flex-shrink: 0;
-
-    font-size: 20px;
-    font-weight: 800;
-
-    color: #4900D3;
-}
-
-.brand-icon {
-    width: 32px;
-    height: 32px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 9px;
-
-    background: #4900D3;
-    color: white;
-
-    font-size: 14px;
-}
-
-.search-box {
-    display: flex;
-
-    width: 100%;
-    max-width: 600px;
-
-    margin: 0 auto;
-
-    height: 42px;
-
-    border: 1px solid #ccc;
-    border-radius: 22px;
-
-    overflow: hidden;
-
-    background: white;
-}
-
-.search-box input {
-    flex: 1;
-
-    min-width: 0;
-
-    border: 0;
-    outline: 0;
-
-    padding: 0 16px;
-
-    font-size: 14px;
-}
-
-.search-box button {
-    width: 55px;
-
-    border: 0;
-
-    background: #f5f5f5;
-
-    font-size: 17px;
-}
-
-.home-btn {
-    flex-shrink: 0;
-
-    border: 0;
-    border-radius: 18px;
-
-    padding: 9px 15px;
-
-    background: #4900D3;
-    color: white;
-
-    font-size: 13px;
-    font-weight: bold;
-}
-
-
-/* CATEGORIES */
-
-.categories {
-    position: sticky;
-    top: 64px;
-    z-index: 900;
-
-    display: flex;
-
-    gap: 10px;
-
-    padding: 10px 15px;
-
-    overflow-x: auto;
-
-    background: white;
-
-    border-bottom: 1px solid #e5e5e5;
-
-    scrollbar-width: none;
-}
-
-.categories::-webkit-scrollbar {
-    display: none;
-}
-
-.category {
-    flex-shrink: 0;
-
-    border: 0;
-    border-radius: 18px;
-
-    padding: 8px 15px;
-
-    background: #f1f1f1;
-    color: #333;
-
-    font-size: 13px;
-}
-
-.category.active {
-    background: #111;
-    color: white;
-}
-
-
-/* PLAYER */
-
-.player-panel {
-    position: sticky;
-    top: 105px;
-    z-index: 800;
-
-    background: #f9f9f9;
-}
-
-.video-wrapper {
-    position: relative;
-
-    width: 100%;
-
-    aspect-ratio: 16 / 9;
-
-    background: #000;
-
-    overflow: hidden;
-}
-
-.video-wrapper video {
-    width: 100%;
-    height: 100%;
-
-    display: block;
-
-    object-fit: contain;
-
-    background: #000;
-}
-
-.player-loading {
-    position: absolute;
-    inset: 0;
-
-    display: none;
-
-    align-items: center;
-    justify-content: center;
-
-    flex-direction: column;
-
-    gap: 10px;
-
-    background:
-        rgba(0, 0, 0, 0.65);
-
-    color: white;
-
-    font-size: 13px;
-}
-
-.player-loading.show {
-    display: flex;
-}
-
-.video-info {
-    padding: 12px 15px;
-
-    background: white;
-
-    border-bottom: 1px solid #e5e5e5;
-}
-
-.video-info h1 {
-    margin: 0 0 5px;
-
-    font-size: 18px;
-    line-height: 1.3;
-}
-
-.video-details {
-    color: #666;
-
-    font-size: 13px;
-}
-
-
-/* GALLERY */
-
-.gallery-section {
-    padding: 18px 15px 40px;
-}
-
-.section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    margin-bottom: 15px;
-}
-
-.section-header h2 {
-    margin: 0;
-
-    font-size: 21px;
-}
-
-.section-header p {
-    margin: 4px 0 0;
-
-    color: #777;
-
-    font-size: 13px;
-}
-
-.video-gallery {
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fill,
-            minmax(210px, 1fr)
-        );
-
-    gap: 18px;
-}
-
-.video-card {
-    overflow: hidden;
-
-    cursor: pointer;
-
-    border-radius: 10px;
-
-    background: white;
-
-    transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease;
-}
-
-.video-card:hover {
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 5px 18px
-        rgba(0, 0, 0, 0.12);
-}
-
-.video-card.active {
-    outline: 3px solid #4900D3;
-}
-
-.thumbnail-container {
-    position: relative;
-
-    width: 100%;
-
-    aspect-ratio: 16 / 9;
-
-    background: #ddd;
-
-    overflow: hidden;
-}
-
-.thumbnail {
-    width: 100%;
-    height: 100%;
-
-    display: block;
-
-    object-fit: cover;
-}
-
-.duration {
-    position: absolute;
-
-    right: 6px;
-    bottom: 6px;
-
-    padding: 3px 5px;
-
-    border-radius: 4px;
-
-    background:
-        rgba(0, 0, 0, 0.8);
-
-    color: white;
-
-    font-size: 11px;
-}
-
-.card-title {
-    padding: 10px;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    line-height: 1.35;
-
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-
-    overflow: hidden;
-}
-
-
-/* LOADING */
-
-.loading {
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    gap: 10px;
-
-    padding: 35px;
-
-    color: #666;
-
-    font-size: 13px;
-}
-
-.spinner {
-    width: 25px;
-    height: 25px;
-
-    border: 3px solid
-        rgba(255, 255, 255, 0.35);
-
-    border-top-color: white;
-
-    border-radius: 50%;
-
-    animation:
-        spin 0.8s linear infinite;
-}
-
-.spinner.dark {
-    border-color: #ddd;
-    border-top-color: #4900D3;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-
-/* ERROR */
-
-.error-message {
-    display: none;
-
-    margin: 15px 0;
-
-    padding: 15px;
-
-    border-radius: 8px;
-
-    background: #fff0f0;
-
-    color: #c00000;
-
-    text-align: center;
-
-    font-size: 13px;
-}
-
-.error-message.show {
-    display: block;
-}
-
-
-/* MOBILE */
-
-@media (max-width: 700px) {
-
-    .topbar {
-        height: 56px;
-        gap: 8px;
-        padding: 0 10px;
-    }
-
-    .brand {
-        font-size: 17px;
-    }
-
-    .brand-icon {
-        width: 28px;
-        height: 28px;
-    }
-
-    .search-box {
-        height: 38px;
-    }
-
-    .search-box input {
-        padding: 0 10px;
-        font-size: 13px;
-    }
-
-    .search-box button {
-        width: 42px;
-    }
-
-    .home-btn {
-        padding: 8px 10px;
-        font-size: 11px;
-    }
-
-    .categories {
-        top: 56px;
-        padding: 8px 10px;
-    }
-
-    .player-panel {
-        top: 101px;
-    }
-
-    .video-info h1 {
-        font-size: 16px;
-    }
-
-    .video-gallery {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-        gap: 10px;
-    }
-
-    .gallery-section {
-        padding: 12px 10px 30px;
-    }
-
-    .card-title {
-        padding: 8px;
-        font-size: 12px;
-    }
-
-    .duration {
-        font-size: 10px;
-    }
-}
-
-
-/* LANDSCAPE */
-
-@media (orientation: landscape) and (max-height: 600px) {
-
-    .topbar,
-    .categories {
-        display: none;
-    }
-
-    .player-panel {
-        top: 0;
-    }
-
-    .video-wrapper {
-        max-height: 100vh;
-    }
-}
+</body>
+</html>
