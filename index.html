@@ -1,68 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Bunny Videos</title>
 
-<link rel="stylesheet" href="main.css">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>BEDYO</title>
+
+    <link
+        rel="stylesheet"
+        href="main.css"
+    >
+
 </head>
+
 
 <body>
 
-<header class="header">
-    <div class="logo">Videos</div>
 
-    <div class="searchBox">
-        <input
-            type="search"
-            id="searchInput"
-            placeholder="Search videos..."
-            autocomplete="off"
-        >
-    </div>
-</header>
+    <!-- TOP BAR -->
 
-<main class="main">
+    <header class="top-bar">
 
-    <div id="loading" class="loading">
-        Loading videos...
-    </div>
-
-    <div id="error" class="error hidden"></div>
-
-    <div id="videoGrid" class="videoGrid"></div>
-
-    <button id="loadMoreBtn" class="loadMore hidden">
-        LOAD MORE
-    </button>
-
-</main>
+        <div class="logo">
+            BEDYO
+        </div>
 
 
-<!-- VIDEO PLAYER -->
-<div id="playerScreen" class="playerScreen hidden">
+        <nav class="top-nav">
 
-    <button id="closePlayer" class="closePlayer">
-        ×
-    </button>
+            <button
+                class="nav-button active"
+                data-page="home.html"
+            >
+                HOME
+            </button>
 
-    <div class="playerContainer">
 
-        <!-- ISANG IFRAME LANG -->
+            <button
+                class="nav-button"
+                data-page="karaoke.html"
+            >
+                KARAOKE
+            </button>
+
+
+            <button
+                class="nav-button"
+                data-page="live.html"
+            >
+                LIVE
+            </button>
+
+
+            <button
+                class="nav-button"
+                data-page="mp3.html"
+            >
+                MP3
+            </button>
+
+
+            <button
+                class="nav-button"
+                data-page="mp4.html"
+            >
+                MP4
+            </button>
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- ONE IFRAME ONLY -->
+
+    <main id="appContent">
+
         <iframe
-            id="player"
-            src=""
-            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen"
-            allowfullscreen>
-        </iframe>
+            id="pageFrame"
+            src="home.html"
+            title="BEDYO"
+        ></iframe>
 
-    </div>
-
-</div>
+    </main>
 
 
-<script src="main.js"></script>
+
+    <script src="main.js"></script>
 
 </body>
-  </html>
+
+</html>
