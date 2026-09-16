@@ -1,6 +1,9 @@
 const EDGE_URL =
     "https://bedyoscript-5rcjl.bunny.run";
 
+const LIBRARY_ID =
+    "752623";
+
 const COLLECTION_ID =
     "257764af-3ad3-4d82-ad22-5ea2e96ae9a4";
 
@@ -18,7 +21,7 @@ const errorMessage =
 const videoCount =
     document.getElementById("videoCount");
 
-const player =
+const oldPlayer =
     document.getElementById("videoPlayer");
 
 const videoTitle =
@@ -35,22 +38,67 @@ const searchButton =
 
 
 // ======================================
+// BUNNY PLAYER CONTAINER
+// ======================================
+
+let playerContainer =
+    document.createElement("div");
+
+playerContainer.id =
+    "bunnyPlayerContainer";
+
+playerContainer.style.position =
+    "relative";
+
+playerContainer.style.width =
+    "100%";
+
+playerContainer.style.aspectRatio =
+    "16 / 9";
+
+playerContainer.style.background =
+    "#000";
+
+playerContainer.style.overflow =
+    "hidden";
+
+
+// Palitan ang dating video element
+
+if (oldPlayer) {
+
+    oldPlayer.parentNode.replaceChild(
+        playerContainer,
+        oldPlayer
+    );
+
+}
+
+
+// ======================================
 // LOAD VIDEOS
 // ======================================
 
 async function loadVideos() {
 
-    loading.style.display = "block";
-    loading.textContent = "Loading videos...";
+    loading.style.display =
+        "block";
 
-    errorMessage.style.display = "none";
+    loading.textContent =
+        "Loading videos...";
 
-    gallery.innerHTML = "";
+    errorMessage.style.display =
+        "none";
+
+    gallery.innerHTML =
+        "";
 
     const url =
         EDGE_URL +
         "/videos?collectionId=" +
-        encodeURIComponent(COLLECTION_ID) +
+        encodeURIComponent(
+            COLLECTION_ID
+        ) +
         "&page=1&itemsPerPage=100";
 
     try {
@@ -62,9 +110,12 @@ async function loadVideos() {
             await response.text();
 
         if (!response.ok) {
+
             throw new Error(
-                "HTTP " + response.status
+                "HTTP " +
+                response.status
             );
+
         }
 
         const data =
@@ -74,15 +125,19 @@ async function loadVideos() {
             !data.items ||
             !Array.isArray(data.items)
         ) {
+
             throw new Error(
                 "Invalid video data"
             );
+
         }
 
         allVideos =
             data.items;
 
-        renderVideos(allVideos);
+        renderVideos(
+            allVideos
+        );
 
         loading.style.display =
             "none";
@@ -103,7 +158,9 @@ async function loadVideos() {
         errorMessage.textContent =
             "Connection error: " +
             error.message;
+
     }
+
 }
 
 
@@ -113,7 +170,8 @@ async function loadVideos() {
 
 function renderVideos(videos) {
 
-    gallery.innerHTML = "";
+    gallery.innerHTML =
+        "";
 
     videoCount.textContent =
         videos.length +
@@ -123,217 +181,244 @@ function renderVideos(videos) {
                 : " videos"
         );
 
+
     if (videos.length === 0) {
 
         gallery.innerHTML =
             '<div class="loading">No videos found.</div>';
 
         return;
+
     }
 
 
-    videos.forEach(function(video) {
+    videos.forEach(
+        function(video) {
 
-        const card =
-            document.createElement("article");
+            const card =
+                document.createElement(
+                    "article"
+                );
 
-        card.className =
-            "video-card";
-
-
-        // -----------------------------
-        // THUMBNAIL
-        // -----------------------------
-
-        const thumbnailContainer =
-            document.createElement("div");
-
-        thumbnailContainer.className =
-            "thumbnail-container";
+            card.className =
+                "video-card";
 
 
-        const image =
-            document.createElement("img");
+            // ------------------------------
+            // THUMBNAIL
+            // ------------------------------
 
-        image.className =
-            "thumbnail";
+            const thumbnailContainer =
+                document.createElement(
+                    "div"
+                );
 
-        image.src =
-            video.thumbnailUrl;
-
-        image.alt =
-            video.title ||
-            "BEDYO video";
-
-        image.loading =
-            "lazy";
+            thumbnailContainer.className =
+                "thumbnail-container";
 
 
-        // -----------------------------
-        // PLAY BUTTON
-        // -----------------------------
+            const image =
+                document.createElement(
+                    "img"
+                );
 
-        const overlay =
-            document.createElement("div");
+            image.className =
+                "thumbnail";
 
-        overlay.className =
-            "play-overlay";
+            image.src =
+                video.thumbnailUrl;
 
+            image.alt =
+                video.title ||
+                "BEDYO video";
 
-        const playButton =
-            document.createElement("div");
-
-        playButton.className =
-            "play-button";
-
-        playButton.textContent =
-            "▶";
+            image.loading =
+                "lazy";
 
 
-        overlay.appendChild(
-            playButton
-        );
+            // ------------------------------
+            // PLAY BUTTON
+            // ------------------------------
+
+            const overlay =
+                document.createElement(
+                    "div"
+                );
+
+            overlay.className =
+                "play-overlay";
 
 
-        // -----------------------------
-        // DURATION
-        // -----------------------------
+            const playButton =
+                document.createElement(
+                    "div"
+                );
 
-        const duration =
-            document.createElement("span");
+            playButton.className =
+                "play-button";
 
-        duration.className =
-            "duration";
+            playButton.textContent =
+                "▶";
 
-        duration.textContent =
-            formatDuration(
-                video.length
+
+            overlay.appendChild(
+                playButton
             );
 
 
-        thumbnailContainer.appendChild(
-            image
-        );
+            // ------------------------------
+            // DURATION
+            // ------------------------------
 
-        thumbnailContainer.appendChild(
-            overlay
-        );
+            const duration =
+                document.createElement(
+                    "span"
+                );
 
-        thumbnailContainer.appendChild(
-            duration
-        );
+            duration.className =
+                "duration";
 
-
-        // -----------------------------
-        // INFO
-        // -----------------------------
-
-        const info =
-            document.createElement("div");
-
-        info.className =
-            "card-info";
+            duration.textContent =
+                formatDuration(
+                    video.length
+                );
 
 
-        const avatar =
-            document.createElement("div");
+            thumbnailContainer.appendChild(
+                image
+            );
 
-        avatar.className =
-            "card-avatar";
+            thumbnailContainer.appendChild(
+                overlay
+            );
 
-        avatar.textContent =
-            "B";
-
-
-        const text =
-            document.createElement("div");
-
-        text.className =
-            "card-text";
-
-
-        // TITLE
-
-        const title =
-            document.createElement("h3");
-
-        title.className =
-            "card-title";
-
-        title.textContent =
-            video.title ||
-            "Untitled video";
-
-
-        // META
-
-        const meta =
-            document.createElement("div");
-
-        meta.className =
-            "card-meta";
-
-
-        meta.textContent =
-            "BEDYO • " +
-            formatViews(video.views) +
-            " views • " +
-            formatUploadDate(
-                video.dateUploaded
+            thumbnailContainer.appendChild(
+                duration
             );
 
 
-        text.appendChild(
-            title
-        );
+            // ------------------------------
+            // INFO
+            // ------------------------------
 
-        text.appendChild(
-            meta
-        );
+            const info =
+                document.createElement(
+                    "div"
+                );
 
-
-        info.appendChild(
-            avatar
-        );
-
-        info.appendChild(
-            text
-        );
+            info.className =
+                "card-info";
 
 
-        card.appendChild(
-            thumbnailContainer
-        );
+            const avatar =
+                document.createElement(
+                    "div"
+                );
 
-        card.appendChild(
-            info
-        );
+            avatar.className =
+                "card-avatar";
 
-
-        // -----------------------------
-        // CLICK
-        // -----------------------------
-
-        card.addEventListener(
-            "click",
-            function() {
-
-                playVideo(video);
-
-            }
-        );
+            avatar.textContent =
+                "B";
 
 
-        gallery.appendChild(
-            card
-        );
+            const text =
+                document.createElement(
+                    "div"
+                );
 
-    });
+            text.className =
+                "card-text";
+
+
+            const title =
+                document.createElement(
+                    "h3"
+                );
+
+            title.className =
+                "card-title";
+
+            title.textContent =
+                video.title ||
+                "Untitled video";
+
+
+            const meta =
+                document.createElement(
+                    "div"
+                );
+
+            meta.className =
+                "card-meta";
+
+            meta.textContent =
+                "BEDYO • " +
+                formatViews(
+                    video.views
+                ) +
+                " views • " +
+                formatUploadDate(
+                    video.dateUploaded
+                );
+
+
+            text.appendChild(
+                title
+            );
+
+            text.appendChild(
+                meta
+            );
+
+
+            info.appendChild(
+                avatar
+            );
+
+            info.appendChild(
+                text
+            );
+
+
+            card.appendChild(
+                thumbnailContainer
+            );
+
+            card.appendChild(
+                info
+            );
+
+
+            // ------------------------------
+            // CLICK
+            // ------------------------------
+
+            card.addEventListener(
+                "click",
+                function() {
+
+                    playVideo(
+                        video
+                    );
+
+                }
+            );
+
+
+            gallery.appendChild(
+                card
+            );
+
+        }
+    );
+
 }
 
 
 // ======================================
 // PLAY VIDEO
+// OFFICIAL BUNNY PLAYER
 // ======================================
 
 function playVideo(video) {
@@ -342,48 +427,91 @@ function playVideo(video) {
         !video ||
         !video.guid
     ) {
-        return;
-    }
-
-
-    let hostname = "";
-
-
-    try {
-
-        hostname =
-            new URL(
-                video.thumbnailUrl
-            ).hostname;
-
-    } catch (error) {
 
         console.error(
-            error
+            "Video GUID missing."
         );
 
         return;
+
     }
 
 
-    if (!hostname) {
-        return;
-    }
+    // ------------------------------
+    // CLEAR CURRENT PLAYER
+    // ------------------------------
+
+    playerContainer.innerHTML =
+        "";
 
 
-    const videoUrl =
-        "https://" +
-        hostname +
+    // ------------------------------
+    // CREATE BUNNY IFRAME
+    // ------------------------------
+
+    const iframe =
+        document.createElement(
+            "iframe"
+        );
+
+
+    iframe.src =
+        "https://player.mediadelivery.net/embed/" +
+        LIBRARY_ID +
         "/" +
         video.guid +
-        "/play_720p.mp4";
+        "?autoplay=true" +
+        "&loop=true" +
+        "&muted=false" +
+        "&preload=true" +
+        "&responsive=true";
 
 
-    player.src =
-        videoUrl;
+    iframe.style.position =
+        "absolute";
 
-    player.load();
+    iframe.style.top =
+        "0";
 
+    iframe.style.left =
+        "0";
+
+    iframe.style.width =
+        "100%";
+
+    iframe.style.height =
+        "100%";
+
+    iframe.style.border =
+        "0";
+
+
+    iframe.setAttribute(
+        "allow",
+        "accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen"
+    );
+
+
+    iframe.setAttribute(
+        "allowfullscreen",
+        "true"
+    );
+
+
+    iframe.setAttribute(
+        "loading",
+        "eager"
+    );
+
+
+    playerContainer.appendChild(
+        iframe
+    );
+
+
+    // ------------------------------
+    // VIDEO INFORMATION
+    // ------------------------------
 
     videoTitle.textContent =
         video.title ||
@@ -392,22 +520,24 @@ function playVideo(video) {
 
     videoDetails.textContent =
         "BEDYO • " +
-        formatViews(video.views) +
+        formatViews(
+            video.views
+        ) +
         " views • " +
         formatUploadDate(
             video.dateUploaded
         );
 
 
-    player.play().catch(
-        function() {}
-    );
-
+    // ------------------------------
+    // SCROLL TO PLAYER
+    // ------------------------------
 
     window.scrollTo({
         top: 0,
         behavior: "smooth"
     });
+
 }
 
 
@@ -430,6 +560,7 @@ function searchVideos() {
         );
 
         return;
+
     }
 
 
@@ -446,6 +577,7 @@ function searchVideos() {
                 return title.includes(
                     keyword
                 );
+
             }
         );
 
@@ -453,6 +585,7 @@ function searchVideos() {
     renderVideos(
         results
     );
+
 }
 
 
@@ -466,8 +599,12 @@ searchInput.addEventListener(
     "keydown",
     function(event) {
 
-        if (event.key === "Enter") {
+        if (
+            event.key === "Enter"
+        ) {
+
             searchVideos();
+
         }
 
     }
@@ -498,6 +635,7 @@ function formatViews(views) {
                 .replace(".0", "") +
             "M"
         );
+
     }
 
 
@@ -509,10 +647,14 @@ function formatViews(views) {
                 .replace(".0", "") +
             "K"
         );
+
     }
 
 
-    return String(views);
+    return String(
+        views
+    );
+
 }
 
 
@@ -523,17 +665,11 @@ function formatViews(views) {
 function formatUploadDate(date) {
 
     if (!date) {
+
         return "Unknown date";
+
     }
 
-
-    /*
-       Bunny date has no timezone:
-       2026-09-15T09:01:11.764
-
-       Treat it as the upload timestamp
-       returned by Bunny.
-    */
 
     const uploaded =
         new Date(
@@ -546,7 +682,9 @@ function formatUploadDate(date) {
             uploaded.getTime()
         )
     ) {
+
         return "Unknown date";
+
     }
 
 
@@ -584,7 +722,9 @@ function formatUploadDate(date) {
 
 
     if (seconds < 60) {
+
         return "just now";
+
     }
 
 
@@ -598,6 +738,7 @@ function formatUploadDate(date) {
                     : " minutes ago"
             )
         );
+
     }
 
 
@@ -611,6 +752,7 @@ function formatUploadDate(date) {
                     : " hours ago"
             )
         );
+
     }
 
 
@@ -624,6 +766,7 @@ function formatUploadDate(date) {
                     : " days ago"
             )
         );
+
     }
 
 
@@ -635,6 +778,7 @@ function formatUploadDate(date) {
             year: "numeric"
         }
     );
+
 }
 
 
@@ -677,6 +821,7 @@ function formatDuration(seconds) {
             String(secs)
                 .padStart(2, "0")
         );
+
     }
 
 
@@ -686,6 +831,7 @@ function formatDuration(seconds) {
         String(secs)
             .padStart(2, "0")
     );
+
 }
 
 
