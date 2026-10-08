@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout - NOVA STORE</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav">
+    <a class="logo" href="./index.html">NOVA STORE</a>
+    <nav>
+      <a href="./cart.html">Cart (<span data-cart-count>0</span>)</a>
+    </nav>
+  </div>
+</header>
+
+<main class="checkout-page container">
+  <div class="checkout-card">
+    <h1>Checkout</h1>
+    <p class="muted">Your payment will continue securely on PayMongo's hosted checkout.</p>
+
+    <div data-checkout-items></div>
+
+    <div class="checkout-total">
+      <span>Total</span>
+      <strong data-checkout-total>₱0.00</strong>
+    </div>
+
+    <button id="payButton" class="btn btn-primary full" type="button">
+      Pay with PayMongo
+    </button>
+
+    <div id="checkoutMessage" class="checkout-message"></div>
+    <a class="back-link" href="./cart.html">← Back to cart</a>
+  </div>
+</main>
+
+<script src="./config.js"></script>
+<script src="./products.js"></script>
+<script src="./app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const button = document.getElementById("payButton");
+  const message = document.getElementById("checkoutMessage");
+
+  if (!button) return;
+
+  button.addEventListener("click", async function () {
+    button.disabled = true;
+    button.textContent = "Connecting to PayMongo...";
+    message.textContent = "";
+
+    try {
+      await startPayment();
+    } catch (error) {
+      console.error(error);
+      message.textContent = error.message || "Unable to start checkout.";
+      button.disabled = false;
+      button.textContent = "Pay with PayMongo";
+    }
+  });
+});
+</script>
+</body>
+</html>
